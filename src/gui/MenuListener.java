@@ -34,7 +34,7 @@ class MenuListener implements ActionListener {
     }
 
     /**
-     * When the menu item is clicked. Dispatch to doCommand based on the menu item name.
+     * When the menu item is clicked. Dispatch to doCommand based on the menu item name().
      *
      * @param e The event.
      */
@@ -48,7 +48,7 @@ class MenuListener implements ActionListener {
      * @param cmd The command to run.
      */
     private boolean doCommand(String cmd) {
-        DocumentManager dm = MainFrame.me.Documents;
+        DocumentManager dm = MainFrame.me().Documents;
         
         // Create a new file in a new tab.
         if ("New".equals(cmd)) {
@@ -57,7 +57,7 @@ class MenuListener implements ActionListener {
         
         // Load a file into a new tab.
         else if ("Open".equals(cmd)) {
-            View v = MainFrame.me.Root.getFocusedView();
+            View v = MainFrame.me().Root.getFocusedView();
             
             if (JFileChooser.APPROVE_OPTION == FileDialog.showOpenDialog(MainFrame.me())) 
                 return dm.Load(FileDialog.getSelectedFile());
@@ -67,7 +67,7 @@ class MenuListener implements ActionListener {
         
         // Save the currently active file.
         else if ("Save".equals(cmd)) {
-            View v = MainFrame.me.Root.getFocusedView();
+            View v = MainFrame.me().Root.getFocusedView();
             
             if (v == null)
                 return false;
@@ -78,9 +78,9 @@ class MenuListener implements ActionListener {
                 return dm.Save(v);
         } 
         
-        // Save the currently selected file with a new name.
+        // Save the currently selected file with a new name().
         else if ("Save as".equals(cmd)) {
-            View v = MainFrame.me.Root.getFocusedView();
+            View v = MainFrame.me().Root.getFocusedView();
             
             if (v == null)
                 return false;
@@ -96,7 +96,7 @@ class MenuListener implements ActionListener {
         
         // Close the active document (save if it had content).
         else if ("Close".equals(cmd)) {
-            View v = MainFrame.me.Root.getFocusedView();
+            View v = MainFrame.me().Root.getFocusedView();
             
             if (v == null)
                 return false;
@@ -121,7 +121,7 @@ class MenuListener implements ActionListener {
         
         // Run the currently selected file.
         else if ("Run".equals(cmd)) {
-            View v = MainFrame.me.Root.getFocusedView();
+            View v = MainFrame.me().Root.getFocusedView();
             
             if (v == null)
                 return false;
@@ -133,7 +133,7 @@ class MenuListener implements ActionListener {
             }
             else
             {
-                MainFrame.me.doCommand("(load \"" + dm.GetFile(v).getAbsolutePath().replace("\\", "/")  + "\")");
+                MainFrame.me().doCommand("(load \"" + dm.GetFile(v).getAbsolutePath().replace("\\", "/")  + "\")");
                 MainFrame.me().REPL.code.requestFocusInWindow();
                 return true;
             }
@@ -143,7 +143,7 @@ class MenuListener implements ActionListener {
         
         // Format the current code.
         else if ("Format".equals(cmd)) {
-            View v = MainFrame.me.Root.getFocusedView();
+            View v = MainFrame.me().Root.getFocusedView();
             
             if (v == null)
                 return false;
@@ -171,7 +171,8 @@ class MenuListener implements ActionListener {
         
         // Show the about dialog.
         else if ("About".equals(cmd)) {
-            // TODO: Fix this
+            AboutFrame.me().setVisible(true);
+            return true;
         } 
         
         // Explode. Horribly.
