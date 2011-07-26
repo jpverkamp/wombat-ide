@@ -107,9 +107,15 @@ class MenuListener implements ActionListener {
             activeTab.format();
             return true;
         } else if ("Edit configuration".equals(cmd)) {
-            return loadFile(new File("options.cfg"));
+            File f = new File(Options.FILENAME);
+            if (!f.exists())
+                exportFromJar(Options.FILENAME);
+            return loadFile(f);
         } else if ("Edit syntax highlighting".equals(cmd)) {
-            return loadFile(new File("syntax.cfg"));
+            File f = new File(SchemeDocument.FILENAME);
+            if (!f.exists())
+                exportFromJar(SchemeDocument.FILENAME);
+            return loadFile(f);
         } else if ("About".equals(cmd)) {
             // TODO: Fix this
         } else {
@@ -117,6 +123,47 @@ class MenuListener implements ActionListener {
         }
 
         return false;
+    }
+    
+    /**
+     * Grab a file from the JAR and make a real file out of it.
+     * @param res 
+     */
+    private void exportFromJar(String res)
+    {
+        try
+        {
+            // Get the input stream from the JAR.
+            InputStream fromJar;
+            if ((fromJar = getClass().getResourceAsStream(res)) == null)
+                if ((fromJar = getClass().getResourceAsStream("/" + res)) == null)
+                    throw new FileNotFoundException(res);
+            
+            // Get the output stream to the file.
+            OutputStream toFile = new FileOutputStream(new File(res));
+            
+            // Copy.
+            byte[] buf = new byte[8192];
+            while (true) {
+              int length = fromJar.read(buf);
+              if (length < 0)
+                break;
+              toFile.write(buf, 0, length);
+            }     
+            
+            // Close buffers.
+            fromJar.close();
+            toFile.close();
+        }
+        catch (FileNotFoundException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+            
     }
 
     /**

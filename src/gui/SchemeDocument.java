@@ -15,6 +15,8 @@ import java.util.Map;
  * (heavily modified)
  */
 class SchemeDocument extends DefaultStyledDocument {
+    final static String FILENAME = "syntax.cfg";
+    
     DefaultStyledDocument doc;
     Element rootElement;
 

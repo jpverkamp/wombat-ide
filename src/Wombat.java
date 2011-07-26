@@ -1,4 +1,5 @@
 import gui.MainFrame;
+import java.io.InputStream;
 
 import javax.swing.*;
 
@@ -11,7 +12,7 @@ public class Wombat {
         new Wombat();
     }
 
-    Wombat() {
+    private Wombat() {
         JFrame main = MainFrame.me();
         main.setVisible(true);
     }

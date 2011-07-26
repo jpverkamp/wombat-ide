@@ -10,6 +10,7 @@ import java.util.Map;
  * Store options.
  */
 public class Options {
+    final static String FILENAME = "options.cfg";
     static Map<String, String> data;
 
     /**
@@ -28,7 +29,7 @@ public class Options {
         Scheme s = new SISCScheme();
         s.doStringAndWait("(define options '())");
         s.doStringAndWait("(define (cfg key val) (set! options (cons (list key val) options)))");
-        s.doFileAndWait("options.cfg");
+        s.doFileAndWait(FILENAME);
 
         String optionList = s.doStringAndWait("options");
         optionList = optionList.substring(2, optionList.length() - 2);

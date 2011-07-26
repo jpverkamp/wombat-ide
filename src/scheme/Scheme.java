@@ -56,8 +56,14 @@ public abstract class Scheme {
                 scanner = new Scanner(new File(filename));
             
             // Otherwise, try from the Java file.
-            else
+            else if (getClass().getResourceAsStream(filename) != null)
                 scanner = new Scanner(getClass().getResourceAsStream(filename));
+            else if (getClass().getResourceAsStream("/" + filename) != null)
+                scanner = new Scanner(getClass().getResourceAsStream("/" + filename));
+            
+            // Otherwise, explode. :)
+            else
+                throw new FileNotFoundException(filename);
 
             while (scanner.hasNextLine()) {
                 content.append(scanner.nextLine());

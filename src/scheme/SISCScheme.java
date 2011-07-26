@@ -1,7 +1,5 @@
 package scheme;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import sisc.data.Value;
 import sisc.interpreter.AppContext;
 import sisc.interpreter.Context;
@@ -9,6 +7,7 @@ import sisc.interpreter.Interpreter;
 import sisc.interpreter.SchemeException;
 
 import java.io.IOException;
+import java.io.InputStream;
 import sisc.ser.MemoryRandomAccessInputStream;
 import sisc.ser.SeekableInputStream;
 
@@ -28,11 +27,12 @@ public class SISCScheme extends Scheme implements Runnable {
     /**
      * Run the thread.
      */
+    @Override
     public void run() {
         // Create the interpreter.
         try {
             AppContext ctx = new AppContext();
-            ctx.addHeap(new MemoryRandomAccessInputStream(getClass().getResourceAsStream("sisc.shp")));
+            ctx.addHeap(new MemoryRandomAccessInputStream(getClass().getResourceAsStream("/sisc.shp")));
             interpreter = Context.enter(ctx);
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
