@@ -13,6 +13,10 @@ import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.util.Stack;
 
+import net.infonode.docking.*;
+import net.infonode.docking.util.*;
+
+
 /**
  * Create a main frame.
  */
@@ -21,10 +25,32 @@ public class MainFrame extends JFrame {
     static MainFrame me;
 
     // Things we may need access to.
-    JTabbedPane Tabs;
+    RootWindow Root;
+    DocumentManager Documents;
     SchemeTextArea History;
     SchemeTextArea REPL;
     Scheme SS;
+    
+    // Menus.
+    final static String[][][] Menus = {
+        {{"File", null},
+            {"New", "control N"},
+            {"Open", "control O"},
+            {"Save", "control S"},
+            {"Save as", null},
+            {"Close", "control W"},
+            {"Exit", "alt F4"}},
+        {{"Scheme", null},
+            {"Run", Options.get("scheme.run", "F5")},
+            {"Format", Options.get("scheme.format", "F6")}},
+        /*
+        {{"Options", null},
+            {"Edit configuration", null},
+            {"Edit syntax highlighting", null}},
+         */
+        {{"Help", null},
+            {"About", "F1"}}
+    };
 
     /**
      * Don't directly create this, use me().
@@ -38,72 +64,46 @@ public class MainFrame extends JFrame {
                     Integer.parseInt(Options.get("main.width")),
                     Integer.parseInt(Options.get("main.height"))
             );
-        } catch (Exception e) {
+        } catch (Exception ex) {
             setSize(600, 400);
         }
         setLayout(new BorderLayout(5, 5));
         setLocationByPlatform(true);
+        
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
-            @Override
             public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
         });
 
-        // Define the menu options.
-        String[][][] menus = {
-                {{"File", null},
-                        {"New", "control N"},
-                        {"Open", "control O"},
-                        {"Save", "control S"},
-                        {"Save as", null},
-                        {"Close", "control W"},
-                        {"Exit", "alt F4"}},
-                {{"Scheme", null},
-                        {"Run", Options.get("scheme.run", "F5")},
-                        {"Format", Options.get("scheme.format", "F6")}},
-                /*
-                {{"Options", null},
-                        {"Edit configuration", null},
-                        {"Edit syntax highlighting", null}},
-                 */
-                {{"Help", null},
-                        {"About", "F1"}}
-        };
-
         // Set up the menus using the above definitions.
         JMenuBar menuBar = new JMenuBar();
-        for (int i = 0; i < menus.length; i++) {
-            JMenu menu = new JMenu(menus[i][0][0]);
-            for (int j = 1; j < menus[i].length; j++) {
-                JMenuItem item = new JMenuItem(menus[i][j][0]);
-                if (menus[i][j][1] != null) item.setAccelerator(KeyStroke.getKeyStroke(menus[i][j][1]));
+        for (int i = 0; i < Menus.length; i++) {
+            JMenu menu = new JMenu(Menus[i][0][0]);
+            for (int j = 1; j < Menus[i].length; j++) {
+                JMenuItem item = new JMenuItem(Menus[i][j][0]);
+                if (Menus[i][j][1] != null) item.setAccelerator(KeyStroke.getKeyStroke(Menus[i][j][1]));
                 item.addActionListener(MenuListener.me());
                 menu.add(item);
             }
             menuBar.add(menu);
         }
         setJMenuBar(menuBar);
-
-        // Set up components.
-        Tabs = new JTabbedPane();
-        Tabs.addTab("<new document>", new SchemeTextArea());
-        Tabs.setPreferredSize(new Dimension(100, getHeight() / 2));
-        add(Tabs, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel();
-        bottom.setLayout(new BorderLayout());
-        add(bottom, BorderLayout.SOUTH);
-
+        
+        // Create the document window.
+        TabWindow documents = new TabWindow();
+        StringViewMap viewMap = new StringViewMap();
+        Documents = new DocumentManager(viewMap, documents);
+        Documents.New();
+        
+        // Create the REPL.
         History = new SchemeTextArea();
         History.setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
         History.code.setEditable(false);
-        bottom.add(History, BorderLayout.CENTER);
-
+        
         REPL = new SchemeTextArea();
         REPL.setPreferredSize(new Dimension(100, 100));
-        bottom.add(REPL, BorderLayout.SOUTH);
         REPL.code.getInputMap().put(
                 KeyStroke.getKeyStroke("ENTER"),
                 new AbstractAction() {
@@ -133,7 +133,17 @@ public class MainFrame extends JFrame {
                     }
                 }
         );
-
+        
+        viewMap.addView("History", new View("History", null, History));
+        viewMap.addView("REPL", new View("REPL", null, REPL));
+        SplitWindow replSplit = new SplitWindow(false, viewMap.getView("History"), viewMap.getView("REPL"));
+        
+        // Put everything together.
+        SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
+        Root = DockingUtil.createRootWindow(new ViewMap(), true);
+        Root.setWindow(fullSplit);
+        add(Root);
+        
         // Get a Scheme.
         String schemeVersion = Options.get("scheme", "sisc");
         if ("sisc".equals(schemeVersion.toLowerCase())) {
