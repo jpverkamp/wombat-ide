@@ -87,9 +87,10 @@ class MenuListener implements ActionListener {
 
             return false;
         } else if ("Close".equals(cmd)) {
-            if (!doCommand("Save"))
-                return false;
-
+            if (activeTab.getText().length() != 0)
+                if (!doCommand("Save"))
+                    return false;
+            
             MainFrame.me().Tabs.removeTabAt(MainFrame.me().Tabs.getSelectedIndex());
             if (MainFrame.me().Tabs.getTabCount() == 0)
                 doCommand("New");
