@@ -45,7 +45,8 @@ public class DocumentManager {
 
         Views.addView(id, new View("<new document>", null, new SchemeTextArea()));
         Documents.addTab(Views.getView(id));
-        Views.getView(id).getComponent().requestFocusInWindow();
+        ((SchemeTextArea) Views.getView(id).getComponent()).code.requestFocusInWindow();
+        
     }
     
     /**
@@ -77,7 +78,7 @@ public class DocumentManager {
             ss.myFile = file;
             Views.addView(id, new View(filename, null, ss));
             Documents.addTab(Views.getView(id));
-            Views.getView(id).getComponent().requestFocusInWindow();
+            ((SchemeTextArea) Views.getView(id).getComponent()).code.requestFocusInWindow();
             
             return true;
         }

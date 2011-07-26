@@ -105,10 +105,10 @@ class MenuListener implements ActionListener {
                 if (!doCommand("Save"))
                     return false;
 
-            v.close();
-            
-            if (dm.Views.getViewCount() == 2)
+            if (dm.Documents.getChildWindowCount() == 1)
                 doCommand("New");
+            
+            v.close();
             
             return true;
         } 
