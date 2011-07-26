@@ -1,7 +1,5 @@
 package gui;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -113,9 +111,9 @@ class MenuListener implements ActionListener {
         } else if ("Edit syntax highlighting".equals(cmd)) {
             return loadFile(new File("syntax.cfg"));
         } else if ("About".equals(cmd)) {
-            throw new NotImplementedException();
+            // TODO: Fix this
         } else {
-            throw new NotImplementedException();
+            // TODO: Fix this
         }
 
         return false;

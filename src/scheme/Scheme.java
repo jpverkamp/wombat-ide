@@ -49,7 +49,15 @@ public abstract class Scheme {
         try {
             String NL = System.getProperty("line.separator");
             StringBuilder content = new StringBuilder();
-            Scanner scanner = new Scanner(new File(filename));
+            Scanner scanner;
+            
+            // Try to load the file fromt the file system.
+            if (new File(filename).exists())
+                scanner = new Scanner(new File(filename));
+            
+            // Otherwise, try from the Java file.
+            else
+                scanner = new Scanner(getClass().getResourceAsStream(filename));
 
             while (scanner.hasNextLine()) {
                 content.append(scanner.nextLine());
