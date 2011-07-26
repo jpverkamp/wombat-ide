@@ -88,7 +88,7 @@ class MenuListener implements ActionListener {
             if (JFileChooser.APPROVE_OPTION == FileDialog.showSaveDialog(MainFrame.me()))
             {
                 dm.SetFile(v, FileDialog.getSelectedFile());
-                return doCommand("Save");
+                return dm.Save(v);
             }
             else
                 return false;

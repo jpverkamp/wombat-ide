@@ -11,9 +11,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Scanner;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
+import net.infonode.gui.panel.SimplePanel;
 
 /**
  *
@@ -98,7 +101,7 @@ public class DocumentManager {
         {
             SchemeTextArea ss = (SchemeTextArea) view.getComponent();
             ss.myFile = file;
-            view.setName(file.getName());
+            view.getViewProperties().setTitle(file.getName());
         }
     }
     
