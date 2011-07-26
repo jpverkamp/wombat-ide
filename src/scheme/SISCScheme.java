@@ -21,7 +21,9 @@ public class SISCScheme extends Scheme implements Runnable {
      * Create a new scheme.
      */
     public SISCScheme() {
-        new Thread(this).start();
+        Thread t = new Thread(this);
+        t.setDaemon(true);
+        t.start();
     }
 
     /**

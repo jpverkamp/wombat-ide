@@ -36,7 +36,9 @@ public class ForeignScheme extends Scheme implements Runnable {
                 File f = new File(path);
                 if (f.exists()) {
                     ProcessPath = path;
-                    new Thread(this).start();
+                    Thread t = new Thread(this);
+                    t.setDaemon(true);
+                    t.start();
 
                     System.out.println("ForeignScheme loaded."); // TODO: Debug
                     return;
@@ -64,7 +66,7 @@ public class ForeignScheme extends Scheme implements Runnable {
             input = new BufferedWriter(new OutputStreamWriter(CurrentProcess.getOutputStream()));
 
             // Clear the initial version information and what not.
-            new Thread(new Runnable() {
+            Thread t = new Thread(new Runnable() {
                 public void run() {
                     String line;
                     while (true) {
@@ -79,7 +81,9 @@ public class ForeignScheme extends Scheme implements Runnable {
                         }
                     }
                 }
-            }).start();
+            });
+            t.setDaemon(true);
+            t.start();
 
             // Deal with input.
             while (true) {

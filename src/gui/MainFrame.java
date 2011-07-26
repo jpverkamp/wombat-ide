@@ -45,6 +45,7 @@ public class MainFrame extends JFrame {
         setLocationByPlatform(true);
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
@@ -146,7 +147,7 @@ public class MainFrame extends JFrame {
         }
 
         // Bind it to return responses to the History pane.
-        new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             public void run() {
                 while (true) {
                     try {
@@ -158,7 +159,9 @@ public class MainFrame extends JFrame {
                         History.append(SS.nextResponse() + "\n");
                 }
             }
-        }).start();
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     /**
