@@ -168,6 +168,12 @@ class MenuListener implements ActionListener {
                 exportFromJar(SchemeDocument.FILENAME);
             return dm.Load(f);
         } 
+                
+        // Reload options.
+        else if ("Reload options".equals(cmd)) {
+            Options.reload();
+            SchemeDocument.reload();
+        }
         
         // Show the about dialog.
         else if ("About".equals(cmd)) {

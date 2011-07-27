@@ -32,6 +32,11 @@ class SchemeDocument extends DefaultStyledDocument {
 
     // Initialize common parameters.
     static {
+        reload();
+    }
+    
+    public static void reload()
+    {
         // Initialize the attributes sets.
         attributes = new HashMap<String, MutableAttributeSet>();
         for (String key : "normal keyword comment string bracket".split(" "))
@@ -73,7 +78,6 @@ class SchemeDocument extends DefaultStyledDocument {
         }
 
         System.out.println("SchemeDocument loaded."); // TODO: Debug
-
     }
 
     /**

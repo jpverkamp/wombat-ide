@@ -45,7 +45,8 @@ public class MainFrame extends JFrame {
             {"Format", Options.get("scheme.format", "F6")}},
         {{"Options", null},
             {"Edit configuration", null},
-            {"Edit syntax highlighting", null}},
+            {"Edit syntax highlighting", null},
+            {"Reload options", null}},
         {{"Help", null},
             {"About", "F1"}}
     };

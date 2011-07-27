@@ -18,10 +18,10 @@ public class Options {
      */
     static {
         data = new HashMap<String, String>();
-        loadOptions();
+        reload();
     }
 
-    public static void loadOptions() {
+    public static void reload() {
         data.clear();
 
         System.out.println("Options loading."); // TODO: Debug
