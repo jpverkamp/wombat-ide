@@ -155,18 +155,18 @@ class MenuListener implements ActionListener {
         
         // Load the configuration file to edit.
         else if ("Edit configuration".equals(cmd)) {
-//            File f = new File(Options.FILENAME);
-//            if (!f.exists())
-//                exportFromJar(Options.FILENAME);
-//            return loadFile(f);
+            File f = new File(Options.FILENAME);
+            if (!f.exists())
+                exportFromJar(Options.FILENAME);
+            return dm.Load(f);
         } 
         
         // Load the syntax file to edit.
         else if ("Edit syntax highlighting".equals(cmd)) {
-//            File f = new File(SchemeDocument.FILENAME);
-//            if (!f.exists())
-//                exportFromJar(SchemeDocument.FILENAME);
-//            return loadFile(f);
+            File f = new File(SchemeDocument.FILENAME);
+            if (!f.exists())
+                exportFromJar(SchemeDocument.FILENAME);
+            return dm.Load(f);
         } 
         
         // Show the about dialog.
