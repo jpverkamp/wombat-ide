@@ -45,7 +45,7 @@ class SchemeDocument extends DefaultStyledDocument {
         // And the keywords. Load them later.
         keywords = new HashMap<String, Integer>();
 
-        System.out.println("SchemeDocument loading."); // TODO: Debug
+        ErrorFrame.log("SchemeDocument loading.");
 
         // Yay for config files written in Scheme. :)
         Scheme s = new SISCScheme();
@@ -72,12 +72,11 @@ class SchemeDocument extends DefaultStyledDocument {
             try {
                 keywords.put(parts[0], Integer.parseInt(parts[1]));
             } catch (NumberFormatException e) {
-                // They put in something that's not an integer.
-                // TODO: Log this.
+                ErrorFrame.log("Error in syntax file, indentation is not a number: " + parts[1]);
             }
         }
 
-        System.out.println("SchemeDocument loaded."); // TODO: Debug
+        ErrorFrame.log("SchemeDocument loaded.");
     }
 
     /**
@@ -108,16 +107,16 @@ class SchemeDocument extends DefaultStyledDocument {
         }
 
         // No idea what the color is. Don't do anything.
-        // TODO: Log this.
         if (c == null)
-            return;
+            ErrorFrame.log("Error in syntax, unknown color format: " + val);
 
         // Finally set the dang things.
         if (attributes.containsKey(key))
             StyleConstants.setForeground(attributes.get(key), c);
 
         // Unknown thing to color.
-        // TODO: Log this.
+        else
+            ErrorFrame.log("Error in syntax, unknown color key: " + key);
     }
 
     /**

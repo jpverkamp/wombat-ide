@@ -45,10 +45,10 @@ public class AboutFrame extends JFrame {
         add(scroll);
     }
     
-    public static AboutFrame me() {
+    public static void showMe() {
         if (me == null)
             me = new AboutFrame();
-        
-        return me;
+
+        me.setVisible(true);
     }
 }

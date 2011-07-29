@@ -24,7 +24,7 @@ public class Options {
     public static void reload() {
         data.clear();
 
-        System.out.println("Options loading."); // TODO: Debug
+        ErrorFrame.log("Options loading.");
 
         Scheme s = new SISCScheme();
         s.doStringAndWait("(define options '())");
@@ -32,6 +32,13 @@ public class Options {
         s.doFileAndWait(FILENAME);
 
         String optionList = s.doStringAndWait("options");
+
+        if (optionList.length() <= 2)
+        {
+            ErrorFrame.log("Options not loaded. No options found.");
+            return;
+        }
+
         optionList = optionList.substring(2, optionList.length() - 2);
         optionList = optionList.replace("\"", "");
         for (String chunk : optionList.split("\\)\\s+\\(")) {
@@ -39,8 +46,7 @@ public class Options {
             data.put(parts[0], parts[1]);
         }
 
-        System.out.println("Options loaded."); // TODO: Debug
-
+        ErrorFrame.log("Options loaded.");
     }
 
     /**

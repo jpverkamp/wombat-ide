@@ -1,5 +1,6 @@
 package scheme;
 
+import gui.ErrorFrame;
 import java.io.*;
 
 /**
@@ -16,7 +17,7 @@ public class ForeignScheme extends Scheme implements Runnable {
      */
     public ForeignScheme(String scheme) throws FileNotFoundException {
 
-        System.out.println("ForeignScheme loading."); // TODO: Debug
+        ErrorFrame.log("ForeignScheme loading.");
 
         // Load the configuration file that defines Scheme implementations.
         Scheme s = new SISCScheme();
@@ -40,7 +41,7 @@ public class ForeignScheme extends Scheme implements Runnable {
                     t.setDaemon(true);
                     t.start();
 
-                    System.out.println("ForeignScheme loaded."); // TODO: Debug
+                    ErrorFrame.log("ForeignScheme loaded.");
                     return;
                 }
             }
@@ -57,7 +58,7 @@ public class ForeignScheme extends Scheme implements Runnable {
         final BufferedReader output;
         final BufferedWriter input;
 
-        // TODO: Connect to the interpreter.
+        // Connect to the interpreter.
         try {
             ProcessBuilder pb = new ProcessBuilder(ProcessPath);
             pb.redirectErrorStream(true);

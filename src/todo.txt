@@ -1,0 +1,18 @@
+Known bugs:
+- Petite only knows paths for Windows (easy to fix, I just need the paths)
+- It's not possible to select regions of text (possibly because of parenthesis matching)
+- Automatic indentation sometimes skips a line
+- Reload options doesn't reload open documents
+- Reload options doesn't change the Scheme that the REPL uses
+- When a document is detached, menu keyboard shortcuts (F5/F6/Ctrl-*) don't work
+- Hasn't been tested on Java 1.5 (needed for older Macs)
+- Some menu options don't actually work (the keyboard shortcuts do)
+- !void is printed (shouldn't it be?)
+- No confirmation on autosave (when closing or running)
+- Menu options are strange on OSX
+- Use the window bar on OSX
+
+Feature requests:
+- Tab bar with buttons that duplicate menu functions
+- Modify font size
+- Implement/test C211  libraries (tree, image)

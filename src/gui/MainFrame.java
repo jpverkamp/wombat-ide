@@ -30,26 +30,6 @@ public class MainFrame extends JFrame {
     SchemeTextArea History;
     SchemeTextArea REPL;
     Scheme SS;
-    
-    // Menus.
-    final static String[][][] Menus = {
-        {{"File", null},
-            {"New", "control N"},
-            {"Open", "control O"},
-            {"Save", "control S"},
-            {"Save as", null},
-            {"Close", "control W"},
-            {"Exit", "alt F4"}},
-        {{"Scheme", null},
-            {"Run", Options.get("scheme.run", "F5")},
-            {"Format", Options.get("scheme.format", "F6")}},
-        {{"Options", null},
-            {"Edit configuration", null},
-            {"Edit syntax highlighting", null},
-            {"Reload options", null}},
-        {{"Help", null},
-            {"About", "F1"}}
-    };
 
     /**
      * Don't directly create this, use me().
@@ -77,18 +57,7 @@ public class MainFrame extends JFrame {
         });
 
         // Set up the menus using the above definitions.
-        JMenuBar menuBar = new JMenuBar();
-        for (int i = 0; i < Menus.length; i++) {
-            JMenu menu = new JMenu(Menus[i][0][0]);
-            for (int j = 1; j < Menus[i].length; j++) {
-                JMenuItem item = new JMenuItem(Menus[i][j][0]);
-                if (Menus[i][j][1] != null) item.setAccelerator(KeyStroke.getKeyStroke(Menus[i][j][1]));
-                item.addActionListener(MenuListener.me());
-                menu.add(item);
-            }
-            menuBar.add(menu);
-        }
-        setJMenuBar(menuBar);
+        setJMenuBar(MainMenu.menu());
         
         // Create the document window.
         TabWindow documents = new TabWindow();

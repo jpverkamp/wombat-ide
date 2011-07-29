@@ -1,0 +1,39 @@
+package gui;
+
+import java.util.*;
+import javax.swing.*;
+
+/**
+ * Log errors.
+ */
+public class ErrorFrame extends JFrame {
+    static ErrorFrame me;
+    JTextArea errors;
+
+    private ErrorFrame () {
+        setTitle("Errors");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+        errors = new JTextArea();
+        JScrollPane scroll = new JScrollPane(errors);
+
+        errors.setEditable(false);
+
+        add(scroll);
+    }
+
+    public static void log(String msg) {
+        if (me == null)
+            me = new ErrorFrame();
+
+        me.errors.setText(me.errors.getText() + "\n\n" + msg);
+    }
+
+    public static void showMe() {
+        if (me == null)
+            me = new ErrorFrame();
+
+        me.setVisible(true);
+    }
+}
