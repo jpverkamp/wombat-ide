@@ -4,6 +4,8 @@
  */
 package gui;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,21 +13,19 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Scanner;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
-import net.infonode.gui.panel.SimplePanel;
 
 /**
  *
  * @author John-Paul
  */
-public class DocumentManager {
+public class DocumentManager implements FocusListener {
     int lastIndex;
     TabWindow Documents;
     StringViewMap Views = new StringViewMap();
+    SchemeTextArea lastFocus;
     
     /**
      * Manage documents.
@@ -46,7 +46,10 @@ public class DocumentManager {
         
         String id = "document-" + lastIndex;
 
-        Views.addView(id, new View("<new document>", null, new SchemeTextArea()));
+        SchemeTextArea ss = new SchemeTextArea();
+        ss.addFocusListener(this);
+
+        Views.addView(id, new View("<new document>", null, ss));
         Documents.addTab(Views.getView(id));
         ((SchemeTextArea) Views.getView(id).getComponent()).code.requestFocusInWindow();
         
@@ -78,11 +81,13 @@ public class DocumentManager {
             }
 
             SchemeTextArea ss = new SchemeTextArea(content.toString());
+            ss.addFocusListener(this);
+
             ss.myFile = file;
             Views.addView(id, new View(filename, null, ss));
             Documents.addTab(Views.getView(id));
             ((SchemeTextArea) Views.getView(id).getComponent()).code.requestFocusInWindow();
-            
+
             return true;
         }
         catch(IOException ex) {
@@ -170,5 +175,23 @@ public class DocumentManager {
     public boolean IsEmpty(View view)
     {
         return !Views.contains(view) || ((SchemeTextArea) view.getComponent()).getText().length() == 0;
+    }
+
+    /**
+     * Keep track of which text area last had focus.
+     * @param e The event.
+     */
+    @Override
+    public void focusGained(FocusEvent e) {
+        if (e.getSource() instanceof SchemeTextArea)
+            lastFocus = (SchemeTextArea) e.getSource();
+    }
+
+    /**
+     * Ignore this.
+     * @param e
+     */
+    @Override
+    public void focusLost(FocusEvent e) {
     }
 }

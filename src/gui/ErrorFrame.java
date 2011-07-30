@@ -27,7 +27,7 @@ public class ErrorFrame extends JFrame {
         if (me == null)
             me = new ErrorFrame();
 
-        me.errors.setText(me.errors.getText() + "\n\n" + msg);
+        me.errors.setText(me.errors.getText() + (new Date()) + ": " + msg + "\n");
     }
 
     public static void showMe() {

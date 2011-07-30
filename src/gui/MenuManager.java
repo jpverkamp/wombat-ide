@@ -21,8 +21,8 @@ import net.infonode.docking.View;
 /**
  * Handle all of the code for building and maintaining menus.
  */
-public class MainMenu implements ActionListener {
-    static MainMenu me;
+public class MenuManager implements ActionListener {
+    static MenuManager me;
 
     JFileChooser fileDialog;
 
@@ -34,7 +34,7 @@ public class MainMenu implements ActionListener {
     /**
      * Build the main menu.
      */
-    private MainMenu() {
+    private MenuManager() {
         nameToItem = new HashMap<String, JMenuItem>();
         itemToName = new HashMap<JMenuItem, String>();
 
@@ -48,7 +48,7 @@ public class MainMenu implements ActionListener {
                 buildItem("Save as", null),
                 buildItem("Close", 'W'),
                 buildItem("Exit", null)),
-            buildMenu("Schcme",
+            buildMenu("Scheme",
                 buildItem("Run", Options.get("scheme.run", "F5")),
                 buildItem("Format", Options.get("scheme.run", "F6"))),
             buildMenu("Options",
@@ -127,7 +127,7 @@ public class MainMenu implements ActionListener {
      */
     public static JMenuBar menu() {
        if (me == null)
-           me = new MainMenu();
+           me = new MenuManager();
 
        return me.menu;
     }

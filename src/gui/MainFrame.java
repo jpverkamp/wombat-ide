@@ -57,7 +57,7 @@ public class MainFrame extends JFrame {
         });
 
         // Set up the menus using the above definitions.
-        setJMenuBar(MainMenu.menu());
+        setJMenuBar(MenuManager.menu());
         
         // Create the document window.
         TabWindow documents = new TabWindow();
