@@ -136,7 +136,11 @@ public class MainFrame extends JFrame {
                     }
 
                     if (SS.hasResponse())
-                        History.append(SS.nextResponse() + "\n");
+                    {
+                        String response = SS.nextResponse();
+                        if (response != null)
+                            History.append(response + "\n");
+                    }
                 }
             }
         });

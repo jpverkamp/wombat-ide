@@ -1,5 +1,6 @@
 package scheme;
 
+import gui.ErrorFrame;
 import sisc.data.Value;
 import sisc.interpreter.AppContext;
 import sisc.interpreter.Context;
@@ -7,9 +8,8 @@ import sisc.interpreter.Interpreter;
 import sisc.interpreter.SchemeException;
 
 import java.io.IOException;
-import java.io.InputStream;
+import sisc.data.SchemeVoid;
 import sisc.ser.MemoryRandomAccessInputStream;
-import sisc.ser.SeekableInputStream;
 
 /**
  * Use SISC for Scheme.
@@ -37,9 +37,9 @@ public class SISCScheme extends Scheme implements Runnable {
             ctx.addHeap(new MemoryRandomAccessInputStream(getClass().getResourceAsStream("/sisc.shp")));
             interpreter = Context.enter(ctx);
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+            ErrorFrame.log("Unable to initialize SISC: Cannot find heap.");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            ErrorFrame.log("Unable to initialize SISC: Cannot load heap.");
         }
 
         // Deal with input.
@@ -47,7 +47,10 @@ public class SISCScheme extends Scheme implements Runnable {
             try {
                 while (!commands.isEmpty()) {
                     Value v = interpreter.eval(commands.remove());
-                    responses.add(v.toString());
+                    if ((v instanceof SchemeVoid))
+                        responses.add(null);
+                    else
+                        responses.add(v.toString());
                 }
 
                 Thread.sleep(50);
@@ -56,10 +59,8 @@ public class SISCScheme extends Scheme implements Runnable {
             // Report problems with evaluation.
             catch (IOException ioe) {
                 responses.add(ioe.getMessage());
-                System.err.println(ioe.getMessage());
             } catch (SchemeException se) {
                 responses.add(se.getMessageText());
-                System.err.println(se.getMessageText());
             }
 
             // We really don't care if this happens. Just keep going.
