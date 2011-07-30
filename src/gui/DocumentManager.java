@@ -4,6 +4,8 @@
  */
 package gui;
 
+import java.awt.Component;
+import java.awt.FileDialog;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
@@ -13,19 +15,19 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Scanner;
+import javax.swing.JOptionPane;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
 
 /**
- *
- * @author John-Paul
+ * Manage open documents.
  */
 public class DocumentManager implements FocusListener {
     int lastIndex;
     TabWindow Documents;
     StringViewMap Views = new StringViewMap();
-    SchemeTextArea lastFocus;
+    SchemeTextArea activeDocument;
     
     /**
      * Manage documents.
@@ -33,6 +35,8 @@ public class DocumentManager implements FocusListener {
      * @param documents Document tab manager.
      */
     public DocumentManager(StringViewMap views, TabWindow documents) {
+
+
         lastIndex = 0;
         Views = views;
         Documents = documents;
@@ -41,26 +45,52 @@ public class DocumentManager implements FocusListener {
     /**
      * Create a new document.
      */
-    public void New() {
+    public boolean New() {
         lastIndex++;
         
         String id = "document-" + lastIndex;
 
         SchemeTextArea ss = new SchemeTextArea();
-        ss.addFocusListener(this);
+        ss.code.addFocusListener(this);
 
         Views.addView(id, new View("<new document>", null, ss));
+        ss.myView = Views.getView(id);
+
         Documents.addTab(Views.getView(id));
-        ((SchemeTextArea) Views.getView(id).getComponent()).code.requestFocusInWindow();
-        
+
+        ss.code.requestFocusInWindow();
+
+        return true;
     }
     
     /**
-     * Load a file.
+     * Load a file from a dialog.
+     * @return If the load worked.
+     */
+    public boolean Open() {
+        FileDialog fc = new FileDialog(MainFrame.me(), "Open...", FileDialog.LOAD);
+        fc.setVisible(true);
+        
+        if (fc.getFile() == null)
+            return false;
+
+        File file = new File(fc.getFile());
+        if (!file.exists())
+        {
+            ErrorFrame.log("Unable to load file (does not exist): " + fc.getFile());
+            return false;
+        }
+        
+        return Open(file);
+    }
+
+    /**
+     * Load a specific file.
      * @param file The file to load.
      * @return If the load worked.
      */
-    public boolean Load(File file) {
+    public boolean Open(File file)
+    {
         lastIndex++;
         
         String id = "document-" + lastIndex;
@@ -70,7 +100,6 @@ public class DocumentManager implements FocusListener {
             if (!file.exists())
                 file.createNewFile();
 
-            // Get the new content.
             Scanner scanner = new Scanner(file);
             StringBuilder content = new StringBuilder();
             String NL = System.getProperty("line.separator");
@@ -81,100 +110,125 @@ public class DocumentManager implements FocusListener {
             }
 
             SchemeTextArea ss = new SchemeTextArea(content.toString());
-            ss.addFocusListener(this);
-
             ss.myFile = file;
+            ss.code.addFocusListener(this);
+
             Views.addView(id, new View(filename, null, ss));
+            ss.myView = Views.getView(id);
+
             Documents.addTab(Views.getView(id));
-            ((SchemeTextArea) Views.getView(id).getComponent()).code.requestFocusInWindow();
+            
+            ss.code.requestFocusInWindow();
 
             return true;
         }
         catch(IOException ex) {
-            ex.printStackTrace();
+            ErrorFrame.log("Unable to load file (" + file.getName() + "): " + ex.getMessage());
             return false;
         }
     }
     
     /**
-     * Set the file used by a view. (For Save As)
-     * @param view The view to set.
-     * @param file The file to associate with that view.
-     */
-    public void SetFile(View view, File file) {
-        if (Views.contains(view))
-        {
-            SchemeTextArea ss = (SchemeTextArea) view.getComponent();
-            ss.myFile = file;
-            view.getViewProperties().setTitle(file.getName());
-        }
-    }
-    
-    /**
-     * Get the file from a view.
-     * @param view The view to get.
-     * @return The file.
-     */
-    public File GetFile(View view) {
-        if (Views.contains(view))
-        {
-            SchemeTextArea ss = (SchemeTextArea) view.getComponent();
-            return ss.myFile;
-        }
-        return null;
-    }
-    
-    /**
-     * Check if the active view has a file.
-     * 
-     * @param view The view to check.
-     * @return True if it has a file already.
-     */
-    public boolean HasFile(View view) {
-        if (Views.contains(view))
-        {
-            SchemeTextArea ss = (SchemeTextArea) view.getComponent();
-            return ss.myFile != null;
-        }
-        return false;
-    }
-    
-    /**
-     * Save the file contained in the given view.
-     * 
-     * @param view The view to save.
+     * Save the current file.
      * @return If the save worked.
      */
-    public boolean Save(View view) {
-        if (Views.contains(view))
+    public boolean Save() {
+        if (activeDocument == null)
+            return false;
+        if (activeDocument.myFile == null)
+            return SaveAs();
+        
+        try {
+            Writer out = new OutputStreamWriter(new FileOutputStream(activeDocument.myFile));
+            out.write(activeDocument.getText());
+            out.flush();
+            out.close();
+            return true;
+        } catch(FileNotFoundException ex) {
+            return false;
+        } catch(IOException ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Save the active file with a new name.
+     * @return If it worked.
+     */
+    public boolean SaveAs()
+    {
+        if (activeDocument == null)
+            return false;
+
+        FileDialog fc = new FileDialog(MainFrame.me(), "Save as...", FileDialog.SAVE);
+        fc.setVisible(true);
+        if (fc.getFile() == null)
+            return false;
+
+        File file = new File(fc.getFile());
+        activeDocument.myFile = file;
+        activeDocument.myView.getViewProperties().setTitle(file.getName());
+
+        return Save();
+    }
+
+    /**
+     * Close the active document.
+     * @return If it worked.
+     */
+    public boolean Close()
+    {
+        if (activeDocument == null)
+            return false;
+
+        if (!activeDocument.isEmpty())
         {
-            SchemeTextArea ss = (SchemeTextArea) view.getComponent();
-            if (ss.myFile == null)
-                return false;
-            
-            try {
-                Writer out = new OutputStreamWriter(new FileOutputStream(ss.myFile));
-                out.write(ss.getText());
-                out.flush();
-                out.close();
-                return true;
-            } catch(FileNotFoundException ex) {
-                return false;
-            } catch(IOException ex) {
-                return false;
+            String name = activeDocument.myView.getViewProperties().getTitle();
+            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+                    activeDocument,
+                    "Save " + name + " before closing?",
+                    "Close...",
+                    JOptionPane.YES_NO_OPTION
+                ))
+            {
+                Save();
             }
         }
-        return false;
+
+        activeDocument.myView.close();
+        return true;
     }
-    
+
     /**
-     * Check if a view is empty.
-     * @param view The view to check.
-     * @return True/false.
+     * Run the active document.
+     * @return If it worked.
      */
-    public boolean IsEmpty(View view)
+    public boolean Run()
     {
-        return !Views.contains(view) || ((SchemeTextArea) view.getComponent()).getText().length() == 0;
+        if (activeDocument == null)
+            return false;
+
+        if (!Save())
+            return false;
+
+        MainFrame.me().doCommand("(load \"" + activeDocument.myFile.getAbsolutePath().replace("\\", "/")  + "\")");
+        MainFrame.me().REPL.code.requestFocusInWindow();
+
+        return true;
+    }
+
+    /**
+     * Format the active document.
+     * @return If it worked.
+     */
+    public boolean Format()
+    {
+        if (activeDocument == null)
+            return false;
+        
+        activeDocument.format();
+        
+        return true;
     }
 
     /**
@@ -183,8 +237,22 @@ public class DocumentManager implements FocusListener {
      */
     @Override
     public void focusGained(FocusEvent e) {
-        if (e.getSource() instanceof SchemeTextArea)
-            lastFocus = (SchemeTextArea) e.getSource();
+        if (!(e.getSource() instanceof Component))
+            return;
+
+        Component c = (Component) e.getSource();
+        while (c != null)
+        {
+            if (c instanceof SchemeTextArea)
+            {
+                activeDocument = (SchemeTextArea) c;
+                return;
+            }
+
+            c = c.getParent();
+        }
+
+        
     }
 
     /**

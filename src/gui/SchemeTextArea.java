@@ -16,7 +16,9 @@ class SchemeTextArea extends JPanel {
     File myFile;
     JEditorPane code;
     JScrollPane pane;
+    net.infonode.docking.View myView;
     public static String NL = "\n"; //System.getProperty("line.separator");
+    boolean dirty;
 
     /**
      * Create a new Scheme text area.
@@ -44,6 +46,7 @@ class SchemeTextArea extends JPanel {
         code.getInputMap().put(
                 KeyStroke.getKeyStroke("TAB"),
                 new AbstractAction() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         tab();
                     }
@@ -53,11 +56,12 @@ class SchemeTextArea extends JPanel {
         code.getInputMap().put(
                 KeyStroke.getKeyStroke("ENTER"),
                 new AbstractAction() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         try {
                             doc.insertString(code.getCaretPosition(), NL, null);
                         } catch (BadLocationException ble) {
-                            System.err.println("badwolf");
+                            ErrorFrame.log("Unable to add a new line on ENTER.");
                         }
                         tab();
                     }

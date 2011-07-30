@@ -21,12 +21,12 @@ import net.infonode.docking.View;
 /**
  * Handle all of the code for building and maintaining menus.
  */
-public class MenuManager implements ActionListener {
+public final class MenuManager implements ActionListener {
     static MenuManager me;
 
     JFileChooser fileDialog;
 
-    JMenuBar menu;
+    JMenuBar myMenu;
     
     Map<String, JMenuItem> nameToItem;
     Map<JMenuItem, String> itemToName;
@@ -40,17 +40,17 @@ public class MenuManager implements ActionListener {
 
         fileDialog = new JFileChooser();
         
-        menu = buildBar(
-            buildMenu("File",
+        myMenu = buildBar(
+            buildMenu("File", 'F',
                 buildItem("New", 'N'),
                 buildItem("Open", 'O'),
                 buildItem("Save", 'S'),
                 buildItem("Save as", null),
                 buildItem("Close", 'W'),
-                buildItem("Exit", null)),
+                buildItem("Exit", "ALT F4")),
             buildMenu("Scheme",
                 buildItem("Run", Options.get("scheme.run", "F5")),
-                buildItem("Format", Options.get("scheme.run", "F6"))),
+                buildItem("Format", Options.get("scheme.format", "F6"))),
             buildMenu("Options",
                 buildItem("Edit configuration", null),
                 buildItem("Edit syntax highlighting", null),
@@ -71,6 +71,22 @@ public class MenuManager implements ActionListener {
         for (JMenu menu : menus)
             menuBar.add(menu);
         return menuBar;
+    }
+
+    /**
+     * Build a menu with a mnemonic.
+     * @param name The menu's name.
+     * @param accel The mnemonic.
+     * @param items A list of JMenuItems.
+     * @return The menu.
+     * @return
+     */
+    private JMenu buildMenu(String name, char accel, JMenuItem... items)
+    {
+        JMenu menu = buildMenu(name, items);
+        if (!util.OS.IsOSX)
+            menu.setMnemonic(accel);
+        return menu;
     }
 
     /**
@@ -102,7 +118,7 @@ public class MenuManager implements ActionListener {
         {
             if (accel instanceof Character)
                 item.setAccelerator(KeyStroke.getKeyStroke(
-                    (Character) accel,
+                    ((Character) accel).charValue(),
                     Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
                 ));
 
@@ -129,7 +145,7 @@ public class MenuManager implements ActionListener {
        if (me == null)
            me = new MenuManager();
 
-       return me.menu;
+       return me.myMenu;
     }
 
     /**
@@ -141,6 +157,8 @@ public class MenuManager implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof JMenuItem)
             doCommand(itemToName.get((JMenuItem) e.getSource()));
+        else
+            ErrorFrame.log("Non-menu using menu action listener: " + e.getSource());
     }
 
     /**
@@ -151,106 +169,25 @@ public class MenuManager implements ActionListener {
     private boolean doCommand(String cmd) {
         DocumentManager dm = MainFrame.me().Documents;
 
-        // Create a new file in a new tab.
-        if ("New".equals(cmd)) {
-            dm.New();
-        }
-
-        // Load a file into a new tab.
-        else if ("Open".equals(cmd)) {
-            View v = MainFrame.me().Root.getFocusedView();
-
-            if (JFileChooser.APPROVE_OPTION == fileDialog.showOpenDialog(MainFrame.me()))
-                return dm.Load(fileDialog.getSelectedFile());
-
-            return false;
-        }
-
-        // Save the currently active file.
-        else if ("Save".equals(cmd)) {
-            View v = MainFrame.me().Root.getFocusedView();
-
-            if (v == null)
-                return false;
-
-            if (!dm.HasFile(v))
-                return doCommand("Save as");
-            else
-                return dm.Save(v);
-        }
-
-        // Save the currently selected file with a new name().
-        else if ("Save as".equals(cmd)) {
-            View v = MainFrame.me().Root.getFocusedView();
-
-            if (v == null)
-                return false;
-
-            if (JFileChooser.APPROVE_OPTION == fileDialog.showSaveDialog(MainFrame.me()))
-            {
-                dm.SetFile(v, fileDialog.getSelectedFile());
-                return dm.Save(v);
-            }
-            else
-                return false;
-        }
-
-        // Close the active document (save if it had content).
-        else if ("Close".equals(cmd)) {
-            View v = MainFrame.me().Root.getFocusedView();
-
-            if (v == null)
-                return false;
-
-            if (!dm.IsEmpty(v))
-                if (!doCommand("Save"))
-                    return false;
-
-            if (dm.Documents.getChildWindowCount() == 1)
-                doCommand("New");
-
-            v.close();
-
-            return true;
-        }
+        // File options, defer to the document manager.
+        if ("New".equals(cmd))
+            return dm.New();
+        else if ("Open".equals(cmd))
+            return dm.Open();
+        else if ("Save".equals(cmd))
+            return dm.Save();
+        else if ("Save as".equals(cmd))
+            return dm.SaveAs();
+        else if ("Close".equals(cmd))
+            return dm.Close();
+        else if ("Run".equals(cmd))
+            dm.Run();
+        else if ("Format".equals(cmd))
+            dm.Format();
 
         // Exit the program.
         else if ("Exit".equals(cmd)) {
             MainFrame.me().dispose();
-            return true;
-        }
-
-        // Run the currently selected file.
-        else if ("Run".equals(cmd)) {
-            View v = MainFrame.me().Root.getFocusedView();
-
-            if (v == null)
-                return false;
-
-            if (!dm.HasFile(v))
-            {
-                if (doCommand("Save as"))
-                    doCommand("Run");
-            }
-            else
-            {
-                MainFrame.me().doCommand("(load \"" + dm.GetFile(v).getAbsolutePath().replace("\\", "/")  + "\")");
-                MainFrame.me().REPL.code.requestFocusInWindow();
-                return true;
-            }
-
-            return false;
-        }
-
-        // Format the current code.
-        else if ("Format".equals(cmd)) {
-            View v = MainFrame.me().Root.getFocusedView();
-
-            if (v == null)
-                return false;
-
-            SchemeTextArea ss = (SchemeTextArea) v.getComponent();
-            ss.format();
             return true;
         }
 
@@ -259,7 +196,7 @@ public class MenuManager implements ActionListener {
             File f = new File(Options.FILENAME);
             if (!f.exists())
                 exportFromJar(Options.FILENAME);
-            return dm.Load(f);
+            return dm.Open(f);
         }
 
         // Load the syntax file to edit.
@@ -267,7 +204,7 @@ public class MenuManager implements ActionListener {
             File f = new File(SchemeDocument.FILENAME);
             if (!f.exists())
                 exportFromJar(SchemeDocument.FILENAME);
-            return dm.Load(f);
+            return dm.Open(f);
         }
 
         // Reload options.
