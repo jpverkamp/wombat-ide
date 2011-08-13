@@ -67,7 +67,7 @@ public class MainFrame extends JFrame {
         StringViewMap viewMap = new StringViewMap();
         Documents = new DocumentManager(viewMap, documents);
         Documents.New();
-        
+         
         // Create the REPL.
         History = new SchemeTextArea();
         History.setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
