@@ -33,16 +33,32 @@ public class ForeignScheme extends Scheme implements Runnable {
             paths = s.doStringAndWait("(cdr '" + paths + ")");
             paths = paths.substring(3, paths.length() - 3);
 
+            boolean loaded = false;
+            
             for (String path : paths.split("\" \"")) {
-                File f = new File(path);
-                if (f.exists()) {
-                    ProcessPath = path;
-                    Thread t = new Thread(this);
+                try {
+                	ErrorFrame.log("Attempting to connect: " + path);
+                	
+                	ProcessBuilder pb = new ProcessBuilder(path);
+                    pb.redirectErrorStream(true);
+					CurrentProcess = pb.start();
+					
+					if (CurrentProcess != null)
+						loaded = true;
+					
+				} catch (IOException e) {
+					ErrorFrame.log("Unable to connect: " + path);
+					// Didn't work, try the next one.
+				} 
+                
+                if (loaded) {
+                	Thread t = new Thread(this);
                     t.setDaemon(true);
                     t.start();
-
+                    
                     ErrorFrame.log("ForeignScheme loaded.");
-                    return;
+
+                	return;
                 }
             }
 
@@ -60,9 +76,6 @@ public class ForeignScheme extends Scheme implements Runnable {
 
         // Connect to the interpreter.
         try {
-            ProcessBuilder pb = new ProcessBuilder(ProcessPath);
-            pb.redirectErrorStream(true);
-            CurrentProcess = pb.start();
             output = new BufferedReader(new InputStreamReader(CurrentProcess.getInputStream()));
             input = new BufferedWriter(new OutputStreamWriter(CurrentProcess.getOutputStream()));
 

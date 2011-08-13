@@ -1,6 +1,7 @@
 package scheme;
 
 import gui.ErrorFrame;
+import util.OutputIntercept;
 import sisc.data.Value;
 import sisc.interpreter.AppContext;
 import sisc.interpreter.Context;
@@ -8,6 +9,7 @@ import sisc.interpreter.Interpreter;
 import sisc.interpreter.SchemeException;
 
 import java.io.IOException;
+
 import sisc.data.SchemeVoid;
 import sisc.ser.MemoryRandomAccessInputStream;
 
@@ -21,7 +23,7 @@ public class SISCScheme extends Scheme implements Runnable {
      * Create a new scheme.
      */
     public SISCScheme() {
-        Thread t = new Thread(this);
+    	Thread t = new Thread(this);
         t.setDaemon(true);
         t.start();
     }
@@ -36,11 +38,27 @@ public class SISCScheme extends Scheme implements Runnable {
             AppContext ctx = new AppContext();
             ctx.addHeap(new MemoryRandomAccessInputStream(getClass().getResourceAsStream("/sisc.shp")));
             interpreter = Context.enter(ctx);
+            
+            OutputIntercept.enable();
         } catch (ClassNotFoundException ex) {
             ErrorFrame.log("Unable to initialize SISC: Cannot find heap.");
         } catch (IOException ex) {
             ErrorFrame.log("Unable to initialize SISC: Cannot load heap.");
         }
+        
+        // Start a thread to read anything that gets written to standard out or error.
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                while (true) {
+                	if (OutputIntercept.hasContent())
+                		responses.add(OutputIntercept.getContent());
+                	
+                    try { Thread.sleep(50); } catch (InterruptedException ie) {}
+                }
+            }
+        });
+        t.setDaemon(true);
+        t.start();
 
         // Deal with input.
         while (true) {
