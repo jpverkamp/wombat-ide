@@ -27,7 +27,7 @@ public class DocumentManager implements FocusListener {
     int lastIndex;
     TabWindow Documents;
     StringViewMap Views = new StringViewMap();
-    SchemeTextArea activeDocument;
+    public SchemeTextArea activeDocument;
     
     /**
      * Manage documents.
@@ -35,8 +35,6 @@ public class DocumentManager implements FocusListener {
      * @param documents Document tab manager.
      */
     public DocumentManager(StringViewMap views, TabWindow documents) {
-
-
         lastIndex = 0;
         Views = views;
         Documents = documents;

@@ -1,8 +1,11 @@
 package gui;
 
-import scheme.SISCScheme;
-import scheme.Scheme;
+import util.FileAccess;
+import gnu.mapping.Procedure2;
+import gnu.math.IntNum;
 
+import java.awt.Color;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,43 +13,68 @@ import java.util.Map;
  * Store options.
  */
 public class Options {
-    final static String FILENAME = "options.cfg";
-    static Map<String, String> data;
+    final static String OPTIONS_FILE = "options.cfg";
+    final static String SYNTAX_FILE = "syntax.cfg";
+    
+    static Map<String, String> data = new HashMap<String, String>();;
+    static Map<String, Color> colors = new HashMap<String, Color>();;
+    static Map<String, Integer> keywords = new HashMap<String, Integer>();;
 
     /**
      * Load default options.
      */
     static {
-        data = new HashMap<String, String>();
         reload();
     }
 
     public static void reload() {
         data.clear();
+        colors.clear();
+        keywords.clear();
 
-        ErrorFrame.log("Options loading.");
-
-        Scheme s = new SISCScheme();
-        s.doStringAndWait("(define options '())");
-        s.doStringAndWait("(define (cfg key val) (set! options (cons (list key val) options)))");
-        s.doFileAndWait(FILENAME);
-
-        String optionList = s.doStringAndWait("options");
-
-        if (optionList.length() <= 2)
-        {
-            ErrorFrame.log("Options not loaded. No options found.");
-            return;
-        }
-
-        optionList = optionList.substring(2, optionList.length() - 2);
-        optionList = optionList.replace("\"", "");
-        for (String chunk : optionList.split("\\)\\s+\\(")) {
-            String[] parts = chunk.split("\\s+", 2);
-            data.put(parts[0], parts[1]);
-        }
-
-        ErrorFrame.log("Options loaded.");
+        kawa.standard.Scheme kawa = new kawa.standard.Scheme();
+        
+        kawa.defineFunction(new Procedure2("cfg") {
+			@Override
+			public Object apply2(Object key, Object val) throws Throwable {
+				data.put(key.toString(), val.toString());
+				return null;
+			}
+        });
+        
+        kawa.defineFunction(new Procedure2("color") {
+        	@Override
+			public Object apply2(Object key, Object val) throws Throwable {
+        		colors.put(key.toString(), parseColor(val.toString()));
+				return null;
+			}
+        });
+        
+        kawa.defineFunction(new Procedure2("keyword") {
+        	@Override
+			public Object apply2(Object key, Object val) throws Throwable {
+        		if (val instanceof IntNum)
+        			keywords.put(key.toString(), ((IntNum) val).ival);
+        		else
+        			ErrorFrame.log("Unknown number format for indendation: " + val);
+				return null;
+			}
+        });
+        
+        try {
+			kawa.eval(FileAccess.getFile(OPTIONS_FILE));
+			ErrorFrame.log(OPTIONS_FILE + " loaded.");
+		} catch (Throwable ex) {
+			ErrorFrame.log(OPTIONS_FILE + " failed to load: " + ex.getMessage());
+		}
+        
+        try {
+			kawa.eval(FileAccess.getFile(SYNTAX_FILE));
+			SchemeDocument.reload();
+			ErrorFrame.log(SYNTAX_FILE + " loaded.");
+		} catch (Throwable ex) {
+			ErrorFrame.log(SYNTAX_FILE + " failed to load: " + ex.getMessage());
+		}
     }
 
     /**
@@ -71,5 +99,41 @@ public class Options {
             return data.get(key);
         else
             return def;
+    }
+    
+    /**
+     * Figure out a color.
+     */
+    static Color parseColor(String key) {
+        Color c = null;
+
+        // Load by name.
+        if (c == null) {
+            try {
+                Field field = Class.forName("java.awt.Color").getField(key.toUpperCase());
+                c = (Color) field.get(null);
+            } catch (Exception e) {
+
+            }
+        }
+
+        // Load by hex value.
+        if (c == null) {
+            try {
+                c = Color.decode(key);
+            } catch (Exception e) {
+            }
+        }
+
+        // No idea what the color is. Don't do anything.
+        if (c == null)
+        {
+            ErrorFrame.log("Unknown color format: " + key);
+            return null;
+        }
+
+        // Finally return the dang things.
+        else
+        	return c;
     }
 }

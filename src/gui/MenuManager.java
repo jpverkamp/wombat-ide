@@ -192,24 +192,23 @@ public final class MenuManager implements ActionListener {
 
         // Load the configuration file to edit.
         else if ("Edit configuration".equals(cmd)) {
-            File f = new File(Options.FILENAME);
+            File f = new File(Options.OPTIONS_FILE);
             if (!f.exists())
-                exportFromJar(Options.FILENAME);
+                exportFromJar(Options.OPTIONS_FILE);
             return dm.Open(f);
         }
 
         // Load the syntax file to edit.
         else if ("Edit syntax highlighting".equals(cmd)) {
-            File f = new File(SchemeDocument.FILENAME);
+            File f = new File(Options.SYNTAX_FILE);
             if (!f.exists())
-                exportFromJar(SchemeDocument.FILENAME);
+                exportFromJar(Options.SYNTAX_FILE);
             return dm.Open(f);
         }
 
         // Reload options.
         else if ("Reload options".equals(cmd)) {
             Options.reload();
-            SchemeDocument.reload();
         }
 
         // Show the error dialog.

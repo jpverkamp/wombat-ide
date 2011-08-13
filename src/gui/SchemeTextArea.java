@@ -12,16 +12,18 @@ import java.util.Stack;
 /**
  * Text area specialized for Scheme (Woo!)
  */
-class SchemeTextArea extends JPanel {
+public class SchemeTextArea extends JPanel {
 	private static final long serialVersionUID = -5290625425897085428L;
 
 	File myFile;
-    JEditorPane code;
     JScrollPane pane;
     net.infonode.docking.View myView;
-    public static String NL = "\n"; //System.getProperty("line.separator");
     boolean dirty;
 
+    public JEditorPane code;
+    public static String NL = "\n"; //System.getProperty("line.separator");
+    
+    
     /**
      * Create a new Scheme text area.
      */
@@ -47,79 +49,11 @@ class SchemeTextArea extends JPanel {
         code.setEditorKit(sek);
         code.setDocument(doc);
 
-        code.getInputMap().put(
-                KeyStroke.getKeyStroke("TAB"),
-                new AbstractAction() {
-					private static final long serialVersionUID = -7388241385830992928L;
+        code.getInputMap().put(KeyStroke.getKeyStroke("TAB"), new actions.Tab());
+        code.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new actions.Return());
 
-                    public void actionPerformed(ActionEvent e) {
-                        tab();
-                    }
-                }
-        );
-
-        code.getInputMap().put(
-                KeyStroke.getKeyStroke("ENTER"),
-                new AbstractAction() {
-					private static final long serialVersionUID = -8086222039401511873L;
-
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            doc.insertString(code.getCaretPosition(), NL, null);
-                        } catch (BadLocationException ble) {
-                            ErrorFrame.log("Unable to add a new line on ENTER.");
-                        }
-                        tab();
-                    }
-                }
-        );
-
-        code.addCaretListener(new CaretListener() {
-            public void caretUpdate(CaretEvent e) {
-                Highlighter h = code.getHighlighter();
-                h.removeAllHighlights();
-
-                int pos = e.getDot() - 1;
-                try {
-                    if (pos >= 0 && pos < getText().length() && "()[]".contains(code.getDocument().getText(pos, 1))) {
-                        // Find the matching bracket.
-                        String text = code.getDocument().getText(0, code.getDocument().getLength());
-                        char c = text.charAt(pos), cc;
-                        int matchPos, d = ((c == '(' || c == '[') ? 1 : -1);
-                        Stack<Character> brackets = new Stack<Character>();
-                        boolean foundMatch = false;
-                        for (matchPos = pos; matchPos >= 0 && matchPos < text.length(); matchPos += d) {
-                            cc = text.charAt(matchPos);
-
-                            if (!brackets.isEmpty() && brackets.peek() == cc) {
-                                brackets.pop();
-                                if (brackets.isEmpty()) {
-                                    foundMatch = true;
-                                    break;
-                                }
-                            } else if (cc == '(') brackets.push(')');
-                            else if (cc == ')') brackets.push('(');
-                            else if (cc == '[') brackets.push(']');
-                            else if (cc == ']') brackets.push('[');
-                        }
-
-                        // Highlight it.
-                        if (foundMatch) {
-                            Highlighter.HighlightPainter hp = new DefaultHighlighter.DefaultHighlightPainter(
-                                    StyleConstants.getForeground(SchemeDocument.attributes.get("bracket"))
-                            );
-
-                            try {
-                                h.addHighlight(pos, pos + 1, hp);
-                                h.addHighlight(matchPos, matchPos + 1, hp);
-                            } catch (BadLocationException ble) {
-                            }
-                        }
-                    }
-                } catch (BadLocationException e1) {
-                }
-            }
-        });
+        // Bracket highlighting.
+        code.addCaretListener(new BracketMatcher(this));
     }
 
     /**
@@ -213,8 +147,8 @@ class SchemeTextArea extends JPanel {
                 indentTo = 0;
 
                 // Otherwise, if there's a valid keyword, indent based on that.
-            else if (SchemeDocument.keywords.containsKey(token))
-                indentTo += SchemeDocument.keywords.get(token);
+            else if (Options.keywords.containsKey(token))
+                indentTo += Options.keywords.get(token);
 
                 // Otherwise, fall back on the default indentation.
             else

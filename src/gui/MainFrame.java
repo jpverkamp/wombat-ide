@@ -1,6 +1,7 @@
 package gui;
 
 import scheme.ForeignScheme;
+import scheme.KawaScheme;
 import scheme.SISCScheme;
 import scheme.Scheme;
 
@@ -27,11 +28,11 @@ public class MainFrame extends JFrame {
     static MainFrame me;
 
     // Things we may need access to.
-    RootWindow Root;
-    DocumentManager Documents;
-    SchemeTextArea History;
-    SchemeTextArea REPL;
-    Scheme SS;
+    public RootWindow Root;
+    public DocumentManager Documents;
+    public SchemeTextArea History;
+    public SchemeTextArea REPL;
+    public Scheme SS;
 
     /**
      * Don't directly create this, use me().
@@ -117,16 +118,18 @@ public class MainFrame extends JFrame {
         add(Root);
         
         // Get a Scheme.
-        String schemeVersion = Options.get("scheme", "sisc");
+        String schemeVersion = Options.get("scheme", "kawa");
         if ("sisc".equals(schemeVersion.toLowerCase())) {
             SS = new SISCScheme();
-        } else {
+        } else if ("kawa".equals(schemeVersion.toLowerCase())) {
+        	SS = new KawaScheme();
+        }
+        else {
             try {
                 SS = new ForeignScheme(schemeVersion);
             } catch (FileNotFoundException e) {
-                History.append("Scheme not found: " + schemeVersion + "\n");
-                History.append("Falling back to SISC.\n\n");
-                SS = new SISCScheme();
+            	ErrorFrame.log(schemeVersion + " not found, falling back to Kawa.");
+                SS = new KawaScheme();
             }
         }
 

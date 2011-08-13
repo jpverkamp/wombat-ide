@@ -1,11 +1,6 @@
 package gui;
 
-import scheme.SISCScheme;
-import scheme.Scheme;
-
 import javax.swing.text.*;
-import java.awt.*;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,103 +19,24 @@ class SchemeDocument extends DefaultStyledDocument {
 
     boolean multiLineComment;
 
-    static Map<String, MutableAttributeSet> attributes;
-    static Map<String, Integer> keywords;
+    static Map<String, MutableAttributeSet> attributes = new HashMap<String, MutableAttributeSet>();;
 
     int currentBracketStart = -1;
     int currentBracketEnd = -1;
     int nextBracketStart = -1;
     int nextBracketEnd = -1;
 
-    // Initialize common parameters.
-    static {
-        reload();
-    }
-    
-    public static void reload()
-    {
-        // Initialize the attributes sets.
-        attributes = new HashMap<String, MutableAttributeSet>();
+    public static void reload() {
+    	attributes.clear();
+    	
         for (String key : "normal keyword comment string bracket".split(" "))
             attributes.put(key, new SimpleAttributeSet());
 
-        // And the keywords. Load them later.
-        keywords = new HashMap<String, Integer>();
-
-        ErrorFrame.log("SchemeDocument loading.");
-
-        // Yay for config files written in Scheme. :)
-        Scheme s = new SISCScheme();
-        s.doStringAndWait("(define colors '())");
-        s.doStringAndWait("(define (color key val) (set! colors (cons (list key val) colors)))");
-        s.doStringAndWait("(define keywords '())");
-        s.doStringAndWait("(define (keyword key val) (set! keywords (cons (list key val) keywords)))");
-        s.doFileAndWait("syntax.cfg");
-
-        String colorList = s.doStringAndWait("colors");
-        colorList = colorList.substring(2, colorList.length() - 2);
-        colorList = colorList.replace("\"", "");
-        for (String chunk : colorList.split("\\)\\s+\\(")) {
-            String[] parts = chunk.split("\\s+", 2);
-            parts[0] = parts[0].replace("\"", "");
-            setColor(parts[0], parts[1]);
-        }
-
-        String keywordList = s.doStringAndWait("keywords");
-        keywordList = keywordList.substring(2, keywordList.length() - 2);
-        keywordList = keywordList.replace("\"", "");
-        for (String chunk : keywordList.split("\\)\\s+\\(")) {
-            String[] parts = chunk.split("\\s+", 2);
-            try {
-                keywords.put(parts[0], Integer.parseInt(parts[1]));
-            } catch (NumberFormatException e) {
-                ErrorFrame.log("Error in syntax file, indentation is not a number: " + parts[1]);
-            }
-        }
-
-        ErrorFrame.log("SchemeDocument loaded.");
+        for (String key : Options.colors.keySet())
+        	if (attributes.containsKey(key))
+        		StyleConstants.setForeground(attributes.get(key), Options.colors.get(key));
     }
-
-    /**
-     * Set a color.
-     *
-     * @param key The color type to set.
-     * @param val The value of color to set.
-     */
-    public static void setColor(String key, String val) {
-        Color c = null;
-
-        // Load by name.
-        if (c == null) {
-            try {
-                Field field = Class.forName("java.awt.Color").getField(val.toUpperCase());
-                c = (Color) field.get(null);
-            } catch (Exception e) {
-
-            }
-        }
-
-        // Load by hex value.
-        if (c == null) {
-            try {
-                c = Color.decode(val);
-            } catch (Exception e) {
-            }
-        }
-
-        // No idea what the color is. Don't do anything.
-        if (c == null)
-            ErrorFrame.log("Error in syntax, unknown color format: " + val);
-
-        // Finally set the dang things.
-        if (attributes.containsKey(key))
-            StyleConstants.setForeground(attributes.get(key), c);
-
-        // Unknown thing to color.
-        else
-            ErrorFrame.log("Error in syntax, unknown color key: " + key);
-    }
-
+    
     /**
      * Create a new Scheme document.
      */
@@ -407,7 +323,7 @@ class SchemeDocument extends DefaultStyledDocument {
 
         String token = content.substring(startOffset, endOfToken);
 
-        if (keywords.containsKey(token)) {
+        if (Options.keywords.containsKey(token)) {
             doc.setCharacterAttributes(startOffset, endOfToken - startOffset, attributes.get("keyword"), true);
         }
 

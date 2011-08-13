@@ -2,7 +2,6 @@ import gui.MainFrame;
 
 import javax.swing.*;
 
-
 /**
  * Main entry point of the program.
  */
@@ -12,7 +11,7 @@ public class Wombat {
     }
 
     private Wombat() {
-        JFrame main = MainFrame.me();
+    	JFrame main = MainFrame.me();
         main.setVisible(true);
     }
 }
