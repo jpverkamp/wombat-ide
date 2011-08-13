@@ -219,8 +219,20 @@ public class DocumentManager implements FocusListener {
         if (activeDocument == null)
             return false;
 
-        if (!Save())
-            return false;
+        if (!activeDocument.isEmpty())
+        {
+            String name = activeDocument.myView.getViewProperties().getTitle();
+            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+                    activeDocument,
+                    "Save " + name + " before running?",
+                    "Close...",
+                    JOptionPane.YES_NO_OPTION
+                ))
+            {
+                if (!Save())
+                	return false;
+            }
+        }
 
         MainFrame.me().doCommand("(load \"" + activeDocument.myFile.getAbsolutePath().replace("\\", "/")  + "\")");
         MainFrame.me().REPL.code.requestFocusInWindow();
