@@ -21,7 +21,9 @@ import net.infonode.docking.util.*;
  * Create a main frame.
  */
 public class MainFrame extends JFrame {
-    // Woo singletons.
+	private static final long serialVersionUID = 2574330949324570164L;
+
+	// Woo singletons.
     static MainFrame me;
 
     // Things we may need access to.
@@ -75,7 +77,9 @@ public class MainFrame extends JFrame {
         REPL.code.getInputMap().put(
                 KeyStroke.getKeyStroke("ENTER"),
                 new AbstractAction() {
-                    public void actionPerformed(ActionEvent e) {
+                    private static final long serialVersionUID = 723647997099071931L;
+
+					public void actionPerformed(ActionEvent e) {
                         Stack<Character> brackets = new Stack<Character>();
                         for (char c : REPL.getText().toCharArray()) {
                             if (c == '(') brackets.push(')');

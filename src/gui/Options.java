@@ -66,7 +66,6 @@ public class Options {
      * @param def The default value.
      * @return The value or default.
      */
-    @SuppressWarnings("unchecked")
     public static String get(String key, String def) {
         if (data.containsKey(key))
             return data.get(key);

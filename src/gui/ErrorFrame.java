@@ -7,7 +7,9 @@ import javax.swing.*;
  * Log errors.
  */
 public class ErrorFrame extends JFrame {
-    static ErrorFrame me;
+	private static final long serialVersionUID = 771240677910547456L;
+
+	static ErrorFrame me;
     JTextArea errors;
 
     private ErrorFrame () {

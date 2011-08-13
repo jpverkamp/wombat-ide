@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
-import net.infonode.docking.View;
 
 /**
  * Handle all of the code for building and maintaining menus.

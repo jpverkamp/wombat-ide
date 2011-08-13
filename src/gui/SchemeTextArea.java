@@ -13,7 +13,9 @@ import java.util.Stack;
  * Text area specialized for Scheme (Woo!)
  */
 class SchemeTextArea extends JPanel {
-    File myFile;
+	private static final long serialVersionUID = -5290625425897085428L;
+
+	File myFile;
     JEditorPane code;
     JScrollPane pane;
     net.infonode.docking.View myView;
@@ -33,7 +35,9 @@ class SchemeTextArea extends JPanel {
 
         final SchemeDocument doc = new SchemeDocument();
         final StyledEditorKit sek = new StyledEditorKit() {
-            public Document createDefaultDocument() {
+			private static final long serialVersionUID = 8558935103754214456L;
+
+			public Document createDefaultDocument() {
                 return doc;
             }
         };
@@ -46,7 +50,8 @@ class SchemeTextArea extends JPanel {
         code.getInputMap().put(
                 KeyStroke.getKeyStroke("TAB"),
                 new AbstractAction() {
-                    @Override
+					private static final long serialVersionUID = -7388241385830992928L;
+
                     public void actionPerformed(ActionEvent e) {
                         tab();
                     }
@@ -56,7 +61,8 @@ class SchemeTextArea extends JPanel {
         code.getInputMap().put(
                 KeyStroke.getKeyStroke("ENTER"),
                 new AbstractAction() {
-                    @Override
+					private static final long serialVersionUID = -8086222039401511873L;
+
                     public void actionPerformed(ActionEvent e) {
                         try {
                             doc.insertString(code.getCaretPosition(), NL, null);

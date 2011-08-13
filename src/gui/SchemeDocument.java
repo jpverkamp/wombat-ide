@@ -15,7 +15,9 @@ import java.util.Map;
  * (heavily modified)
  */
 class SchemeDocument extends DefaultStyledDocument {
-    final static String FILENAME = "syntax.cfg";
+	private static final long serialVersionUID = 8684954217591619402L;
+
+	final static String FILENAME = "syntax.cfg";
     
     DefaultStyledDocument doc;
     Element rootElement;

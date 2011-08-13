@@ -7,7 +7,9 @@ import javax.swing.*;
  * About frame.
  */
 public class AboutFrame extends JFrame {
-    static AboutFrame me;
+	private static final long serialVersionUID = -4920859302858551323L;
+
+	static AboutFrame me;
     
     private AboutFrame () {
         setTitle("About Wombat");
