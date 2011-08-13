@@ -53,7 +53,7 @@ public class DocumentManager implements FocusListener {
 
         Views.addView(id, new View("<new document>", null, ss));
         ss.myView = Views.getView(id);
-
+        
         Documents.addTab(Views.getView(id));
 
         ss.code.requestFocusInWindow();
@@ -192,8 +192,14 @@ public class DocumentManager implements FocusListener {
                 Save();
             }
         }
-
-        activeDocument.myView.close();
+        
+        View toClose = activeDocument.myView;
+        
+        if (Documents.getChildWindowCount() == 1)
+        	New();
+        
+        toClose.close();
+        	        
         return true;
     }
 

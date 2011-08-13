@@ -115,6 +115,7 @@ public class MainFrame extends JFrame {
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
         Root = DockingUtil.createRootWindow(new ViewMap(), true);
         Root.setWindow(fullSplit);
+        
         add(Root);
         
         // Get a Scheme.

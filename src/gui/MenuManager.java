@@ -9,20 +9,12 @@ import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.*;
 
 /**
  * Handle all of the code for building and maintaining menus.
  */
-public final class MenuManager implements ActionListener {
+public final class MenuManager {
     static MenuManager me;
 
     JFileChooser fileDialog;
@@ -160,131 +152,5 @@ public final class MenuManager implements ActionListener {
            me = new MenuManager();
 
        return me.myMenu;
-    }
-
-    /**
-     * When the menu item is clicked. Dispatch to doCommand based on the menu item name().
-     *
-     * @param e The event.
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() instanceof JMenuItem)
-            doCommand(itemToName.get((JMenuItem) e.getSource()));
-        else
-            ErrorFrame.log("Non-menu using menu action listener: " + e.getSource());
-    }
-
-    /**
-     * Run a command.
-     *
-     * @param cmd The command to run.
-     */
-    private boolean doCommand(String cmd) {
-        DocumentManager dm = MainFrame.me().Documents;
-
-        // File options, defer to the document manager.
-        if ("New".equals(cmd))
-            return dm.New();
-        else if ("Open".equals(cmd))
-            return dm.Open();
-        else if ("Save".equals(cmd))
-            return dm.Save();
-        else if ("Save as".equals(cmd))
-            return dm.SaveAs();
-        else if ("Close".equals(cmd))
-            return dm.Close();
-        else if ("Run".equals(cmd))
-            dm.Run();
-        else if ("Format".equals(cmd))
-            dm.Format();
-
-        // Exit the program.
-        else if ("Exit".equals(cmd)) {
-            MainFrame.me().dispose();
-            return true;
-        }
-
-        // Load the configuration file to edit.
-        else if ("Edit configuration".equals(cmd)) {
-            File f = new File(Options.OPTIONS_FILE);
-            if (!f.exists())
-                exportFromJar(Options.OPTIONS_FILE);
-            return dm.Open(f);
-        }
-
-        // Load the syntax file to edit.
-        else if ("Edit syntax highlighting".equals(cmd)) {
-            File f = new File(Options.SYNTAX_FILE);
-            if (!f.exists())
-                exportFromJar(Options.SYNTAX_FILE);
-            return dm.Open(f);
-        }
-
-        // Reload options.
-        else if ("Reload options".equals(cmd)) {
-            Options.reload();
-        }
-
-        // Show the error dialog.
-        else if ("Show error console".equals(cmd))
-        {
-            ErrorFrame.showMe();
-            return true;
-        }
-
-        // Show the about dialog.
-        else if ("About".equals(cmd)) {
-            AboutFrame.showMe();
-            return true;
-        }
-
-        // Explode. Horribly.
-        else {
-            ErrorFrame.log("Unknown menu item selected: " + cmd);
-        }
-
-        return false;
-    }
-
-    /**
-     * Grab a file from the JAR and make a real file out of it.
-     * @param res
-     */
-    private void exportFromJar(String res)
-    {
-        try
-        {
-            // Get the input stream from the JAR.
-            InputStream fromJar;
-            if ((fromJar = getClass().getResourceAsStream(res)) == null)
-                if ((fromJar = getClass().getResourceAsStream("/" + res)) == null)
-                    throw new FileNotFoundException(res);
-
-            // Get the output stream to the file.
-            OutputStream toFile = new FileOutputStream(new File(res));
-
-            // Copy.
-            byte[] buf = new byte[8192];
-            while (true) {
-              int length = fromJar.read(buf);
-              if (length < 0)
-                break;
-              toFile.write(buf, 0, length);
-            }
-
-            // Close buffers.
-            fromJar.close();
-            toFile.close();
-        }
-        catch (FileNotFoundException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
-
     }
 }
