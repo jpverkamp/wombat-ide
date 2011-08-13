@@ -13,8 +13,8 @@ import java.util.Map;
  * Store options.
  */
 public class Options {
-    final static String OPTIONS_FILE = "options.cfg";
-    final static String SYNTAX_FILE = "syntax.cfg";
+    public final static String OPTIONS_FILE = "options.cfg";
+    public final static String SYNTAX_FILE = "syntax.cfg";
     
     static Map<String, String> data = new HashMap<String, String>();;
     static Map<String, Color> colors = new HashMap<String, Color>();;

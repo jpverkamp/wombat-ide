@@ -6,6 +6,8 @@
 package gui;
 
 import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,8 +29,8 @@ public final class MenuManager implements ActionListener {
 
     JMenuBar myMenu;
     
-    Map<String, JMenuItem> nameToItem;
-    Map<JMenuItem, String> itemToName;
+    public Map<String, JMenuItem> nameToItem;
+    public Map<JMenuItem, String> itemToName;
 
     /**
      * Build the main menu.
@@ -41,24 +43,39 @@ public final class MenuManager implements ActionListener {
         
         myMenu = buildBar(
             buildMenu("File", 'F',
-                buildItem("New", 'N'),
-                buildItem("Open", 'O'),
-                buildItem("Save", 'S'),
-                buildItem("Save as", null),
-                buildItem("Close", 'W'),
-                buildItem("Exit", "ALT F4")),
+                buildItem("New", 'N', new actions.New()),
+                buildItem("Open", 'O', new actions.Open()),
+                buildItem("Save", 'S', new actions.Save()),
+                buildItem("Save as", null, new actions.SaveAs()),
+                buildItem("Close", 'W', new actions.Close()),
+                buildItem("Exit", "ALT F4", new actions.Exit())),
+            buildMenu("Edit",
+        		buildItem("Cut", 'X', new DefaultEditorKit.CutAction()),
+        		buildItem("Copy", 'C', new DefaultEditorKit.CopyAction()),
+        		buildItem("Paste", 'V', new DefaultEditorKit.PasteAction())),
             buildMenu("Scheme",
-                buildItem("Run", Options.get("scheme.run", "F5")),
-                buildItem("Format", Options.get("scheme.format", "F6"))),
+                buildItem("Run", Options.get("scheme.run", "F5"), new actions.Run()),
+                buildItem("Format", Options.get("scheme.format", "F6"), new actions.Format())),
             buildMenu("Options",
-                buildItem("Edit configuration", null),
-                buildItem("Edit syntax highlighting", null),
-                buildItem("Reload options", null)),
+                buildItem("Edit configuration", null, new actions.EditConfig()),
+                buildItem("Edit syntax highlighting", null, new actions.EditSyntax()),
+                buildItem("Reload options", null, new actions.Reload())),
             buildMenu("Help",
-                buildItem("Show error console", null),
-                buildItem("About", "F1")));
+                buildItem("Show error console", null, new actions.ShowError()),
+                buildItem("About", "F1", new actions.ShowAbout())));
     }
 
+    /**
+     * Access the static menu manager.
+     * @return
+     */
+    public static MenuManager me() {
+    	if (me == null)
+    		me = new MenuManager();
+    	
+    	return me;
+    }
+    
     /**
      * Build a JMenuBar.
      * @param menus All of the menus.
@@ -101,18 +118,18 @@ public final class MenuManager implements ActionListener {
             menu.add(item);
         return menu;
     }
-
+    
     /**
      * Build a JMenuItem (and store it in the dictionaries).
-     *
-     * @param name Text for the item (can be changed later with i18n)
-     * @param accel If a character use the system shortcut key. If a string, use
-     *              the getKeyStroke method to decode it.
+     * 
+     * @param action An action.
      * @return The new item.
      */
-    private JMenuItem buildItem(String name, Object accel)
+	private JMenuItem buildItem(String name, Object accel, Action action)
     {
-        JMenuItem item = new JMenuItem(name);
+    	JMenuItem item = new JMenuItem(action);
+    	item.setText(name);
+    	
         if (accel != null)
         {
             if (accel instanceof Character)
@@ -127,15 +144,13 @@ public final class MenuManager implements ActionListener {
             if (!util.OS.IsOSX && accel instanceof Character)
                 item.setMnemonic((Character) accel);
         }
-
-        itemToName.put(item, name);
-        nameToItem.put(name, item);
-
-        item.addActionListener(this);
-
-        return item;
+    	
+    	itemToName.put(item, name);
+    	nameToItem.put(name, item);
+    	
+    	return item;
     }
-
+    
     /**
      * Access the JMenuBar.
      * @return Said JMenuBar.

@@ -1,11 +1,9 @@
 package gui;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.text.*;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Stack;
 
@@ -51,7 +49,12 @@ public class SchemeTextArea extends JPanel {
 
         code.getInputMap().put(KeyStroke.getKeyStroke("TAB"), new actions.Tab());
         code.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new actions.Return());
-
+        
+        for (String name : new String[]{"New", "Open", "Save", "Save as", "Close", "Exit", "Run", "Format"}) {
+        	JMenuItem item = MenuManager.me().nameToItem.get(name);
+        	code.getInputMap().put(item.getAccelerator(), item.getAction());
+        }
+        
         // Bracket highlighting.
         code.addCaretListener(new BracketMatcher(this));
     }
