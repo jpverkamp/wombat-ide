@@ -202,9 +202,6 @@ public class DocumentManager implements FocusListener {
         
         View toClose = activeDocument.myView;
         
-        if (Documents.getChildWindowCount() == 1)
-        	New();
-        
         toClose.close();
         	        
         return true;

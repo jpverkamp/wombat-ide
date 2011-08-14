@@ -62,18 +62,14 @@ public class Options {
         });
         
         try {
-        	ErrorFrame.log("Options file is: " + FileAccess.getFile(OPTIONS_FILE));
-        	
-			kawa.eval(FileAccess.getFile(OPTIONS_FILE));
+        	kawa.eval(FileAccess.getFile(OPTIONS_FILE));
 			ErrorFrame.log(OPTIONS_FILE + " loaded.");
 		} catch (Throwable ex) {
 			ErrorFrame.log(OPTIONS_FILE + " failed to load: " + ex.getMessage());
 		}
         
         try {
-        	ErrorFrame.log("Syntax file is: " + FileAccess.getFile(OPTIONS_FILE));
-        	
-			kawa.eval(FileAccess.getFile(SYNTAX_FILE));
+        	kawa.eval(FileAccess.getFile(SYNTAX_FILE));
 			SchemeDocument.reload();
 			ErrorFrame.log(SYNTAX_FILE + " loaded.");
 		} catch (Throwable ex) {

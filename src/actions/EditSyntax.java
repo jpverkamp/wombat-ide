@@ -20,7 +20,7 @@ public class EditSyntax extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		File f = new File(Options.OPTIONS_FILE);
+		File f = new File(Options.SYNTAX_FILE);
         if (!f.exists())
         {
         	try

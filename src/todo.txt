@@ -1,5 +1,4 @@
 Known bugs:
-- Petite only knows paths for Windows (easy to fix, I just need the paths)
 - It's not possible to select regions of text (possibly because of parenthesis matching)
 - Automatic indentation sometimes skips a line
 - Reload options doesn't reload open documents

@@ -24,6 +24,6 @@
 		<jar href="lib/kawa-1.11.jar" />
 	</resources>
     
-	<application-desc main-class="Wombat">
+	<application-desc main-class="wombat.Wombat">
     </application-desc>
 </jnlp>
