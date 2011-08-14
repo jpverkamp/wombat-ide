@@ -16,9 +16,11 @@ public class Options {
     public final static String OPTIONS_FILE = "options.cfg";
     public final static String SYNTAX_FILE = "syntax.cfg";
     
-    static Map<String, String> data = new HashMap<String, String>();;
-    static Map<String, Color> colors = new HashMap<String, Color>();;
-    static Map<String, Integer> keywords = new HashMap<String, Integer>();;
+    static Map<String, String> data = new HashMap<String, String>();
+    static Map<String, Color> colors = new HashMap<String, Color>();
+    static Map<String, Integer> keywords = new HashMap<String, Integer>();
+    
+    static boolean methodsBound = false;
 
     /**
      * Load default options.
@@ -34,32 +36,36 @@ public class Options {
 
         kawa.standard.Scheme kawa = new kawa.standard.Scheme();
         
-        kawa.defineFunction(new Procedure2("cfg") {
-			@Override
-			public Object apply2(Object key, Object val) throws Throwable {
-				data.put(key.toString(), val.toString());
-				return null;
-			}
-        });
-        
-        kawa.defineFunction(new Procedure2("color") {
-        	@Override
-			public Object apply2(Object key, Object val) throws Throwable {
-        		colors.put(key.toString(), parseColor(val.toString()));
-				return null;
-			}
-        });
-        
-        kawa.defineFunction(new Procedure2("keyword") {
-        	@Override
-			public Object apply2(Object key, Object val) throws Throwable {
-        		if (val instanceof IntNum)
-        			keywords.put(key.toString(), ((IntNum) val).ival);
-        		else
-        			ErrorFrame.log("Unknown number format for indendation: " + val);
-				return null;
-			}
-        });
+        if (!methodsBound) {
+	        kawa.defineFunction(new Procedure2("define-option") {
+				@Override
+				public Object apply2(Object key, Object val) throws Throwable {
+					data.put(key.toString(), val.toString());
+					return null;
+				}
+	        });
+	        
+	        kawa.defineFunction(new Procedure2("define-color") {
+	        	@Override
+				public Object apply2(Object key, Object val) throws Throwable {
+	        		colors.put(key.toString(), parseColor(val.toString()));
+					return null;
+				}
+	        });
+	        
+	        kawa.defineFunction(new Procedure2("define-keyword") {
+	        	@Override
+				public Object apply2(Object key, Object val) throws Throwable {
+	        		if (val instanceof IntNum)
+	        			keywords.put(key.toString(), ((IntNum) val).ival);
+	        		else
+	        			ErrorFrame.log("Unknown number format for indendation: " + val);
+					return null;
+				}
+	        });
+	        
+	        methodsBound = true;
+        }
         
         try {
         	kawa.eval(FileAccess.getFile(OPTIONS_FILE));
