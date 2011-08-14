@@ -41,6 +41,8 @@ class SchemeDocument extends DefaultStyledDocument {
      * Create a new Scheme document.
      */
     public SchemeDocument() {
+    	
+    	
         // Create the basic document.
         doc = this;
         rootElement = doc.getDefaultRootElement();
@@ -107,7 +109,8 @@ class SchemeDocument extends DefaultStyledDocument {
             return false;
 
         //  We're in the middle, so the lines are a comment.
-        doc.setCharacterAttributes(startDelimiter, offset - startDelimiter + 1, attributes.get("comment"), true);
+        if (attributes.containsKey("comment"))
+        	doc.setCharacterAttributes(startDelimiter, offset - startDelimiter + 1, attributes.get("comment"), true);
         return true;
     }
 
@@ -129,7 +132,8 @@ class SchemeDocument extends DefaultStyledDocument {
         int startDelimiter = lastIndexOf(content, "#|", endDelimiter);
 
         if (startDelimiter < 0 || startDelimiter <= offset) {
-            doc.setCharacterAttributes(offset, endDelimiter - offset + 1, attributes.get("comment"), true);
+        	if (attributes.containsKey("comment"))
+        		doc.setCharacterAttributes(offset, endDelimiter - offset + 1, attributes.get("comment"), true);
         }
     }
 
@@ -165,8 +169,9 @@ class SchemeDocument extends DefaultStyledDocument {
             Element leaf = doc.getCharacterElement(branch.getStartOffset());
             AttributeSet as = leaf.getAttributes();
 
-            if (as.isEqual(attributes.get("comment")))
-                applyHighlighting(content, i);
+            if (attributes.containsKey("comment"))
+            	if (as.isEqual(attributes.get("comment")))
+            		applyHighlighting(content, i);
         }
     }
 
@@ -189,20 +194,22 @@ class SchemeDocument extends DefaultStyledDocument {
         if (endingMultiLineComment(content, startOffset, endOffset)
                 || isMultiLineComment()
                 || startingMultiLineComment(content, startOffset, endOffset)) {
-            doc.setCharacterAttributes(startOffset, endOffset - startOffset + 1, attributes.get("comment"), true);
+        	if (attributes.containsKey("comment"))
+        		doc.setCharacterAttributes(startOffset, endOffset - startOffset + 1, attributes.get("comment"), true);
             return;
         }
 
         //  set normal attributes for the line
-
-        doc.setCharacterAttributes(startOffset, lineLength, attributes.get("normal"), true);
+        if (attributes.containsKey("normal"))
+        	doc.setCharacterAttributes(startOffset, lineLength, attributes.get("normal"), true);
 
         //  check for single line comment
 
         int index = content.indexOf(';', startOffset);
 
         if ((index > -1) && (index < endOffset)) {
-            doc.setCharacterAttributes(index, endOffset - index + 1, attributes.get("comment"), true);
+        	if (attributes.containsKey("comment"))
+        		doc.setCharacterAttributes(index, endOffset - index + 1, attributes.get("comment"), true);
             endOffset = index - 1;
         }
 
@@ -303,7 +310,8 @@ class SchemeDocument extends DefaultStyledDocument {
         else
             endOfQuote = index;
 
-        doc.setCharacterAttributes(startOffset, endOfQuote - startOffset + 1, attributes.get("string"), true);
+        if (attributes.containsKey("string"))
+        	doc.setCharacterAttributes(startOffset, endOfQuote - startOffset + 1, attributes.get("string"), true);
 
         return endOfQuote + 1;
     }
@@ -324,7 +332,8 @@ class SchemeDocument extends DefaultStyledDocument {
         String token = content.substring(startOffset, endOfToken);
 
         if (Options.keywords.containsKey(token)) {
-            doc.setCharacterAttributes(startOffset, endOfToken - startOffset, attributes.get("keyword"), true);
+        	if (attributes.containsKey("keyword"))
+        		doc.setCharacterAttributes(startOffset, endOfToken - startOffset, attributes.get("keyword"), true);
         }
 
         return endOfToken + 1;
