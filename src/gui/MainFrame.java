@@ -3,6 +3,7 @@ package gui;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
+import wombat.Wombat;
 import util.OutputIntercept;
 
 import java.awt.*;
@@ -38,7 +39,7 @@ public class MainFrame extends JFrame {
      */
     private MainFrame() {
         // Set frame options.
-        setTitle("Wombat");
+        setTitle("Wombat - Build " + Wombat.VERSION);
         try {
             setSize(
                     Integer.parseInt(Options.get("main.width")),
