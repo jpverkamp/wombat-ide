@@ -72,7 +72,7 @@ public class SchemeTextArea extends JPanel {
     /**
      * Perform a tab at the current position.
      */
-    void tab() {
+    public void tab() {
         // Things that break tokens.
         String delimiters = "()[] ";
 

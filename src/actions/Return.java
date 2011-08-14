@@ -29,6 +29,6 @@ public class Return extends AbstractAction {
             ErrorFrame.log("Unable to add a new line on ENTER.");
         }
 		
-		doc.format();
+		doc.tab();
 	}
 }

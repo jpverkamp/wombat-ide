@@ -22,6 +22,6 @@ public class Tab extends AbstractAction {
 		if (doc == null)
 			return;
 		
-		doc.format();
+		doc.tab();
 	}
 }

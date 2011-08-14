@@ -4,8 +4,6 @@ Known bugs:
 - Automatic indentation sometimes skips a line
 - Reload options doesn't reload open documents
 - Reload options doesn't change the Scheme that the REPL uses
-- Hasn't been tested on Java 1.5 (needed for older Macs)
-- Some menu options don't actually work (the keyboard shortcuts do, needs confirmation)
 
 Feature requests:
 - Tab bar with buttons that duplicate menu functions
