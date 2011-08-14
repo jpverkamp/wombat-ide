@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/idw-gpl.jar"/>
-	<classpathentry kind="lib" path="lib/sisc.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/kawa-1.11.jar"/>
 	<classpathentry kind="output" path="bin"/>

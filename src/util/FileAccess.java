@@ -11,23 +11,18 @@ public class FileAccess {
 	
 	private FileAccess() {}
 	
-	public static Reader getFile(String filename)
+	public static Reader getFile(String filename) throws FileNotFoundException
 	{
-		try {
-			
-			// Try to load the file from the file system.
-		    if (new File(filename).exists())
-		    	return new FileReader(new File(filename));
-			else if (me.getClass().getResourceAsStream(filename) != null)
-		    	return new InputStreamReader(me.getClass().getResourceAsStream(filename));
-		    else if (me.getClass().getResourceAsStream("/" + filename) != null)
-		    	return new InputStreamReader(me.getClass().getResourceAsStream("/" + filename));
-		    
-		    // Otherwise, no idea.
-		    else
-		    	return null;
-		} catch (FileNotFoundException e) {
-			return null;
-		}
+		// Try to load the file from the file system.
+	    if (new File(filename).exists())
+	    	return new FileReader(new File(filename));
+		else if (me.getClass().getResourceAsStream(filename) != null)
+	    	return new InputStreamReader(me.getClass().getResourceAsStream(filename));
+	    else if (me.getClass().getResourceAsStream("/" + filename) != null)
+	    	return new InputStreamReader(me.getClass().getResourceAsStream("/" + filename));
+	    
+	    // Otherwise, no idea.
+	    else
+	    	throw new FileNotFoundException(filename);
 	}
 }

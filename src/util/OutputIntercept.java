@@ -1,5 +1,7 @@
 package util;
 
+import gui.ErrorFrame;
+
 import java.io.PrintStream;
 
 public class OutputIntercept extends PrintStream {
@@ -23,7 +25,7 @@ public class OutputIntercept extends PrintStream {
 	public static void enable() {
 		enabled = true;
 		
-		System.out.println("About to capture out and err.");
+		ErrorFrame.log("Enabling OutputIntercept.");
 		
 		System.setOut(me);
 		System.setErr(me);
@@ -35,7 +37,7 @@ public class OutputIntercept extends PrintStream {
 	public static void disable() {
 		enabled = false;
 		
-		System.out.println("About to return out and err to normal.");
+		ErrorFrame.log("Disabling OutputIntercept.");
 		
 		System.setOut(console);
 		System.setErr(err);
@@ -71,37 +73,33 @@ public class OutputIntercept extends PrintStream {
 	 * Print a string.
 	 */
 	public void print(String x) {
-		console.print(x);
-		buffer.append(x);
-		content = true;
+		go(x);
 	}
 
 	/**
 	 * Print a string then a newline.
 	 */
 	public void println(String x) {
-		console.println(x);
-		buffer.append(x);
-		buffer.append("\n");
-		content = true;
+		go(x + "\n");
 	}
 
 	/**
 	 * Print an object.
 	 */
 	public void print(Object x) {
-		console.print(x);
-		buffer.append(x.toString());
-		content = true;
+		go(x.toString());
 	}
 
 	/**
 	 * Print an object then a newline.
 	 */
 	public void println(Object x) {
-		console.println(x);
-		buffer.append(x.toString());
-		buffer.append("\n");
+		go(x.toString() + "\n");
+	}
+	
+	private void go(String x) {
+//		console.print(x);
+		buffer.append(x);
 		content = true;
 	}
 }

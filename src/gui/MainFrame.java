@@ -1,22 +1,20 @@
 package gui;
 
-import scheme.ForeignScheme;
-import scheme.KawaScheme;
-import scheme.SISCScheme;
-import scheme.Scheme;
-
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
+
+import util.OutputIntercept;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
 import java.util.Stack;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
 
+import kawa.standard.*;
 
 /**
  * Create a main frame.
@@ -32,7 +30,7 @@ public class MainFrame extends JFrame {
     public DocumentManager Documents;
     public SchemeTextArea History;
     public SchemeTextArea REPL;
-    public Scheme SS;
+    public Scheme kawa;
 
     /**
      * Don't directly create this, use me().
@@ -115,42 +113,23 @@ public class MainFrame extends JFrame {
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
         Root = DockingUtil.createRootWindow(new ViewMap(), true);
         Root.setWindow(fullSplit);
-        
         add(Root);
         
-        // Get a Scheme.
-        String schemeVersion = Options.get("scheme", "kawa");
-        if ("sisc".equals(schemeVersion.toLowerCase())) {
-            SS = new SISCScheme();
-        } else if ("kawa".equals(schemeVersion.toLowerCase())) {
-        	SS = new KawaScheme();
-        }
-        else {
-            try {
-                SS = new ForeignScheme(schemeVersion);
-            } catch (FileNotFoundException e) {
-            	ErrorFrame.log(schemeVersion + " not found, falling back to Kawa.");
-                SS = new KawaScheme();
-            }
-        }
-
-        // Bind it to return responses to the History pane.
+        // Connect to Kawa.
+        kawa = new Scheme();
+        
+        // Bind a to catch anything that goes to stdout or stderr.
         Thread t = new Thread(new Runnable() {
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ie) {
-                    }
-
-                    if (SS.hasResponse())
-                    {
-                        String response = SS.nextResponse();
-                        if (response != null)
-                            History.append(response + "\n");
-                    }
-                }
-            }
+        	public void run() {
+        		OutputIntercept.enable();
+        		
+        		while (true) {
+        			if (OutputIntercept.hasContent())
+        				History.append(OutputIntercept.getContent() + "\n");
+        			
+        			try { Thread.sleep(50); } catch(Exception e) {}
+        		}
+        	}	
         });
         t.setDaemon(true);
         t.start();
@@ -167,7 +146,16 @@ public class MainFrame extends JFrame {
             return;
 
         History.append("\n>>> " + command.replace("\n", "\n    ") + "\n");
-        SS.doString(command);
+
+        try {
+			Object result = kawa.eval(command);
+			
+			if (!"".equals(result.toString()))
+				History.append(result.toString() + "\n");
+			
+		} catch (Throwable ex) {
+			History.append(ex.getMessage());
+		}
     }
 
     /**
