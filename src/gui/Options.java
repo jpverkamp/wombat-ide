@@ -19,8 +19,6 @@ public class Options {
     static Map<String, String> data = new HashMap<String, String>();
     static Map<String, Color> colors = new HashMap<String, Color>();
     static Map<String, Integer> keywords = new HashMap<String, Integer>();
-    
-    static boolean methodsBound = false;
 
     /**
      * Load default options.
@@ -35,8 +33,8 @@ public class Options {
         keywords.clear();
 
         kawa.standard.Scheme kawa = new kawa.standard.Scheme();
-        
-        if (!methodsBound) {
+
+        try {
 	        kawa.defineFunction(new Procedure2("define-option") {
 				@Override
 				public Object apply2(Object key, Object val) throws Throwable {
@@ -63,15 +61,20 @@ public class Options {
 					return null;
 				}
 	        });
-	        
-	        methodsBound = true;
+        } catch(IllegalStateException ex) {
+        	// If we try to reload. This should fix that.
         }
         
         try {
         	kawa.eval(FileAccess.getFile(OPTIONS_FILE));
 			ErrorFrame.log(OPTIONS_FILE + " loaded.");
 		} catch (Throwable ex) {
-			ErrorFrame.log(OPTIONS_FILE + " failed to load: " + ex.getMessage());
+			try {
+				kawa.eval(FileAccess.getFile(OPTIONS_FILE, true));
+				ErrorFrame.log(OPTIONS_FILE + " loaded.");
+			} catch (Throwable ex2) {
+				ErrorFrame.log(OPTIONS_FILE + " failed to load: " + ex2.getMessage());
+			}
 		}
         
         try {
@@ -79,7 +82,12 @@ public class Options {
 			SchemeDocument.reload();
 			ErrorFrame.log(SYNTAX_FILE + " loaded.");
 		} catch (Throwable ex) {
-			ErrorFrame.log(SYNTAX_FILE + " failed to load: " + ex.getMessage());
+			try {
+				kawa.eval(FileAccess.getFile(SYNTAX_FILE, true));
+				ErrorFrame.log(SYNTAX_FILE + " loaded.");
+			} catch (Throwable ex2) {
+				ErrorFrame.log(SYNTAX_FILE + " failed to load: " + ex2.getMessage());
+			}
 		}
     }
 

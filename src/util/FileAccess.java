@@ -10,12 +10,15 @@ public class FileAccess {
 	
 	private FileAccess() {}
 	
-	public static String getFile(String filename) throws FileNotFoundException
-	{
+	public static String getFile(String filename) throws FileNotFoundException {
+		return getFile(filename, false);
+	}
+	
+	public static String getFile(String filename, boolean skipLocal) throws FileNotFoundException {
 		Scanner s;
 		
 		// Try to load the file from the file system.
-	    if (new File(filename).exists())
+	    if (!skipLocal && new File(filename).exists())
 	    	s = new Scanner(new File(filename));
 		else if (me.getClass().getResourceAsStream(filename) != null)
 	    	s = new Scanner(new InputStreamReader(me.getClass().getResourceAsStream(filename)));

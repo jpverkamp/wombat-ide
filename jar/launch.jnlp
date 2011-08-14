@@ -19,7 +19,7 @@
     
 	<resources>
         <j2se version="1.6+" />
-        <jar href="Wombat-112.jar" main="true" />
+        <jar href="Wombat-113.jar" main="true" />
 		<jar href="lib/idw-gpl.jar" />
 		<jar href="lib/kawa-1.11.jar" />
 	</resources>
