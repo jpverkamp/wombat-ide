@@ -1,8 +1,5 @@
 package gui;
 
-import globals.*;
-import gnu.mapping.Environment;
-
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
@@ -14,15 +11,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Stack;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
-
-import kawa.repl;
-import kawa.standard.*;
 
 /**
  * Create a main frame.

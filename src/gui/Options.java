@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import kawa.standard.Scheme;
+
 /**
  * Store options.
  */
@@ -32,7 +34,7 @@ public class Options {
         colors.clear();
         keywords.clear();
 
-        kawa.standard.Scheme kawa = new kawa.standard.Scheme();
+        Scheme kawa = new Scheme();
 
         try {
 	        kawa.defineFunction(new Procedure2("define-option") {
