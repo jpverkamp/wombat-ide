@@ -56,7 +56,6 @@ public class KawaWrap {
 				// As soon as we have a matched set, evaluate.
 				if (brackets.isEmpty() && sb.length() > 0 && "([".indexOf(c) != -1)
 				{
-					System.out.println("Subcommand is: " + ("(eval '" + sb.toString() + ")"));
 					result = kawa.eval("(eval '" + sb.toString() + ")");
 					sb = new StringBuilder();
 				}
@@ -79,13 +78,7 @@ public class KawaWrap {
 			
 			// Match whatever is left.
 			if (brackets.isEmpty() && sb.length() > 0)
-			{
-			
-				System.out.println("Subcommand is: " + ("(eval '" + sb.toString() + ")"));
 				result = kawa.eval("(eval '" + sb.toString() + ")");
-			}
-			
-			System.out.println("Result is " + result);
 
 			// Return the final result.
 			if (result == null || result.toString().length() == 0)
