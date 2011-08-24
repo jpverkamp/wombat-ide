@@ -1,20 +1,27 @@
 package gui;
 
+import globals.*;
+import gnu.mapping.Environment;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
 import wombat.Wombat;
+import util.KawaWrap;
 import util.OutputIntercept;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Stack;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
 
+import kawa.repl;
 import kawa.standard.*;
 
 /**
@@ -31,7 +38,7 @@ public class MainFrame extends JFrame {
     public DocumentManager Documents;
     public SchemeTextArea History;
     public SchemeTextArea REPL;
-    public Scheme kawa;
+    public KawaWrap kawa;
 
     /**
      * Don't directly create this, use me().
@@ -117,7 +124,7 @@ public class MainFrame extends JFrame {
         add(Root);
         
         // Connect to Kawa.
-        kawa = new Scheme();
+        kawa = new KawaWrap();
         
         // Bind a to catch anything that goes to stdout or stderr.
         Thread t = new Thread(new Runnable() {
@@ -136,7 +143,7 @@ public class MainFrame extends JFrame {
         t.start();
     }
 
-    /**
+	/**
      * Run a command.
      *
      * @param command The command to run.
@@ -147,16 +154,10 @@ public class MainFrame extends JFrame {
             return;
 
         History.append("\n>>> " + command.replace("\n", "\n    ") + "\n");
-
-        try {
-			Object result = kawa.eval(command);
-			
-			if (!"".equals(result.toString()))
-				History.append(result.toString() + "\n");
-			
-		} catch (Throwable ex) {
-			History.append(ex.getMessage());
-		}
+        
+        Object result = kawa.eval(command);
+        if (result != null)
+        	History.append(result.toString() + "\n");
     }
 
     /**

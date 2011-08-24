@@ -78,7 +78,7 @@ public class DocumentManager implements FocusListener {
         
         if (fc.getFile() == null)
             return false;
-
+        
         File file = new File(fc.getFile());
         if (!file.exists())
         {

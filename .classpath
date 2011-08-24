@@ -3,6 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/idw-gpl.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/kawa-1.11.jar"/>
+	<classpathentry kind="lib" path="lib/kawa-1.11.jar" sourcepath="C:/Users/John-Paul/Projects/kawa-1.11"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
