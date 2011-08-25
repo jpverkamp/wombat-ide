@@ -1,12 +1,9 @@
 package util;
 
-import java.util.Stack;
+import globals.*;
 
-import globals.Globals;
-import globals.Imageitude;
-import globals.Mathiness;
-import globals.Randomness;
-import globals.Treeitude;
+import gnu.mapping.Environment;
+import gnu.mapping.Named;
 import gui.ErrorFrame;
 import kawa.standard.Scheme;
 
@@ -15,14 +12,16 @@ import kawa.standard.Scheme;
  */
 public class KawaWrap {
 	Scheme kawa;
+	Environment env;
 	
 	/**
 	 * Connect to Kawa.
 	 */
 	public KawaWrap()
 	{
-		// Create the interpreter.
-		kawa = new Scheme();
+		Scheme.registerEnvironment();
+		kawa = Scheme.getInstance();
+		env = Environment.getCurrent();
 		
 		// Load globals.
         for (Globals g : new Globals[]{
@@ -32,7 +31,7 @@ public class KawaWrap {
         		new Imageitude(),
         }) {
         	try {
-        		g.addMethods(kawa);
+        		g.addMethods(this);
         	} catch(Throwable ex) {
         		ErrorFrame.log("Unable to load globals from " + g.getClass().getName() + ": " + ex.getMessage());
         	}
@@ -40,45 +39,22 @@ public class KawaWrap {
 	}
 	
 	/**
+	 * Bind a new function from the Java end of things.
+	 * 
+	 * @param proc The function to bind.
+	 */
+	public void bind(Named proc) {
+		kawa.defineFunction(proc);
+	}
+	
+	/**
 	 * Evaluate a command, given as a string.
 	 * @param s The string to evaluate.
 	 * @return The result.
 	 */
-	public Object eval(String cmd)
-	{
+	public Object eval(String cmd) {
 		try {
-			// TODO: This sucks, but it does make it work.
-			StringBuilder sb = new StringBuilder();
-			Stack<Character> brackets = new Stack<Character>();
-			Object result = null;
-			for (char c : cmd.toCharArray())
-			{
-				// As soon as we have a matched set, evaluate.
-				if (brackets.isEmpty() && sb.length() > 0 && "([".indexOf(c) != -1)
-				{
-					result = kawa.eval("(eval '" + sb.toString() + ")");
-					sb = new StringBuilder();
-				}
-				
-				// Append the character (replace square brackets).
-				if (c == '[') sb.append('(');
-				else if (c == ']') sb.append(')');
-				else sb.append(c);
-				
-				// Match parenthesis.
-				if (c == '(') brackets.push(')');
-				else if (c == '[') brackets.push(']');
-				else if (c == ')' || c == ']') {
-					if (!brackets.isEmpty() && brackets.peek() == c)
-						brackets.pop();
-					else
-						break;
-				}
-			}
-			
-			// Match whatever is left.
-			if (brackets.isEmpty() && sb.length() > 0)
-				result = kawa.eval("(eval '" + sb.toString() + ")");
+			Object result = Scheme.eval(cmd, env);
 
 			// Return the final result.
 			if (result == null || result.toString().length() == 0)

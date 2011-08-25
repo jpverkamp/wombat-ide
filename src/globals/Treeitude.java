@@ -1,6 +1,6 @@
 package globals;
 
-import kawa.standard.Scheme;
+import util.KawaWrap;
 
 public class Treeitude extends Globals {
 	/**
@@ -10,7 +10,7 @@ public class Treeitude extends Globals {
 	 * @throws Throwable If anything breaks while adding them.
 	 */
 	@Override
-	public void addMethods(Scheme kawa) throws Throwable {
+	public void addMethods(KawaWrap kawa) throws Throwable {
 
 	}
 }

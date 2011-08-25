@@ -2,9 +2,10 @@ package globals;
 
 import java.util.Random;
 
+import util.KawaWrap;
+
 import gnu.mapping.Procedure1;
 import gnu.math.IntNum;
-import kawa.standard.Scheme;
 
 public class Randomness extends Globals {
 	Random random = new Random();
@@ -15,8 +16,8 @@ public class Randomness extends Globals {
 	 * @param kawa The interpreter to add them to.
 	 */
 	@Override
-	public void addMethods(Scheme kawa) throws Throwable {
-    	kawa.defineFunction(new Procedure1("random") {
+	public void addMethods(KawaWrap kawa) throws Throwable {
+    	kawa.bind(new Procedure1("random") {
 			@Override
 			public Object apply1(Object max) throws Throwable {
 				if (max instanceof IntNum)

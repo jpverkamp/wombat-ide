@@ -1,6 +1,6 @@
 package globals;
 
-import kawa.standard.Scheme;
+import util.KawaWrap;
 
 public class Imageitude extends Globals {
 	/**
@@ -10,7 +10,7 @@ public class Imageitude extends Globals {
 	 * @throws Throwable If anything breaks while adding them.
 	 */
 	@Override
-	public void addMethods(Scheme kawa) throws Throwable {
+	public void addMethods(KawaWrap kawa) throws Throwable {
 
 	}
 }
