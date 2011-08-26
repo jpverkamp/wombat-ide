@@ -54,6 +54,7 @@ public class KawaWrap {
 	 */
 	public Object eval(String cmd) {
 		try {
+			cmd = cmd.replace('[', '(').replace(']', ')');
 			Object result = Scheme.eval(cmd, env);
 
 			// Return the final result.
@@ -61,13 +62,10 @@ public class KawaWrap {
 				return null;
 			else 
 				return result;
-			
-		}  catch(NoSuchFieldError ex) {
-			ex.printStackTrace();
-			
-			return "Unbound variable: " + ex.getMessage();
+		} catch (StackOverflowError ex) {
+			return "Possible infinite looped detected.";
 		} catch (Throwable ex) {
-			return "Error: " + ex;
+			return "Unknown error: " + ex;
 		}
 	}
 }
