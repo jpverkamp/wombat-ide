@@ -28,8 +28,8 @@ public class MainFrame extends JFrame {
     // Things we may need access to.
     public RootWindow Root;
     public DocumentManager Documents;
-    public SchemeTextArea History;
-    public SchemeTextArea REPL;
+    public HistoryTextArea History;
+    public REPLTextArea REPL;
     public KawaWrap kawa;
 
     /**
@@ -60,56 +60,20 @@ public class MainFrame extends JFrame {
         // Set up the menus using the above definitions.
         setJMenuBar(MenuManager.menu());
         
-        // Create the document window.
+        // Create a display for any open documents.
         TabWindow documents = new TabWindow();
         StringViewMap viewMap = new StringViewMap();
         Documents = new DocumentManager(viewMap, documents);
         Documents.New();
          
-        // Create the REPL.
-        History = new SchemeTextArea();
-        History.setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
-        History.code.setEditable(false);
-        
-        REPL = new SchemeTextArea();
-        REPL.setPreferredSize(new Dimension(100, 100));
-        REPL.code.getInputMap().put(
-                KeyStroke.getKeyStroke("ENTER"),
-                new AbstractAction() {
-                    private static final long serialVersionUID = 723647997099071931L;
-
-					public void actionPerformed(ActionEvent e) {
-                        Stack<Character> brackets = new Stack<Character>();
-                        for (char c : REPL.getText().toCharArray()) {
-                            if (c == '(') brackets.push(')');
-                            else if (c == '[') brackets.push(']');
-                            else if (c == ')' || c == ']')
-                                if (!brackets.empty() && brackets.peek() == c)
-                                    brackets.pop();
-                                else
-                                    return;
-                        }
-
-                        if (brackets.empty()) {
-                            doCommand(REPL.getText());
-                            REPL.setText("");
-                        } else {
-                            try {
-                                REPL.code.getDocument().insertString(REPL.code.getCaretPosition(), SchemeTextArea.NL, null);
-                            } catch (BadLocationException ble) {
-                                System.err.println("badwolf");
-                            }
-                            REPL.tab();
-                        }
-                    }
-                }
-        );
-        
+        // Create displays for a split REPL.
+        History = new HistoryTextArea();
+        REPL = new REPLTextArea();
         viewMap.addView("History", new View("History", null, History));
-        viewMap.addView("REPL", new View("REPL", null, REPL));
+        viewMap.addView("REPL", new View("Execute", null, REPL));
         SplitWindow replSplit = new SplitWindow(false, viewMap.getView("History"), viewMap.getView("REPL"));
         
-        // Put everything together.
+        // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
         Root = DockingUtil.createRootWindow(new ViewMap(), true);
         Root.setWindow(fullSplit);
