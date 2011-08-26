@@ -41,8 +41,6 @@ class SchemeDocument extends DefaultStyledDocument {
      * Create a new Scheme document.
      */
     public SchemeDocument() {
-    	
-    	
         // Create the basic document.
         doc = this;
         rootElement = doc.getDefaultRootElement();
