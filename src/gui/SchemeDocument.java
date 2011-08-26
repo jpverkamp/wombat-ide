@@ -32,9 +32,9 @@ class SchemeDocument extends DefaultStyledDocument {
         for (String key : "normal keyword comment string bracket".split(" "))
             attributes.put(key, new SimpleAttributeSet());
 
-        for (String key : Options.colors.keySet())
+        for (String key : Options.Colors.keySet())
         	if (attributes.containsKey(key))
-        		StyleConstants.setForeground(attributes.get(key), Options.colors.get(key));
+        		StyleConstants.setForeground(attributes.get(key), Options.Colors.get(key));
     }
     
     /**
@@ -331,7 +331,7 @@ class SchemeDocument extends DefaultStyledDocument {
 
         String token = content.substring(startOffset, endOfToken);
 
-        if (Options.keywords.containsKey(token)) {
+        if (Options.Keywords.containsKey(token)) {
         	if (attributes.containsKey("keyword"))
         		doc.setCharacterAttributes(startOffset, endOfToken - startOffset, attributes.get("keyword"), true);
         }

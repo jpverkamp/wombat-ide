@@ -46,12 +46,9 @@ public final class MenuManager {
         		buildItem("Copy", 'C', new DefaultEditorKit.CopyAction()),
         		buildItem("Paste", 'V', new DefaultEditorKit.PasteAction())),
             buildMenu("Scheme",
-                buildItem("Run", Options.get("scheme.run", "F5"), new actions.Run()),
-                buildItem("Format", Options.get("scheme.format", "F6"), new actions.Format())),
-            buildMenu("Options",
-                buildItem("Edit configuration", null, new actions.EditConfig()),
-                buildItem("Edit syntax highlighting", null, new actions.EditSyntax()),
-                buildItem("Reload options", null, new actions.Reload())),
+                buildItem("Run", Options.CommandRun, new actions.Run()),
+                buildItem("Format", Options.CommandFormat, new actions.Format())),
+            Options.buildOptionsMenu(),
             buildMenu("Help",
                 buildItem("Show error console", null, new actions.ShowError()),
                 buildItem("About", "F1", new actions.ShowAbout())));
@@ -73,8 +70,7 @@ public final class MenuManager {
      * @param menus All of the menus.
      * @return 
      */
-    public JMenuBar buildBar(JMenu... menus)
-    {
+    public JMenuBar buildBar(JMenu... menus) {
         JMenuBar menuBar = new JMenuBar();
         for (JMenu menu : menus)
             menuBar.add(menu);
@@ -89,8 +85,7 @@ public final class MenuManager {
      * @return The menu.
      * @return
      */
-    private JMenu buildMenu(String name, char accel, JMenuItem... items)
-    {
+    private JMenu buildMenu(String name, char accel, JMenuItem... items) {
         JMenu menu = buildMenu(name, items);
         if (!util.OS.IsOSX)
             menu.setMnemonic(accel);
@@ -103,8 +98,7 @@ public final class MenuManager {
      * @param items A list of JMenuItems.
      * @return The menu.
      */
-    private JMenu buildMenu(String name, JMenuItem... items)
-    {
+    private JMenu buildMenu(String name, JMenuItem... items) {
         JMenu menu = new JMenu(name);
         for (JMenuItem item : items)
             menu.add(item);
@@ -117,8 +111,7 @@ public final class MenuManager {
      * @param action An action.
      * @return The new item.
      */
-	private JMenuItem buildItem(String name, Object accel, Action action)
-    {
+	private JMenuItem buildItem(String name, Object accel, Action action) {
     	JMenuItem item = new JMenuItem(action);
     	item.setText(name);
     	

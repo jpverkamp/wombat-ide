@@ -94,8 +94,7 @@ public class DocumentManager implements FocusListener {
      * @param file The file to load.
      * @return If the load worked.
      */
-    public boolean Open(File file)
-    {
+    public boolean Open(File file) {
         lastIndex++;
         
         String id = "document-" + lastIndex;
@@ -160,8 +159,7 @@ public class DocumentManager implements FocusListener {
      * Save the active file with a new name.
      * @return If it worked.
      */
-    public boolean SaveAs()
-    {
+    public boolean SaveAs() {
         if (activeDocument == null)
             return false;
 
@@ -181,15 +179,14 @@ public class DocumentManager implements FocusListener {
      * Close the active document.
      * @return If it worked.
      */
-    public boolean Close()
-    {
+    public boolean Close() {
         if (activeDocument == null)
             return false;
 
         if (!activeDocument.isEmpty())
         {
             String name = activeDocument.myView.getViewProperties().getTitle();
-            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+            if (!Options.ConfirmOnRunClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                     activeDocument,
                     "Save " + name + " before closing?",
                     "Close...",
@@ -211,15 +208,14 @@ public class DocumentManager implements FocusListener {
      * Run the active document.
      * @return If it worked.
      */
-    public boolean Run()
-    {
+    public boolean Run() {
         if (activeDocument == null)
             return false;
 
         if (!activeDocument.isEmpty())
         {
             String name = activeDocument.myView.getViewProperties().getTitle();
-            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+            if (!Options.ConfirmOnRunClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                     activeDocument,
                     "Save " + name + " before running?",
                     "Close...",
@@ -241,8 +237,7 @@ public class DocumentManager implements FocusListener {
      * Format the active document.
      * @return If it worked.
      */
-    public boolean Format()
-    {
+    public boolean Format() {
         if (activeDocument == null)
             return false;
         

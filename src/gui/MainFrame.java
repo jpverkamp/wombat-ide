@@ -36,20 +36,18 @@ public class MainFrame extends JFrame {
     private MainFrame() {
         // Set frame options.
         setTitle("Wombat - Build " + Wombat.VERSION);
-        try {
-            setSize(
-                    Integer.parseInt(Options.get("main.width")),
-                    Integer.parseInt(Options.get("main.height"))
-            );
-        } catch (Exception ex) {
-            setSize(600, 400);
-        }
+        setSize(Options.DisplayWidth, Options.DisplayHeight);
+        setLocation(Options.DisplayLeft, Options.DisplayTop);
         setLayout(new BorderLayout(5, 5));
-        setLocationByPlatform(true);
         
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+            	Options.DisplayTop = Math.max(0, e.getWindow().getLocation().y);
+            	Options.DisplayLeft = Math.max(0, e.getWindow().getLocation().x);
+            	Options.DisplayWidth = Math.max(400, e.getWindow().getWidth());
+            	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
+            	Options.save();
                 System.exit(0);
             }
         });

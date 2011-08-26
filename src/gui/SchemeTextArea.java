@@ -150,8 +150,8 @@ public class SchemeTextArea extends JPanel {
                 indentTo = 0;
 
                 // Otherwise, if there's a valid keyword, indent based on that.
-            else if (Options.keywords.containsKey(token))
-                indentTo += Options.keywords.get(token);
+            else if (Options.Keywords.containsKey(token))
+                indentTo += Options.Keywords.get(token);
 
                 // Otherwise, fall back on the default indentation.
             else
