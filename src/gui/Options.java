@@ -1,6 +1,7 @@
 package gui;
 
 import util.FileAccess;
+import util.KawaWrap;
 import gnu.mapping.Procedure2;
 import gnu.math.IntNum;
 
@@ -8,8 +9,6 @@ import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
-import kawa.standard.Scheme;
 
 /**
  * Store options.
@@ -34,10 +33,10 @@ public class Options {
         colors.clear();
         keywords.clear();
 
-        Scheme kawa = new Scheme();
+        KawaWrap kawa = new KawaWrap();
 
         try {
-	        kawa.defineFunction(new Procedure2("define-option") {
+	        kawa.bind(new Procedure2("define-option") {
 				@Override
 				public Object apply2(Object key, Object val) throws Throwable {
 					data.put(key.toString(), val.toString());
@@ -45,7 +44,7 @@ public class Options {
 				}
 	        });
 	        
-	        kawa.defineFunction(new Procedure2("define-color") {
+	        kawa.bind(new Procedure2("define-color") {
 	        	@Override
 				public Object apply2(Object key, Object val) throws Throwable {
 	        		colors.put(key.toString(), parseColor(val.toString()));
@@ -53,7 +52,7 @@ public class Options {
 				}
 	        });
 	        
-	        kawa.defineFunction(new Procedure2("define-keyword") {
+	        kawa.bind(new Procedure2("define-keyword") {
 	        	@Override
 				public Object apply2(Object key, Object val) throws Throwable {
 	        		if (val instanceof IntNum)

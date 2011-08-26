@@ -63,7 +63,7 @@ public class KawaWrap {
 			else 
 				return result;
 		} catch (StackOverflowError ex) {
-			return "Possible infinite looped detected.";
+			return "Possible infinite loop detected.";
 		} catch (Throwable ex) {
 			return "Unknown error: " + ex;
 		}
