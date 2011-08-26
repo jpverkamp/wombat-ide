@@ -43,6 +43,7 @@ public class MainFrame extends JFrame {
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+            	Documents.CloseAll();
             	Options.DisplayTop = Math.max(0, e.getWindow().getLocation().y);
             	Options.DisplayLeft = Math.max(0, e.getWindow().getLocation().x);
             	Options.DisplayWidth = Math.max(400, e.getWindow().getWidth());

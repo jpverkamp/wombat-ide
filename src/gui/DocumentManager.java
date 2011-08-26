@@ -14,8 +14,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import javax.swing.JOptionPane;
+import javax.swing.text.BadLocationException;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
@@ -27,7 +30,9 @@ public class DocumentManager implements FocusListener {
     int lastIndex;
     TabWindow Documents;
     StringViewMap Views = new StringViewMap();
+    List<SchemeTextArea> allDocuments;
     public SchemeTextArea activeDocument;
+    
     
     /**
      * Manage documents.
@@ -38,6 +43,7 @@ public class DocumentManager implements FocusListener {
         lastIndex = 0;
         Views = views;
         Documents = documents;
+        allDocuments = new ArrayList<SchemeTextArea>();
     }
     
     /**
@@ -49,8 +55,9 @@ public class DocumentManager implements FocusListener {
         String id = "document-" + lastIndex;
 
         SchemeTextArea ss = new SchemeTextArea();
+        allDocuments.add(ss);
         ss.code.addFocusListener(this);
-
+        
         Views.addView(id, new View("<new document>", null, ss));
         ss.myView = Views.getView(id);
         
@@ -114,6 +121,7 @@ public class DocumentManager implements FocusListener {
             }
 
             SchemeTextArea ss = new SchemeTextArea(content.toString());
+            allDocuments.add(ss);
             ss.myFile = file;
             ss.code.addFocusListener(this);
 
@@ -197,11 +205,43 @@ public class DocumentManager implements FocusListener {
             }
         }
         
+        allDocuments.remove(activeDocument);
         View toClose = activeDocument.myView;
-        
         toClose.close();
         	        
         return true;
+    }
+    
+    /**
+     * Close all documents.
+     * @return If it worked.
+     */
+    public boolean CloseAll() {
+    	boolean closedAll = true;
+    	while (!allDocuments.isEmpty())
+    	{
+    		activeDocument = allDocuments.get(0);
+    		closedAll &= Close();
+    	}
+    	return closedAll;
+    }
+    
+    /**
+     * Reload all documents (to update formatting).
+     * @return If it worked.
+     */
+    public boolean ReloadAll() {
+    	boolean reloadedAll = true;
+    	for (SchemeTextArea ss : allDocuments)
+    	{
+    		try {
+				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
+			} catch (BadLocationException e) {
+				reloadedAll = false;
+				ErrorFrame.log("Unable to format " + ss.getFile() + ": " + e.getMessage());
+			}
+    	}
+    	return reloadedAll;
     }
 
     /**

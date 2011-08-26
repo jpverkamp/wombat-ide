@@ -1,6 +1,8 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
@@ -8,7 +10,9 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JColorChooser;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 /**
  * Store options.
@@ -53,13 +57,27 @@ public final class Options {
     	ConfirmOnRunClose = prefs.getBoolean("Options/ConfirmOnRunClose", ConfirmOnRunClose);
     	
     	Colors = new HashMap<String, Color>();
-    	Colors.put("normal", new Color(prefs.getInt("Colors/normal", 0x000000)));
+    	Colors.put("default", new Color(prefs.getInt("Colors/default", 0x000000)));
     	Colors.put("comment", new Color(prefs.getInt("Colors/comment", 0x006600)));
     	Colors.put("keyword", new Color(prefs.getInt("Colors/keyword", 0x000099)));
     	Colors.put("string", new Color(prefs.getInt("Colors/string", 0xFF8C00)));
     	Colors.put("bracket", new Color(prefs.getInt("Colors/bracket", 0x00FFFF)));
     	
     	Keywords = new HashMap<String, Integer>();
+    	String keywordString = prefs.get("Keywords", 
+    			"define\t2\nlambda\t2\nif\t4\ncond\t2\nand\t5\nor\t4\n" +
+    			"+\t2\n-\t2\n*\t2\n/\t2\nadd1\t6\nsub1\t6\nlist\t6\n" +
+    			"cons\t6\ncar\t5\ncdr\t\n");
+    	for (String pair : keywordString.split("\n")) {
+    		String[] parts = pair.split("\t");
+    		if (parts.length == 2) {
+    			try {
+    				Keywords.put(parts[0], Integer.parseInt(parts[1]));
+    			} catch (NumberFormatException ex) {
+    				ErrorFrame.log("Unable to load keyword '" + parts[0] + "', unknown indentation format: " + parts[1]);
+    			}
+    		}
+    	}
     	
     	SchemeDocument.reload();
     }
@@ -81,6 +99,16 @@ public final class Options {
     	
     	for (String key : Colors.keySet())
     		prefs.putInt("Colors/" + key, Colors.get(key).getRGB());
+    			
+		StringBuilder keywordString = new StringBuilder();
+    	for (String key : Keywords.keySet())
+    	{
+    		keywordString.append(key);
+    		keywordString.append("\t");
+    		keywordString.append(Keywords.get(key));
+    		keywordString.append("\n");
+    	}
+    	prefs.put("Keywords", keywordString.toString());
     }
     
     /**
@@ -107,6 +135,21 @@ public final class Options {
     		});
     		optionsMenu.add(confirm);
     		
+    		JMenu colorMenu = new JMenu("Colors");
+    		for (final String key : Colors.keySet()) {
+    			String fixed = ("" + key.charAt(0)).toUpperCase() + key.substring(1);
+    			final JMenuItem item = new JMenuItem(fixed);
+    			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						Color newColor = JColorChooser.showDialog(item, "Choose color for " + key, Colors.get(key));
+						Colors.put(key, newColor);
+						SchemeDocument.reload();
+						MainFrame.me().Documents.ReloadAll();
+					}
+    			});
+    			colorMenu.add(item);
+    		}
+    		optionsMenu.add(colorMenu);
     	}
     	
     	return optionsMenu;

@@ -29,7 +29,7 @@ class SchemeDocument extends DefaultStyledDocument {
     public static void reload() {
     	attributes.clear();
     	
-        for (String key : "normal keyword comment string bracket".split(" "))
+        for (String key : "default keyword comment string bracket".split(" "))
             attributes.put(key, new SimpleAttributeSet());
 
         for (String key : Options.Colors.keySet())
@@ -197,9 +197,9 @@ class SchemeDocument extends DefaultStyledDocument {
             return;
         }
 
-        //  set normal attributes for the line
-        if (attributes.containsKey("normal"))
-        	doc.setCharacterAttributes(startOffset, lineLength, attributes.get("normal"), true);
+        //  set default attributes for the line
+        if (attributes.containsKey("default"))
+        	doc.setCharacterAttributes(startOffset, lineLength, attributes.get("default"), true);
 
         //  check for single line comment
 
