@@ -16,15 +16,6 @@ public class AboutFrame extends JFrame {
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         
-        Scanner s = new Scanner(getClass().getResourceAsStream("/License.txt"));
-        StringBuilder sb = new StringBuilder();
-        while (s.hasNextLine())
-        {
-            sb.append(s.nextLine());
-            sb.append("\n");
-        }
-        s.close();
-        
         JTextArea license = new JTextArea("Wombat - Scheme IDE\n" +
 "Copyright (C) 2011 JP Verkamp\n" +
 "\n" +
