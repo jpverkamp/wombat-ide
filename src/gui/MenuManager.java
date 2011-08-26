@@ -50,7 +50,7 @@ public final class MenuManager {
                 buildItem("Format", Options.CommandFormat, new actions.Format())),
             Options.buildOptionsMenu(),
             buildMenu("Help",
-                buildItem("Show error console", null, new actions.ShowError()),
+                buildItem("Show debug console", null, new actions.ShowError()),
                 buildItem("About", "F1", new actions.ShowAbout())));
     }
 

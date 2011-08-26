@@ -13,7 +13,7 @@ public class ErrorFrame extends JFrame {
     JTextArea errors;
 
     private ErrorFrame () {
-        setTitle("Errors");
+        setTitle("Debug Console");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
