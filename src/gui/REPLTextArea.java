@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Stack;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 
@@ -67,10 +66,7 @@ public class REPLTextArea extends SchemeTextArea {
         
         // When the user hits the up arrow, it they are on the first line, reload the previous command.
         code.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent arg0) {}
-
-			@Override
-			public void keyReleased(KeyEvent arg0) {
+			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_UP) {
 					if (getText().lastIndexOf("\n", code.getCaretPosition()) == -1) {
 						if (currentCommand == commandHistory.size())
@@ -96,8 +92,10 @@ public class REPLTextArea extends SchemeTextArea {
 						}
 					}
 				}
-				
 			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {}
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
