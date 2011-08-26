@@ -69,6 +69,9 @@ public class MainFrame extends JFrame {
         viewMap.addView("REPL - History", new View("REPL - History", null, History));
         SplitWindow replSplit = new SplitWindow(false, viewMap.getView("REPL - Execute"), viewMap.getView("REPL - History"));
         
+        viewMap.getView("REPL - Execute").getWindowProperties().setCloseEnabled(false);
+        viewMap.getView("REPL - History").getWindowProperties().setCloseEnabled(false);
+        
         // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
         Root = DockingUtil.createRootWindow(new ViewMap(), true);
