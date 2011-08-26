@@ -86,7 +86,7 @@ public class DocumentManager implements FocusListener {
         if (fc.getFile() == null)
             return false;
         
-        File file = new File(fc.getFile());
+        File file = new File(fc.getDirectory(), fc.getFile());
         if (!file.exists())
         {
             ErrorFrame.log("Unable to load file (does not exist): " + fc.getFile());
@@ -176,7 +176,7 @@ public class DocumentManager implements FocusListener {
         if (fc.getFile() == null)
             return false;
 
-        File file = new File(fc.getFile());
+        File file = new File(fc.getDirectory(), fc.getFile());
         activeDocument.myFile = file;
         activeDocument.myView.getViewProperties().setTitle(file.getName());
 

@@ -65,9 +65,9 @@ public class MainFrame extends JFrame {
         // Create displays for a split REPL.
         History = new HistoryTextArea();
         REPL = new REPLTextArea();
-        viewMap.addView("History", new View("History", null, History));
-        viewMap.addView("REPL", new View("Execute", null, REPL));
-        SplitWindow replSplit = new SplitWindow(false, viewMap.getView("History"), viewMap.getView("REPL"));
+        viewMap.addView("REPL - Execute", new View("REPL - Execute", null, REPL));
+        viewMap.addView("REPL - History", new View("REPL - History", null, History));
+        SplitWindow replSplit = new SplitWindow(false, viewMap.getView("REPL - Execute"), viewMap.getView("REPL - History"));
         
         // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);

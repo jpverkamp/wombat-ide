@@ -64,8 +64,10 @@ public class KawaWrap {
 				return result;
 		} catch (StackOverflowError ex) {
 			return "Possible infinite loop detected.";
+		} catch (gnu.mapping.UnboundLocationException ex) {
+			return "Error: " + ex.toString();
 		} catch (Throwable ex) {
-			return "Unknown error: " + ex;
+			return "Unknown error (" + ex.getClass().getName() + "): " + ex;
 		}
 	}
 }
