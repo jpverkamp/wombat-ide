@@ -1,5 +1,7 @@
 package gui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import javax.swing.event.CaretListener;
 
@@ -12,6 +14,7 @@ import javax.swing.text.StyleConstants;
 public class BracketMatcher implements CaretListener {
 	SchemeTextArea textArea;
 	static boolean disabled = false;
+	List<Object> activeTags = new ArrayList<Object>();
 	
 	public BracketMatcher(SchemeTextArea text) {
 		textArea = text;
@@ -23,7 +26,9 @@ public class BracketMatcher implements CaretListener {
 		
 		try {
 			Highlighter h = textArea.code.getHighlighter();
-			h.removeAllHighlights();
+			for (Object tag : activeTags)
+				h.removeHighlight(tag);
+			activeTags.clear();
 
 			int pos = e.getDot() - 1;
         
@@ -56,13 +61,14 @@ public class BracketMatcher implements CaretListener {
                     );
 
                     try {
-                        h.addHighlight(pos, pos + 1, hp);
-                        h.addHighlight(matchPos, matchPos + 1, hp);
+                        activeTags.add(h.addHighlight(pos, pos + 1, hp));
+                        activeTags.add(h.addHighlight(matchPos, matchPos + 1, hp));
                     } catch (BadLocationException ble) {
                     }
                 }
             }
         } catch (BadLocationException ex) {
+			
         } catch (Exception ex) {
         	ErrorFrame.log("Unable to match paranthesis: " + ex.getMessage());
         	disabled = true;
