@@ -1,17 +1,14 @@
 package gui;
 
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
 
 import wombat.Wombat;
 import util.KawaWrap;
 import util.OutputIntercept;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Stack;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
