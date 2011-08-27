@@ -26,6 +26,9 @@ public class WImage extends Globals {
 	 */
 	@Override
 	public void addMethods(KawaWrap kawa) throws Throwable {
+		/**
+		 * Custom image class to help without output. 
+		 */
 		class ImageShell {
 			RenderedImage Data;
 			public ImageShell(RenderedImage img) {
@@ -37,6 +40,9 @@ public class WImage extends Globals {
 			}
 		}
 		
+		/**
+		 * Custom color class to help with output.
+		 */
 		class ColorShell {
 			Color Data;
 			public ColorShell(Color c) {
@@ -48,6 +54,11 @@ public class WImage extends Globals {
 			}
 		}
 		
+		/* ----- ----- ----- ----- ----- 
+		 *             color
+		 * ----- ----- ----- ----- ----- */
+		
+		// Create a new color.
 		kawa.bind(new Procedure3("color") {
 			public Object apply3(Object r, Object g, Object b) throws Throwable {
 				if (!(r instanceof IntNum)) throw new IllegalArgumentException("Error in color: " + r + " is not an integer.");
@@ -58,6 +69,21 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Check if a given item is a color.
+		kawa.bind(new Procedure1("color?") {
+			public Object apply1(Object p) throws Throwable {
+				return p instanceof ColorShell;
+			}
+		});
+		
+		// Check if two colors are equal.
+		kawa.bind(new Procedure2("color-equal?") {
+			public Object apply2(Object c1, Object c2) throws Throwable {
+				return (c1 instanceof ColorShell && c2 instanceof ColorShell && ((ColorShell) c1).Data.equals(((ColorShell) c2).Data));
+			}
+		});
+		
+		// Pull channels out of a color.
 		kawa.bind(new Procedure2("color-ref") {
 			public Object apply2(Object p, Object b) throws Throwable {
 				if (!(p instanceof ColorShell)) throw new IllegalArgumentException("Error in color-ref: " + p + " is not a color.");
@@ -71,18 +97,25 @@ public class WImage extends Globals {
 			}
 		});
 		
-		kawa.bind(new Procedure1("color?") {
-			public Object apply1(Object p) throws Throwable {
-				return p instanceof ColorShell;
-			}
-		});
+		/* ----- ----- ----- ----- ----- 
+		 *             image
+		 * ----- ----- ----- ----- ----- */
 		
+		// Test if something is an image.
 		kawa.bind(new Procedure1("image?") {
 			public Object apply1(Object img) throws Throwable {
 				return img instanceof ImageShell;
 			}
 		});
 		
+		// Check if two images are equal.
+		kawa.bind(new Procedure2("image-equal?") {
+			public Object apply2(Object img1, Object img2) throws Throwable {
+				return (img1 instanceof ImageShell && img2 instanceof ImageShell && ((ImageShell) img1).Data.equals(((ImageShell) img2).Data));
+			}
+		});
+		
+		// Get the height of an image.
 		kawa.bind(new Procedure1("image-rows") {
 			public Object apply1(Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-rows: " + img + " is not an image.");
@@ -90,6 +123,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Get the width of an image.
 		kawa.bind(new Procedure1("image-cols") {
 			public Object apply1(Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-cols: " + img + " is not an image.");
@@ -97,6 +131,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Pull a pixel out of an image.
 		kawa.bind(new Procedure3("image-ref") {
 			public Object apply3(Object img, Object r, Object c) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-ref: " + img + " is not an image.");
@@ -111,6 +146,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Set a pixel in an image (converts it internally to a writable image if it isn't already).
 		kawa.bind(new Procedure4("image-set!") {
 			public Object apply4(Object img, Object r, Object c, Object p) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-set!: " + img + " is not an image.");
@@ -134,6 +170,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Read an image from a file.
 		kawa.bind(new Procedure1("read-image") {
 			public Object apply1(Object filename) throws Throwable {
 				if (!(filename instanceof String)) throw new IllegalArgumentException("Error in read-image: " + filename + " is not a string.");
@@ -142,6 +179,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Write an image to a file.
 		kawa.bind(new Procedure2("write-image") {
 			public Object apply2(Object img, Object filename) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image: " + img + " is not an image.");
@@ -154,6 +192,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Draw an image to the screen.
 		kawa.bind(new Procedure1("draw-image") {
 			public Object apply1(Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in draw-image: " + img + " is not an image.");
@@ -170,6 +209,7 @@ public class WImage extends Globals {
 			}
 		});
 		
+		// Map a procedure (lambda (color) ...) over an image.
 		kawa.bind(new Procedure2("image-map") {
 			public Object apply2(Object img, Object proc) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-map: " + img + " is not an image.");
@@ -205,7 +245,8 @@ public class WImage extends Globals {
 			}
 		});
 		
-		kawa.bind(new Procedure3("make-image") {
+		// Create a new image of a given size, using either a color or (lambda (int int int int) ...).
+		kawa.bind(new Procedure3("$make-image$") {
 			public Object apply3(Object rows, Object cols, Object proc) throws Throwable {
 				if (!(rows instanceof IntNum)) throw new IllegalArgumentException("Error in make-image: " + rows + " is not an integer.");
 				if (!(cols instanceof IntNum)) throw new IllegalArgumentException("Error in make-image: " + cols + " is not an integer.");
@@ -233,5 +274,24 @@ public class WImage extends Globals {
 				return new ImageShell((RenderedImage) image);
 			}
 		});
+		kawa.eval("(define make-image (case-lambda ((rows cols) ($make-image$ rows cols (color 0 0 0))) ((rows cols proc) ($make-image$ rows cols proc))))");
+		
+		// Helper to load and then draw an image.
+		kawa.eval("(define (draw-image-file filename) (draw-image (read-image filename)))");
+		
+		// Several predefined colors.
+		kawa.eval("(define black (color 0 0 0))");
+		kawa.eval("(define darkgray (color 84 84 84))");
+		kawa.eval("(define gray (color 192 192 192))");
+		kawa.eval("(define lightgray (color 205 205 205))");
+		kawa.eval("(define white (color 255 255 255))");
+		kawa.eval("(define red (color 255 0 0))");
+		kawa.eval("(define green (color 0 255 0))");
+		kawa.eval("(define blue (color 0 0 255))");
+		kawa.eval("(define yellow (color 255 255 0))");
+		kawa.eval("(define cyan (color 0 255 255))");
+		kawa.eval("(define magenta (color 255 0 255))");
+		kawa.eval("(define orange (color 255 127 0))");
+		kawa.eval("(define pink (color 188 143 143))");
 	}
 }
