@@ -13,9 +13,6 @@ public class Tree {
 	public Tree Left;
 	public Tree Right;
 	
-	int DisplayX = -1;
-	int DisplayY = -1;
-	
 	/**
 	 * Create an empty tree.
 	 */
@@ -65,68 +62,45 @@ public class Tree {
 		int h = height();
 		int w = new BigInteger("2").pow(h).intValue();
 		
-		setDisplay(width / 2, height / (h + 1), width / (w + 1), width - width / (w + 1),  height / (h + 1));
-		drawLines(g);
-		drawNodes(g);
+		draw(g, width / 2, height / (h + 1), width / (w + 1), width - width / (w + 1),  height / (h + 1));
 	}
 	
-	/**
-	 * Set up the display coordinates.
-	 * @param x X-coordinate of this node.
-	 * @param y Y-coordinate of this node.
-	 * @param left Leftmost point we're allowed.
-	 * @param right Rightmost point we're allowed.
- 	 * @param skip Skip this between levels.
-	 */
-	private void setDisplay(int x, int y, int left, int right, int skip) {
+	private void draw(Graphics2D g, int x, int y, int left, int right, int skip) {
 		if (Value == null) return;
 		
-		DisplayX = x;
-		DisplayY = y;
-		
+		// Calculate a weighted midpoint so that off balance trees will draw pleasantly.
 		int leftSize = 1 + Left.size();
 		int rightSize = 1 + Right.size();
 		double leftWeight = (double) leftSize / ((double) leftSize + (double) rightSize);
 		int mid = left + (int) ((double) (right - left) * leftWeight);
 		
-		Left.setDisplay((left + mid) / 2, y + skip, left, mid, skip);
-		Right.setDisplay((mid + right) / 2, y + skip, mid, right, skip);
-	}
-	
-	
-	/**
-	 * Draw lines between this node and its children.
-	 * @param g The graphics object to draw with.
-	 */
-	private void drawLines(Graphics2D g) {
-		if (Value == null) return;
-		if (Left.Value != null) g.drawLine(DisplayX, DisplayY, Left.DisplayX, Left.DisplayY);
-		if (Right.Value != null) g.drawLine(DisplayX, DisplayY, Right.DisplayX, Right.DisplayY);
+		// Calculate the view points for the left and right subtrees (yes, even if they won't be drawn)
+		int leftX = (left + mid) / 2;
+		int rightX = (mid + right) / 2;
 		
-		Left.drawLines(g);
-		Right.drawLines(g);
-	}
-	
-	/**
-	 * Draw this node and its children.
-	 * @param g The graphics object to draw with.
-	 */
-	private void drawNodes(Graphics2D g) {
-		if (Value == null) return;
+		// Left subtree.
+		if (Left.Value != null) {
+			g.drawLine(x, y, leftX, y + skip);
+			Left.draw(g, leftX, y + skip, left, mid, skip);
+		}
 		
+		// Right subtree.
+		if (Right.Value != null) {
+			g.drawLine(x, y, rightX, y + skip);
+			Right.draw(g, rightX, y + skip, mid, right, skip);
+		}
+				
+		// My node.
 		String s = Value.toString();
 		FontMetrics fm = g.getFontMetrics();
 		int w = fm.stringWidth(s);
 		
 		g.setColor(Color.WHITE);
-		g.fillRect(DisplayX - w / 2 - 5, DisplayY - 10, w + 10, 20);
+		g.fillRect(x - w / 2 - 5, y - 10, w + 10, 20);
 		g.setColor(Color.BLACK);
-		g.drawRect(DisplayX - w / 2 - 5, DisplayY - 10, w + 10, 20);
+		g.drawRect(x - w / 2 - 5, y - 10, w + 10, 20);
 		
-		g.drawString(Value.toString(), DisplayX - fm.stringWidth(s) / 2, DisplayY + fm.getAscent() / 2);
-		
-		Left.drawNodes(g);
-		Right.drawNodes(g);
+		g.drawString(Value.toString(), x - fm.stringWidth(s) / 2, y + fm.getAscent() / 2);
 	}
 	
 	/**
