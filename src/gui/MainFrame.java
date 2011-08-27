@@ -111,7 +111,7 @@ public class MainFrame extends JFrame {
         for (Action a : new Action[]{new actions.New(), new actions.Open(), new actions.Save(), new actions.Close()})
         	ToolBar.add(a);
         ToolBar.addSeparator();
-        for (Action a : new Action[]{new actions.Run(), new actions.Format(), /*new actions.Stop()*/})
+        for (Action a : new Action[]{new actions.Run(), new actions.Format(), new actions.Reset()})
         	ToolBar.add(a);
         
         add(ToolBar, BorderLayout.PAGE_START);
@@ -128,7 +128,7 @@ public class MainFrame extends JFrame {
         if (command.length() == 0)
             return;
 
-        History.append("\n>>> " + command.replace("\n", "\n    ") + "\n");
+        History.append("\n§ " + command.replace("\n", "\n  ") + "\n");
         
         Object result = kawa.eval(command);
         if (result != null)

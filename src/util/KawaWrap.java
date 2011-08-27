@@ -13,15 +13,21 @@ import kawa.standard.Scheme;
 public class KawaWrap {
 	Scheme kawa;
 	Environment env;
-	
+
 	/**
 	 * Connect to Kawa.
 	 */
-	public KawaWrap()
-	{
+	public KawaWrap() {
+		reset();
+	}
+	
+	/**
+	 * Reset the stored Scheme interpreter and environment.
+	 */
+	public void reset() {
 		Scheme.registerEnvironment();
-		kawa = Scheme.getInstance();
-		env = Environment.getCurrent();
+		kawa = new Scheme();
+		env = kawa.getEnvironment();
 		
 		// Load globals.
         for (Globals g : new Globals[]{
