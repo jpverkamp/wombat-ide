@@ -175,7 +175,11 @@ public class WImage extends Globals {
 			public Object apply1(Object filename) throws Throwable {
 				if (!(filename instanceof String)) throw new IllegalArgumentException("Error in read-image: " + filename + " is not a string.");
 				
-				return new ImageShell(ImageIO.read(new File((String) filename)));
+				RenderedImage img = ImageIO.read(new File((String) filename));
+				if (img == null)
+					throw new IllegalArgumentException("Error in read-image: unable to read image '" + filename + "'");
+				else
+					return new ImageShell(img);
 			}
 		});
 		
