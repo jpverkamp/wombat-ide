@@ -7,7 +7,7 @@ import util.KawaWrap;
 import gnu.mapping.Procedure1;
 import gnu.math.IntNum;
 
-public class Randomness extends Globals {
+public class WRandom extends Globals {
 	Random random = new Random();
 	
 	/**

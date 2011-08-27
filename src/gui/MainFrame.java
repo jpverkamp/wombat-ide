@@ -92,8 +92,6 @@ public class MainFrame extends JFrame {
         // Bind a to catch anything that goes to stdout or stderr.
         Thread t = new Thread(new Runnable() {
         	public void run() {
-        		OutputIntercept.enable();
-        		
         		while (true) {
         			if (OutputIntercept.hasContent())
         				History.append(OutputIntercept.getContent() + "\n");

@@ -2,7 +2,7 @@ package globals;
 
 import util.KawaWrap;
 
-public class Mathiness extends Globals {
+public class WMath extends Globals {
 	/**
 	 * Add methods related to (random n)
 	 * 

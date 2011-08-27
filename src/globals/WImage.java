@@ -2,7 +2,7 @@ package globals;
 
 import util.KawaWrap;
 
-public class Imageitude extends Globals {
+public class WImage extends Globals {
 	/**
 	 * Add methods related to (random n)
 	 * 

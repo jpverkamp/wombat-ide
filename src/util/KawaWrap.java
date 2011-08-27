@@ -31,10 +31,11 @@ public class KawaWrap {
 		
 		// Load globals.
         for (Globals g : new Globals[]{
-        		new Randomness(),
-        		new Mathiness(),
-        		new Treeitude(),
-        		new Imageitude(),
+        		new WOutput(),
+        		new WRandom(),
+        		new WMath(),
+        		new WTree(),
+        		new WImage(),
         }) {
         	try {
         		g.addMethods(this);

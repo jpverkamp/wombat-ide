@@ -1,13 +1,10 @@
 package util;
 
-import gui.ErrorFrame;
+import gnu.mapping.OutPort;
 
-import java.io.PrintStream;
+import java.io.StringWriter;
 
-public class OutputIntercept extends PrintStream {
-	static PrintStream console = System.out;
-	static PrintStream err = System.err;
-	
+public class OutputIntercept extends OutPort {
 	static OutputIntercept me = new OutputIntercept();
 	static boolean enabled = false;
 	
@@ -15,32 +12,19 @@ public class OutputIntercept extends PrintStream {
 	static boolean content = false;
 	
 	/** Suppress constructor. */
-	private OutputIntercept() { 
-		super(console, true); 
+	private OutputIntercept() {
+		super(new StringWriter());
+		System.out.println("created");
 	}
 	
 	/**
-	 * Enable output intercepting.
+	 * Accessor 
+	 * @return me
 	 */
-	public static void enable() {
-		enabled = true;
-		
-		ErrorFrame.log("Enabling OutputIntercept.");
-		
-		System.setOut(me);
-		System.setErr(me);
-	}
-	
-	/**
-	 * Disable output intercepting.
-	 */
-	public static void disable() {
-		enabled = false;
-		
-		ErrorFrame.log("Disabling OutputIntercept.");
-		
-		System.setOut(console);
-		System.setErr(err);
+	public static OutputIntercept me() {
+		if (me == null)
+			me = new OutputIntercept();
+		return me;
 	}
 	
 	/**
@@ -69,37 +53,17 @@ public class OutputIntercept extends PrintStream {
 		}
 	}
 
-	/**
-	 * Print a string.
-	 */
-	public void print(String x) {
-		go(x);
-	}
-
-	/**
-	 * Print a string then a newline.
-	 */
-	public void println(String x) {
-		go(x + "\n");
-	}
-
-	/**
-	 * Print an object.
-	 */
-	public void print(Object x) {
-		go(x.toString());
-	}
-
-	/**
-	 * Print an object then a newline.
-	 */
-	public void println(Object x) {
-		go(x.toString() + "\n");
-	}
+	public void print(int v) { print("" + toString()); }
+	public void print(long v) { print("" + toString()); }
+	public void print(double v) { print("" + toString()); }
+	public void print(float v) { print("" + toString()); }
+	public void print(boolean v) { print("" + toString()); }
+	public void print(Object v) { print(v.toString()); }
 	
-	private void go(String x) {
-//		console.print(x);
-		buffer.append(x);
+	public void print(String v) {
+		System.out.println("write: " + v);
 		content = true;
+		buffer.append(v);
 	}
+
 }
