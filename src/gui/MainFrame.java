@@ -42,6 +42,7 @@ public class MainFrame extends JFrame {
         setSize(Options.DisplayWidth, Options.DisplayHeight);
         setLocation(Options.DisplayLeft, Options.DisplayTop);
         setLayout(new BorderLayout(5, 5));
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         try {
         	setIconImage(IconManager.icon("Wombat.png").getImage());
         } catch(NullPointerException ex) {
@@ -57,7 +58,6 @@ public class MainFrame extends JFrame {
             	Options.DisplayWidth = Math.max(400, e.getWindow().getWidth());
             	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
             	Options.save();
-                System.exit(0);
             }
         });
 
