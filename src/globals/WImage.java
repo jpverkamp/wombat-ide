@@ -119,7 +119,7 @@ public class WImage extends Globals {
 		kawa.bind(new Procedure1("image-rows") {
 			public Object apply1(Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-rows: " + img + " is not an image.");
-				return ((ImageShell) img).Data.getHeight();
+				return new IntNum(((ImageShell) img).Data.getHeight());
 			}
 		});
 		
@@ -127,7 +127,7 @@ public class WImage extends Globals {
 		kawa.bind(new Procedure1("image-cols") {
 			public Object apply1(Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-cols: " + img + " is not an image.");
-				return ((ImageShell) img).Data.getWidth();
+				return new IntNum(((ImageShell) img).Data.getWidth());
 			}
 		});
 		
