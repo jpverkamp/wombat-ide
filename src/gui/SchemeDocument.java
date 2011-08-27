@@ -11,26 +11,30 @@ import java.util.Map;
  */
 class SchemeDocument extends DefaultStyledDocument {
 	private static final long serialVersionUID = 8684954217591619402L;
-
-	final static String FILENAME = "syntax.cfg";
-    
+	
+	// For use in formatting.
     DefaultStyledDocument doc;
     Element rootElement;
-
     boolean multiLineComment;
 
+    // Possible attributes.
     static Map<String, MutableAttributeSet> attributes = new HashMap<String, MutableAttributeSet>();;
 
+    // For bracket matching (used to determine indentation).
     int currentBracketStart = -1;
     int currentBracketEnd = -1;
     int nextBracketStart = -1;
     int nextBracketEnd = -1;
-
+    
+    // Reload all of the settings.
     public static void reload() {
     	attributes.clear();
     	
         for (String key : "default keyword comment string bracket".split(" "))
+        {
             attributes.put(key, new SimpleAttributeSet());
+            StyleConstants.setFontSize(attributes.get(key), Options.FontSize);
+        }
 
         for (String key : Options.Colors.keySet())
         	if (attributes.containsKey(key))

@@ -38,6 +38,7 @@ public final class Options {
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
 	public static Map<String, Integer> Keywords;
+	public static int FontSize = 12;
 
 	/**
      * Initialize.
@@ -79,6 +80,8 @@ public final class Options {
     		}
     	}
     	
+    	FontSize = prefs.getInt("FontSize", FontSize);
+    	
     	SchemeDocument.reload();
     }
     
@@ -109,6 +112,8 @@ public final class Options {
     		keywordString.append("\n");
     	}
     	prefs.put("Keywords", keywordString.toString());
+    	
+    	prefs.putInt("FontSize", FontSize);
     }
     
     /**
@@ -150,6 +155,21 @@ public final class Options {
     			colorMenu.add(item);
     		}
     		optionsMenu.add(colorMenu);
+    		
+    		JMenu fontSizeMenu = new JMenu("Font size");
+    		for (int i = 8; i <= 30; i += 2) {
+    			final int fontSize = i;
+    			final JMenuItem item = new JMenuItem("" + fontSize);
+    			item.addActionListener(new ActionListener() {
+    				public void actionPerformed(ActionEvent arg0) {
+						FontSize = fontSize;
+						SchemeDocument.reload();
+						MainFrame.me().Documents.ReloadAll();
+					}
+    			});
+    			fontSizeMenu.add(item);
+    		}
+    		optionsMenu.add(fontSizeMenu);
     	}
     	
     	return optionsMenu;
