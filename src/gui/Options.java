@@ -170,12 +170,18 @@ public final class Options {
     		}
     		optionsMenu.add(colorMenu);
     		
-    		JMenu fontSizeMenu = new JMenu("Font size");
+    		final JMenu fontSizeMenu = new JMenu("Font size");
     		for (int i = 8; i <= 30; i += 2) {
     			final int fontSize = i;
-    			final JMenuItem item = new JMenuItem("" + fontSize);
+    			final JCheckBoxMenuItem item = new JCheckBoxMenuItem("" + fontSize, false);
+    			if (fontSize == FontSize)
+    				item.setSelected(true);
     			item.addActionListener(new ActionListener() {
     				public void actionPerformed(ActionEvent arg0) {
+    					for (int i = 0; i < fontSizeMenu.getItemCount(); i++)
+    						((JCheckBoxMenuItem) fontSizeMenu.getItem(i)).setSelected(false);
+    					((JCheckBoxMenuItem) arg0.getSource()).setSelected(true);
+    					
 						FontSize = fontSize;
 						SchemeDocument.reload();
 						MainFrame.me().Documents.ReloadAll();

@@ -245,6 +245,21 @@ public class DocumentManager implements FocusListener {
 				ErrorFrame.log("Unable to format " + ss.getFile() + ": " + e.getMessage());
 			}
     	}
+    	
+    	try {
+    		((SchemeDocument) MainFrame.me().History.code.getDocument()).processChangedLines(0, MainFrame.me().History.getText().length());
+    	}  catch (BadLocationException e) {
+			reloadedAll = false;
+			ErrorFrame.log("Unable to format History view: " + e.getMessage());
+		}
+    	
+    	try {
+    		((SchemeDocument) MainFrame.me().REPL.code.getDocument()).processChangedLines(0, MainFrame.me().REPL.getText().length());
+    	}  catch (BadLocationException e) {
+			reloadedAll = false;
+			ErrorFrame.log("Unable to format Execute view: " + e.getMessage());
+		}
+    	
     	return reloadedAll;
     }
 
