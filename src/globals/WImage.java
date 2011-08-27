@@ -211,7 +211,7 @@ public class WImage extends Globals {
 		
 		// Map a procedure (lambda (color) ...) over an image.
 		kawa.bind(new Procedure2("image-map") {
-			public Object apply2(Object img, Object proc) throws Throwable {
+			public Object apply2(Object proc, Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-map: " + img + " is not an image.");
 				if (!(proc instanceof ModuleMethod)) throw new IllegalArgumentException("Error in image-map: " + proc + " is not a procedure.");
 				
