@@ -21,8 +21,13 @@ public class IconManager {
 	 */
 	public static ImageIcon icon(String name) {
 		if (!icons.containsKey(name)) {
-			URL iconURL = ClassLoader.getSystemResource("icons/" + name);
-			if (iconURL == null)
+			URL iconURL = null;
+			
+			if (iconURL == null) iconURL = IconManager.class.getResource("/icons/" + name);
+			if (iconURL == null) iconURL = IconManager.class.getResource("icons/" + name);
+			if (iconURL == null) iconURL = IconManager.class.getResource(name);
+			
+			if (iconURL == null) 
 				icons.put(name, null);
 			else 
 				icons.put(name, new ImageIcon(iconURL));

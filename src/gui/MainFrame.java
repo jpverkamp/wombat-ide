@@ -42,7 +42,11 @@ public class MainFrame extends JFrame {
         setSize(Options.DisplayWidth, Options.DisplayHeight);
         setLocation(Options.DisplayLeft, Options.DisplayTop);
         setLayout(new BorderLayout(5, 5));
-        setIconImage(IconManager.icon("Wombat.png").getImage());
+        try {
+        	setIconImage(IconManager.icon("Wombat.png").getImage());
+        } catch(NullPointerException ex) {
+        	
+        }
         
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
