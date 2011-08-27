@@ -2,8 +2,12 @@ package actions;
 
 import gui.*;
 
+
+import icons.IconManager;
+
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.text.BadLocationException;
 
 /**
@@ -13,7 +17,8 @@ public class Return extends AbstractAction {
 	private static final long serialVersionUID = 4079540525618774444L;
 
 	public Return() {
-		super("Return");
+		super("Return", IconManager.icon("Return.png"));
+		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
 	}
 
 	@Override

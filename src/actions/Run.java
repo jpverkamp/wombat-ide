@@ -1,9 +1,12 @@
 package actions;
 
+import icons.IconManager;
+
 import java.awt.event.ActionEvent;
 
 import gui.*;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 /**
  * Run the active document.
@@ -11,6 +14,11 @@ import javax.swing.AbstractAction;
 public class Run extends AbstractAction {
 	private static final long serialVersionUID = -7513211155903837433L;
 
+	public Run() {
+		super("Run", IconManager.icon("Run.png"));
+		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		MainFrame.me().Documents.Run();

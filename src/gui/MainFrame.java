@@ -1,5 +1,7 @@
 package gui;
 
+import icons.IconManager;
+
 import javax.swing.*;
 
 import wombat.Wombat;
@@ -28,6 +30,7 @@ public class MainFrame extends JFrame {
     public HistoryTextArea History;
     public REPLTextArea REPL;
     public KawaWrap kawa;
+    public JToolBar ToolBar;
 
     /**
      * Don't directly create this, use me().
@@ -39,6 +42,7 @@ public class MainFrame extends JFrame {
         setSize(Options.DisplayWidth, Options.DisplayHeight);
         setLocation(Options.DisplayLeft, Options.DisplayTop);
         setLayout(new BorderLayout(5, 5));
+        setIconImage(IconManager.icon("Wombat.png").getImage());
         
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
@@ -96,6 +100,18 @@ public class MainFrame extends JFrame {
         });
         t.setDaemon(true);
         t.start();
+        
+        // Add a toolbar.
+        ToolBar = new JToolBar();
+        ToolBar.setFloatable(false);
+        for (Action a : new Action[]{new actions.New(), new actions.Open(), new actions.Save(), new actions.Close()})
+        	ToolBar.add(a);
+        ToolBar.addSeparator();
+        for (Action a : new Action[]{new actions.Run(), new actions.Format(), /*new actions.Stop()*/})
+        	ToolBar.add(a);
+        
+        add(ToolBar, BorderLayout.PAGE_START);
+        ToolBar.setVisible(Options.DisplayToolbar);
     }
 
 	/**

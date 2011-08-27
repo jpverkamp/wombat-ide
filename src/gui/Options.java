@@ -26,6 +26,7 @@ public final class Options {
 	public static int DisplayHeight = 800;
 	public static int DisplayTop = 100;
 	public static int DisplayLeft = 100;
+	public static boolean DisplayToolbar = true;
 	
 	// Keyboard shortcuts.
 	public static String CommandRun = "F5";
@@ -50,6 +51,7 @@ public final class Options {
     	DisplayLeft = prefs.getInt("Display/Left", DisplayLeft);
     	DisplayWidth = prefs.getInt("Display/Width", DisplayWidth);
     	DisplayHeight = prefs.getInt("Display/Height", DisplayHeight);
+    	DisplayToolbar = prefs.getBoolean("Display/Toolbar", DisplayToolbar);
     	
     	CommandRun = prefs.get("Command/Run", CommandRun);
     	CommandFormat = prefs.get("Command/Format", CommandFormat);
@@ -93,6 +95,7 @@ public final class Options {
     	prefs.putInt("Display/Left", DisplayLeft);
     	prefs.putInt("Display/Width", DisplayWidth);
     	prefs.putInt("Display/Height", DisplayHeight);
+    	prefs.putBoolean("Display/Toolbar", DisplayToolbar);
     	
     	prefs.put("Command/Run", CommandRun);
     	prefs.put("Command/Format", CommandFormat);
@@ -124,6 +127,7 @@ public final class Options {
     	if (optionsMenu == null) {
     		optionsMenu = new JMenu("Options");
     		
+    		/* uncomment when we have emacs keybindings to add
     		JCheckBoxMenuItem emacs = new JCheckBoxMenuItem("Enable emacs keybindings", EmacsKeybindings);
     		emacs.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
@@ -131,6 +135,7 @@ public final class Options {
 				}
     		});
     		optionsMenu.add(emacs);
+    		*/
     		
     		JCheckBoxMenuItem confirm = new JCheckBoxMenuItem("Confirm on Run/Close", ConfirmOnRunClose);
     		confirm.addItemListener(new ItemListener() {
@@ -139,6 +144,15 @@ public final class Options {
 				}
     		});
     		optionsMenu.add(confirm);
+    		
+    		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
+    		toolbar.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					DisplayToolbar = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					MainFrame.me().ToolBar.setVisible(DisplayToolbar);
+				}
+    		});
+    		optionsMenu.add(toolbar);
     		
     		JMenu colorMenu = new JMenu("Colors");
     		for (final String key : Colors.keySet()) {
