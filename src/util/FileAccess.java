@@ -38,4 +38,8 @@ public class FileAccess {
 	    }
 	    return contents.toString();
 	}
+	
+	public static String extension(String path) {
+		return path.substring(path.lastIndexOf(".") + 1);
+	}
 }

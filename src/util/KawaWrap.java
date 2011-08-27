@@ -31,6 +31,7 @@ public class KawaWrap {
 		
 		// Load globals.
         for (Globals g : new Globals[]{
+        		new WBoolean(),
         		new WOutput(),
         		new WRandom(),
         		new WMath(),
