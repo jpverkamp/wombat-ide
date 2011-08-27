@@ -14,11 +14,10 @@ public class OutputIntercept extends OutPort {
 	/** Suppress constructor. */
 	private OutputIntercept() {
 		super(new StringWriter());
-		System.out.println("created");
 	}
 	
 	/**
-	 * Accessor 
+	 * Access me
 	 * @return me
 	 */
 	public static OutputIntercept me() {
