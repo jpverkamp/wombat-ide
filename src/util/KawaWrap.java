@@ -5,6 +5,7 @@ import globals.*;
 import gnu.mapping.Environment;
 import gnu.mapping.Named;
 import gui.ErrorFrame;
+import kawa.lang.NamedException;
 import kawa.standard.Scheme;
 
 /**
@@ -78,8 +79,10 @@ public class KawaWrap {
 			return "Error: " + ex.getMessage();
 		} catch (IllegalArgumentException ex) {
 			return ex.getMessage();
+		} catch (NamedException ex) {
+			return ex.toString();
 		} catch (Throwable ex) {
-			ErrorFrame.log("Unknown error handled: " + ex.toString());
+			ErrorFrame.log("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			return "Error: " + ex.getMessage();
 		}
 	}
