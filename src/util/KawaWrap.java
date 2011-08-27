@@ -77,7 +77,8 @@ public class KawaWrap {
 		} catch (IllegalArgumentException ex) {
 			return ex.getMessage();
 		} catch (Throwable ex) {
-			return "Unknown error (" + ex.getClass().getName() + "): " + ex.getMessage();
+			ErrorFrame.log("Unknown error handled: " + ex.toString());
+			return "Error: " + ex.getMessage();
 		}
 	}
 }
