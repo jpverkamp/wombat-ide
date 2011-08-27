@@ -2,8 +2,7 @@ package util;
 
 import globals.*;
 
-import gnu.mapping.Environment;
-import gnu.mapping.Named;
+import gnu.mapping.*;
 import gui.ErrorFrame;
 import kawa.lang.NamedException;
 import kawa.standard.Scheme;
@@ -73,9 +72,9 @@ public class KawaWrap {
 				return result;
 		} catch (StackOverflowError ex) {
 			return "Possible infinite loop detected.";
-		} catch (gnu.mapping.UnboundLocationException ex) {
-			return "Error: " + ex.getMessage();
-		} catch (gnu.mapping.WrongArguments ex) {
+		} catch (UnboundLocationException ex) {
+			return "Error: " + ex.getMessage().replace("location", "variable");
+		} catch (WrongArguments ex) {
 			return "Error: " + ex.getMessage();
 		} catch (IllegalArgumentException ex) {
 			return ex.getMessage();
