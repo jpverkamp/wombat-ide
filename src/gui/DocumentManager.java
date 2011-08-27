@@ -130,6 +130,10 @@ public class DocumentManager implements FocusListener {
 
             Documents.addTab(Views.getView(id));
             
+            RootWindow root = MainFrame.me().Root;
+            if (root != null && !Documents.isShowing())
+            	root.setWindow(new SplitWindow(false, 0.6f, Documents, root.getWindow()));
+            
             ss.code.requestFocusInWindow();
 
             return true;
