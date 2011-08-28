@@ -21,6 +21,6 @@ public class Save extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().Documents.Save();
+		DocumentManager.Save();
 	}
 }

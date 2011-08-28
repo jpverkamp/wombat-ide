@@ -3,6 +3,7 @@ package globals;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.image.*;
 import java.io.File;
@@ -190,20 +191,25 @@ public class WImage extends Globals {
 		// Read an image from a file.
 		kawa.bind(new Procedure0or1("read-image") {
 			public Object apply0() throws Throwable {
-				FileDialog fc = new FileDialog(MainFrame.me(), "read-image-gui", FileDialog.LOAD);
+				MainFrame main = null;
+				for (Frame frame : JFrame.getFrames())
+					if (frame instanceof MainFrame)
+						main = (MainFrame) frame;
+
+				FileDialog fc = new FileDialog(main, "read-image", FileDialog.LOAD);
 		        fc.setVisible(true);
 		        
 		        if (fc.getFile() == null)
-		        	throw new IllegalArgumentException("Error in read-image-gui: no image chosen.");
+		        	throw new IllegalArgumentException("Error in read-image: no image chosen.");
 		        
 		        File file = new File(fc.getDirectory(), fc.getFile());
 		        if (!file.exists())
-		        	throw new IllegalArgumentException("Error in read-image-gui: unable to read image '" + fc.getFile() + "', file does not exist.");
+		        	throw new IllegalArgumentException("Error in read-image: unable to read image '" + fc.getFile() + "', file does not exist.");
 				String filename = file.getAbsolutePath();
 				
 				RenderedImage img = ImageIO.read(new File((String) filename));
 				if (img == null)
-					throw new IllegalArgumentException("Error in read-image-gui: unable to read image '" + filename + "'");
+					throw new IllegalArgumentException("Error in read-image: unable to read image '" + filename + "'");
 				else
 					return new ImageShell(img);
 			}
@@ -222,13 +228,18 @@ public class WImage extends Globals {
 		// Write an image to a file.
 		kawa.bind(new Procedure1or2("write-image") {
 			public Object apply1(Object img) throws Throwable {
-				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image-gui: " + img + " is not an image.");
-				
-				FileDialog fc = new FileDialog(MainFrame.me(), "write-image-gui", FileDialog.LOAD);
+				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image: " + img + " is not an image.");
+
+				MainFrame main = null;
+				for (Frame frame : JFrame.getFrames())
+					if (frame instanceof MainFrame)
+						main = (MainFrame) frame;
+
+				FileDialog fc = new FileDialog(main, "write-image", FileDialog.LOAD);
 		        fc.setVisible(true);
 		        
 		        if (fc.getFile() == null)
-		        	throw new IllegalArgumentException("Error in write-image-gui: no file chosen.");
+		        	throw new IllegalArgumentException("Error in write-image: no file chosen.");
 		        
 		        File file = new File(fc.getDirectory(), fc.getFile());
 		        String filename = file.getAbsolutePath();

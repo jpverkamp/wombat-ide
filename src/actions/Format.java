@@ -21,6 +21,6 @@ public class Format extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().Documents.Format();
+		DocumentManager.Format();
 	}
 }

@@ -21,6 +21,6 @@ public class Run extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().Documents.Run();
+		DocumentManager.Run();
 	}
 }

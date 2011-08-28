@@ -51,7 +51,7 @@ public class SchemeTextArea extends JPanel {
         code.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new actions.Return());
         
         for (String name : new String[]{"New", "Open", "Save", "Save as", "Close", "Exit", "Run", "Format"}) {
-        	JMenuItem item = MenuManager.me().nameToItem.get(name);
+        	JMenuItem item = MenuManager.itemForName(name);
         	code.getInputMap().put(item.getAccelerator(), item.getAction());
         }
         

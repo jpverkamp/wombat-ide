@@ -2,12 +2,12 @@ package actions;
 
 import icons.IconManager;
 
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
-
-import gui.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JFrame;
 
 /**
  * Close the program.
@@ -22,6 +22,7 @@ public class Exit extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().dispose();
+		for (Frame frame : JFrame.getFrames())
+			frame.dispose();
 	}
 }

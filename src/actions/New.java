@@ -22,6 +22,6 @@ public class New extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().Documents.New();
+		DocumentManager.New();
 	}
 }

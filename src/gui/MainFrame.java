@@ -3,10 +3,10 @@ package gui;
 import icons.IconManager;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 
 import wombat.Wombat;
 import util.KawaWrap;
-import util.OutputIntercept;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -21,22 +21,23 @@ import net.infonode.docking.util.*;
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 2574330949324570164L;
 
-	// Woo singletons.
-    static MainFrame me;
-
-    // Things we may need access to.
-    public RootWindow Root;
-    public DocumentManager Documents;
-    public HistoryTextArea History;
-    public REPLTextArea REPL;
-    public KawaWrap kawa;
-    public JToolBar ToolBar;
+	// Display components.
+	RootWindow Root;
+    KawaWrap Kawa;
+    JToolBar ToolBar;
+    
+    // Unique code components.
+    NonEditableTextArea History;
+    NonEditableTextArea Output;
+    NonEditableTextArea Error;
+    NonEditableTextArea Debug;
+    REPLTextArea REPL;
 
     /**
      * Don't directly create this, use me().
      * Use this method to set it up though.
      */
-    private MainFrame() {
+    public MainFrame() {
         // Set frame options.
         setTitle("Wombat - Build " + Wombat.VERSION);
         setSize(Options.DisplayWidth, Options.DisplayHeight);
@@ -52,7 +53,7 @@ public class MainFrame extends JFrame {
         // Wait for the program to end.
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-            	Documents.CloseAll();
+            	DocumentManager.CloseAll();
             	Options.DisplayTop = Math.max(0, e.getWindow().getLocation().y);
             	Options.DisplayLeft = Math.max(0, e.getWindow().getLocation().x);
             	Options.DisplayWidth = Math.max(400, e.getWindow().getWidth());
@@ -62,17 +63,21 @@ public class MainFrame extends JFrame {
         });
 
         // Set up the menus using the above definitions.
-        setJMenuBar(MenuManager.menu());
+        MenuManager.init(this);
+        setJMenuBar(MenuManager.getMenu());
         
         // Create a display for any open documents.
+        Root = DockingUtil.createRootWindow(new ViewMap(), true);
         TabWindow documents = new TabWindow();
         StringViewMap viewMap = new StringViewMap();
-        Documents = new DocumentManager(viewMap, documents);
-        Documents.New();
+        DocumentManager.init(this, Root, viewMap, documents);
+        DocumentManager.New();
          
         // Create displays for a split REPL.
-        History = new HistoryTextArea();
-        REPL = new REPLTextArea();
+        History = new NonEditableTextArea(this);
+        Error = new NonEditableTextArea(this);
+        Debug = new NonEditableTextArea(this);
+        REPL = new REPLTextArea(this);
         viewMap.addView("REPL - Execute", new View("REPL - Execute", null, REPL));
         viewMap.addView("REPL - History", new View("REPL - History", null, History));
         SplitWindow replSplit = new SplitWindow(false, viewMap.getView("REPL - Execute"), viewMap.getView("REPL - History"));
@@ -82,26 +87,13 @@ public class MainFrame extends JFrame {
         
         // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
-        Root = DockingUtil.createRootWindow(new ViewMap(), true);
         Root.setWindow(fullSplit);
         add(Root);
         
         // Connect to Kawa.
-        kawa = new KawaWrap();
-        
-        // Bind a to catch anything that goes to stdout or stderr.
-        Thread t = new Thread(new Runnable() {
-        	public void run() {
-        		while (true) {
-        			if (OutputIntercept.hasContent())
-        				History.append(OutputIntercept.getContent() + "\n");
-        			
-        			try { Thread.sleep(50); } catch(Exception e) {}
-        		}
-        	}	
-        });
-        t.setDaemon(true);
-        t.start();
+        Kawa = new KawaWrap();
+        Kawa.eval("(current-output-port (util.SchemePrinter:new (*:.Output (gui.MainFrame))))");
+		Kawa.eval("(current-error-port (util.SchemePrinter:new (*:.Error (gui.MainFrame))))");
         
         // Add a toolbar.
         ToolBar = new JToolBar();
@@ -128,20 +120,47 @@ public class MainFrame extends JFrame {
 
         History.append("\n§ " + command.replace("\n", "\n  ") + "\n");
         
-        Object result = kawa.eval(command);
+        Object result = Kawa.eval(command);
         if (result != null)
         	History.append(result.toString() + "\n");
     }
 
     /**
-     * Access the frame.
-     *
-     * @return The singleton frame.
+     * Update the display.
      */
-    public static MainFrame me() {
-        if (me == null)
-            me = new MainFrame();
+	public boolean updateDisplay() {
+		boolean reloaded = true;
+		for (SchemeTextArea ss : new SchemeTextArea[]{History, Output, Error, Debug, REPL}) {
+			try {
+				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
+	    	}  catch (BadLocationException e) {
+	    		reloaded = false;
+				ErrorFrame.log("Unable to format History view: " + e.getMessage());
+			}
+		}
+		return reloaded;
+	}
 
-        return me;
-    }
+	/**
+	 * Focus the REPL.
+	 */
+	public void focusREPL() {
+		REPL.requestFocusInWindow();
+	}
+
+	/**
+	 * Set the toolbar's display mode.
+	 * @param displayToolbar If the toolbar should be visible.
+	 */
+	public void toggleToolbar(boolean displayToolbar) {
+		ToolBar.setVisible(displayToolbar);
+	}
+
+	/**
+	 * Reset Kawa.
+	 */
+	public void resetKawa() {
+		Kawa.reset();
+		History.append("\n>>> Environment reset <<<\n");
+	}
 }

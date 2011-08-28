@@ -11,7 +11,7 @@ public class WOutput extends Globals {
 	 */
 	@Override
 	public void addMethods(KawaWrap kawa) throws Throwable {
-    	kawa.eval("(current-output-port (util.OutputIntercept:me))");
-    	kawa.eval("(current-error-port (util.OutputIntercept:me))");
+//    	kawa.eval("(current-output-port (util.SchemePrinter:new))");
+//    	kawa.eval("(current-error-port (util.SchemePrinter:new))");
 	}
 }

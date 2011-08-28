@@ -123,7 +123,7 @@ public final class Options {
      * Build the options menu (only build once).
      * @return An options menu.
      */
-    public static JMenu buildOptionsMenu() {
+    public static JMenu buildOptionsMenu(final MainFrame main) {
     	if (optionsMenu == null) {
     		optionsMenu = new JMenu("Options");
     		
@@ -149,7 +149,7 @@ public final class Options {
     		toolbar.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
 					DisplayToolbar = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
-					MainFrame.me().ToolBar.setVisible(DisplayToolbar);
+					main.toggleToolbar(DisplayToolbar);
 				}
     		});
     		optionsMenu.add(toolbar);
@@ -163,7 +163,7 @@ public final class Options {
 						Color newColor = JColorChooser.showDialog(item, "Choose color for " + key, Colors.get(key));
 						Colors.put(key, newColor);
 						SchemeDocument.reload();
-						MainFrame.me().Documents.ReloadAll();
+						DocumentManager.ReloadAll();
 					}
     			});
     			colorMenu.add(item);
@@ -184,7 +184,7 @@ public final class Options {
     					
 						FontSize = fontSize;
 						SchemeDocument.reload();
-						MainFrame.me().Documents.ReloadAll();
+						DocumentManager.ReloadAll();
 					}
     			});
     			fontSizeMenu.add(item);

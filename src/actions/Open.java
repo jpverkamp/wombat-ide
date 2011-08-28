@@ -21,6 +21,6 @@ public class Open extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().Documents.Open();
+		DocumentManager.Open();
 	}
 }

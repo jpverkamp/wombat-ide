@@ -21,11 +21,6 @@ public class Tab extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		SchemeTextArea doc = MainFrame.me().Documents.activeDocument;
-		
-		if (doc == null)
-			return;
-		
-		doc.tab();
+		DocumentManager.Tab(false);
 	}
 }

@@ -25,7 +25,7 @@ public class REPLTextArea extends SchemeTextArea {
 	/**
 	 * Create a new REPL area.
 	 */
-	public REPLTextArea() {
+	public REPLTextArea(final MainFrame main) {
 		commandHistory = new ArrayList<String>();
 		setPreferredSize(new Dimension(100, 100));
 		
@@ -51,7 +51,7 @@ public class REPLTextArea extends SchemeTextArea {
                         	commandHistory.add(getText());
                         	currentCommand = commandHistory.size();
                         	
-                            MainFrame.me().doCommand(getText());
+                            main.doCommand(getText());
                             setText("");
                         } else {
                             try {

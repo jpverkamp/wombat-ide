@@ -26,49 +26,71 @@ import net.infonode.docking.util.*;
 /**
  * Manage open documents.
  */
-public class DocumentManager implements FocusListener {
-    int lastIndex;
+public final class DocumentManager implements FocusListener {
+	static DocumentManager me;
+	
+	// Next file to create.
+	int lastIndex;
+	
+	// GUI references.
+	MainFrame Main;
+	RootWindow Root;
     TabWindow Documents;
     StringViewMap Views = new StringViewMap();
-    List<SchemeTextArea> allDocuments;
-    public SchemeTextArea activeDocument;
     
+    // Active documents.
+    List<SchemeTextArea> allDocuments;
+    SchemeTextArea activeDocument;
+    
+    // Hide constructor.
+    private DocumentManager() {}
     
     /**
      * Manage documents.
-     * @param views View map.
-     * @param documents Document tab manager.
+     * 
+     * @param main The main frame.
+     * @param root The root window (for splitting when strange things happen).
+     * @param views View map (holds all of the documents).
+     * @param documents Document tab manager (holds open documents at first).
      */
-    public DocumentManager(StringViewMap views, TabWindow documents) {
-        lastIndex = 0;
-        Views = views;
-        Documents = documents;
-        allDocuments = new ArrayList<SchemeTextArea>();
+    public static DocumentManager init(MainFrame main, RootWindow root, StringViewMap views, TabWindow documents) {
+    	if (me == null) {
+	    	me = new DocumentManager();
+	    	
+	        me.lastIndex = 0;
+	        
+	        me.Main = main;
+	        me.Root = root;
+	        me.Views = views;
+	        me.Documents = documents;
+	        
+	        me.allDocuments = new ArrayList<SchemeTextArea>();
+    	}
+        
+        return me;
     }
     
     /**
      * Create a new document.
      */
-    public boolean New() {
-        lastIndex++;
+    public static boolean New() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        me.lastIndex++;
         
-        String id = "document-" + lastIndex;
+        String id = "document-" + me.lastIndex;
 
         SchemeTextArea ss = new SchemeTextArea();
-        allDocuments.add(ss);
-        ss.code.addFocusListener(this);
+        me.allDocuments.add(ss);
+        ss.code.addFocusListener(me);
         
-        Views.addView(id, new View("<new document>", null, ss));
-        ss.myView = Views.getView(id);
+        me.Views.addView(id, new View("<new document>", null, ss));
+        ss.myView = me.Views.getView(id);
         
-        Documents.addTab(Views.getView(id));
+        me.Documents.addTab(me.Views.getView(id));
         
-        if (MainFrame.me == null)
-        	return true;
-        
-        RootWindow root = MainFrame.me().Root;
-        if (root != null && !Documents.isShowing())
-        	root.setWindow(new SplitWindow(false, 0.6f, Documents, root.getWindow()));
+        if (me.Root != null && !me.Documents.isShowing())
+        	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
          
         ss.code.requestFocusInWindow();
         
@@ -79,8 +101,10 @@ public class DocumentManager implements FocusListener {
      * Load a file from a dialog.
      * @return If the load worked.
      */
-    public boolean Open() {
-        FileDialog fc = new FileDialog(MainFrame.me(), "Open...", FileDialog.LOAD);
+    public static boolean Open() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+    	FileDialog fc = new FileDialog(me.Main, "Open...", FileDialog.LOAD);
         fc.setVisible(true);
         
         if (fc.getFile() == null)
@@ -101,10 +125,12 @@ public class DocumentManager implements FocusListener {
      * @param file The file to load.
      * @return If the load worked.
      */
-    public boolean Open(File file) {
-        lastIndex++;
+    public static boolean Open(File file) {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        me.lastIndex++;
         
-        String id = "document-" + lastIndex;
+        String id = "document-" + me.lastIndex;
         String filename = file.getName();
         
         try {
@@ -121,18 +147,18 @@ public class DocumentManager implements FocusListener {
             }
 
             SchemeTextArea ss = new SchemeTextArea(content.toString());
-            allDocuments.add(ss);
+            me.allDocuments.add(ss);
             ss.myFile = file;
-            ss.code.addFocusListener(this);
+            ss.code.addFocusListener(me);
 
-            Views.addView(id, new View(filename, null, ss));
-            ss.myView = Views.getView(id);
+            me.Views.addView(id, new View(filename, null, ss));
+            ss.myView = me.Views.getView(id);
 
-            Documents.addTab(Views.getView(id));
+            me.Documents.addTab(me.Views.getView(id));
             
-            RootWindow root = MainFrame.me().Root;
-            if (root != null && !Documents.isShowing())
-            	root.setWindow(new SplitWindow(false, 0.6f, Documents, root.getWindow()));
+            RootWindow root = me.Root;
+            if (root != null && !me.Documents.isShowing())
+            	root.setWindow(new SplitWindow(false, 0.6f, me.Documents, root.getWindow()));
             
             ss.code.requestFocusInWindow();
 
@@ -148,15 +174,17 @@ public class DocumentManager implements FocusListener {
      * Save the current file.
      * @return If the save worked.
      */
-    public boolean Save() {
-        if (activeDocument == null)
+    public static boolean Save() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        if (me.activeDocument == null)
             return false;
-        if (activeDocument.myFile == null)
+        if (me.activeDocument.myFile == null)
             return SaveAs();
         
         try {
-            Writer out = new OutputStreamWriter(new FileOutputStream(activeDocument.myFile));
-            out.write(activeDocument.getText());
+            Writer out = new OutputStreamWriter(new FileOutputStream(me.activeDocument.myFile));
+            out.write(me.activeDocument.getText());
             out.flush();
             out.close();
             return true;
@@ -171,18 +199,20 @@ public class DocumentManager implements FocusListener {
      * Save the active file with a new name.
      * @return If it worked.
      */
-    public boolean SaveAs() {
-        if (activeDocument == null)
+    public static boolean SaveAs() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        if (me.activeDocument == null)
             return false;
 
-        FileDialog fc = new FileDialog(MainFrame.me(), "Save as...", FileDialog.SAVE);
+        FileDialog fc = new FileDialog(me.Main, "Save as...", FileDialog.SAVE);
         fc.setVisible(true);
         if (fc.getFile() == null)
             return false;
 
         File file = new File(fc.getDirectory(), fc.getFile());
-        activeDocument.myFile = file;
-        activeDocument.myView.getViewProperties().setTitle(file.getName());
+        me.activeDocument.myFile = file;
+        me.activeDocument.myView.getViewProperties().setTitle(file.getName());
 
         return Save();
     }
@@ -191,15 +221,17 @@ public class DocumentManager implements FocusListener {
      * Close the active document.
      * @return If it worked.
      */
-    public boolean Close() {
-        if (activeDocument == null)
+    public static boolean Close() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        if (me.activeDocument == null)
             return false;
 
-        if (!activeDocument.isEmpty())
+        if (!me.activeDocument.isEmpty())
         {
-            String name = activeDocument.myView.getViewProperties().getTitle();
+            String name = me.activeDocument.myView.getViewProperties().getTitle();
             if (!Options.ConfirmOnRunClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-                    activeDocument,
+                    me.activeDocument,
                     "Save " + name + " before closing?",
                     "Close...",
                     JOptionPane.YES_NO_OPTION
@@ -209,8 +241,8 @@ public class DocumentManager implements FocusListener {
             }
         }
         
-        allDocuments.remove(activeDocument);
-        View toClose = activeDocument.myView;
+        me.allDocuments.remove(me.activeDocument);
+        View toClose = me.activeDocument.myView;
         toClose.close();
         	        
         return true;
@@ -220,11 +252,13 @@ public class DocumentManager implements FocusListener {
      * Close all documents.
      * @return If it worked.
      */
-    public boolean CloseAll() {
+    public static boolean CloseAll() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
     	boolean closedAll = true;
-    	while (!allDocuments.isEmpty())
+    	while (!me.allDocuments.isEmpty())
     	{
-    		activeDocument = allDocuments.get(0);
+    		me.activeDocument = me.allDocuments.get(0);
     		closedAll &= Close();
     	}
     	return closedAll;
@@ -234,48 +268,27 @@ public class DocumentManager implements FocusListener {
      * Reload all documents (to update formatting).
      * @return If it worked.
      */
-    public boolean ReloadAll() {
-    	boolean reloadedAll = true;
-    	for (SchemeTextArea ss : allDocuments)
-    	{
-    		try {
-				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
-			} catch (BadLocationException e) {
-				reloadedAll = false;
-				ErrorFrame.log("Unable to format " + ss.getFile() + ": " + e.getMessage());
-			}
-    	}
+    public static boolean ReloadAll() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
-    	try {
-    		((SchemeDocument) MainFrame.me().History.code.getDocument()).processChangedLines(0, MainFrame.me().History.getText().length());
-    	}  catch (BadLocationException e) {
-			reloadedAll = false;
-			ErrorFrame.log("Unable to format History view: " + e.getMessage());
-		}
-    	
-    	try {
-    		((SchemeDocument) MainFrame.me().REPL.code.getDocument()).processChangedLines(0, MainFrame.me().REPL.getText().length());
-    	}  catch (BadLocationException e) {
-			reloadedAll = false;
-			ErrorFrame.log("Unable to format Execute view: " + e.getMessage());
-		}
-    	
-    	return reloadedAll;
+    	return me.Main.updateDisplay();
     }
 
     /**
      * Run the active document.
      * @return If it worked.
      */
-    public boolean Run() {
-        if (activeDocument == null)
+    public static boolean Run() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        if (me.activeDocument == null)
             return false;
 
-        if (!activeDocument.isEmpty())
+        if (!me.activeDocument.isEmpty())
         {
-            String name = activeDocument.myView.getViewProperties().getTitle();
+            String name = me.activeDocument.myView.getViewProperties().getTitle();
             if (!Options.ConfirmOnRunClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-                    activeDocument,
+                    me.activeDocument,
                     "Save " + name + " before running?",
                     "Close...",
                     JOptionPane.YES_NO_OPTION
@@ -286,9 +299,9 @@ public class DocumentManager implements FocusListener {
             }
         }
 
-        MainFrame.me().doCommand("(load \"" + activeDocument.myFile.getAbsolutePath().replace("\\", "/")  + "\")");
-        MainFrame.me().REPL.code.requestFocusInWindow();
-
+        me.Main.doCommand("(load \"" + me.activeDocument.myFile.getAbsolutePath().replace("\\", "/")  + "\")");
+        me.Main.focusREPL();
+        
         return true;
     }
 
@@ -296,14 +309,38 @@ public class DocumentManager implements FocusListener {
      * Format the active document.
      * @return If it worked.
      */
-    public boolean Format() {
-        if (activeDocument == null)
+    public static boolean Format() {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	
+        if (me.activeDocument == null)
             return false;
         
-        activeDocument.format();
+        me.activeDocument.format();
         
         return true;
     }
+    
+    /**
+     * Insert a tab / return.
+     * 
+     * @param insertReturn Insert a newline before tabbing.
+     * @return If it worked.
+     */
+	public static boolean Tab(boolean insertReturn) {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+		
+		SchemeTextArea doc = me.activeDocument;
+		
+		try {
+			doc.code.getDocument().insertString(doc.code.getCaretPosition(), "\n", null);
+        } catch (BadLocationException ble) {
+        	ErrorFrame.log("Unable to add a new line on ENTER.");
+        	return false;
+        }
+		
+		doc.tab();
+		return true;
+	}
 
     /**
      * Keep track of which text area last had focus.

@@ -2,13 +2,11 @@ package wombat;
 
 import gui.MainFrame;
 
-import javax.swing.*;
-
 /**
  * Main entry point of the program.
  */
 public class Wombat {
-	public static final int VERSION = 155;
+	public static final int VERSION = 156;
 	
     public static void main(String[] args) {
     	System.setSecurityManager(null);
@@ -16,7 +14,7 @@ public class Wombat {
     }
 
     private Wombat() {
-    	JFrame main = MainFrame.me();
+    	MainFrame main = new MainFrame();
         main.setVisible(true);
     }
 }

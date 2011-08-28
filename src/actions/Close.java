@@ -21,6 +21,6 @@ public class Close extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().Documents.Close();
+		DocumentManager.Close();
 	}
 }

@@ -2,11 +2,13 @@ package actions;
 
 import icons.IconManager;
 
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
 import gui.*;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JFrame;
 
 /**
  * Format the active document.
@@ -21,7 +23,15 @@ public class Reset extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		MainFrame.me().kawa.reset();
-		MainFrame.me().History.append("\n>>> Environment reset <<<\n");
+		boolean worked = false;
+		for (Frame frame : JFrame.getFrames()) {
+			if (frame instanceof MainFrame) {
+				((MainFrame) frame).resetKawa();
+				worked = true;
+				break;
+			}
+		}
+		if (!worked)
+			ErrorFrame.log("Couldn't reset Kawa, MainFrame not found.");
 	}
 }
