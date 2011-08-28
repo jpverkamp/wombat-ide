@@ -23,15 +23,8 @@ public class Reset extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		boolean worked = false;
-		for (Frame frame : JFrame.getFrames()) {
-			if (frame instanceof MainFrame) {
+		for (Frame frame : JFrame.getFrames())
+			if (frame instanceof MainFrame)
 				((MainFrame) frame).resetKawa();
-				worked = true;
-				break;
-			}
-		}
-		if (!worked)
-			ErrorFrame.log("Couldn't reset Kawa, MainFrame not found.");
 	}
 }

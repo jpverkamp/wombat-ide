@@ -14,6 +14,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
+import util.ErrorManager;
+
 /**
  * Store options.
  */
@@ -77,7 +79,7 @@ public final class Options {
     			try {
     				Keywords.put(parts[0], Integer.parseInt(parts[1]));
     			} catch (NumberFormatException ex) {
-    				ErrorFrame.log("Unable to load keyword '" + parts[0] + "', unknown indentation format: " + parts[1]);
+    				ErrorManager.logError("Unable to load keyword '" + parts[0] + "', unknown indentation format: " + parts[1]);
     			}
     		}
     	}

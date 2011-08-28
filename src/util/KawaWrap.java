@@ -3,7 +3,6 @@ package util;
 import globals.*;
 
 import gnu.mapping.*;
-import gui.ErrorFrame;
 import kawa.lang.NamedException;
 import kawa.standard.Scheme;
 
@@ -41,7 +40,7 @@ public class KawaWrap {
         	try {
         		g.addMethods(this);
         	} catch(Throwable ex) {
-        		ErrorFrame.log("Unable to load globals from " + g.getClass().getName() + ": " + ex.getMessage());
+        		ErrorManager.logError("Unable to load globals from " + g.getClass().getName() + ": " + ex.getMessage());
         	}
         }
 	}
@@ -81,7 +80,7 @@ public class KawaWrap {
 		} catch (NamedException ex) {
 			return ex.toString();
 		} catch (Throwable ex) {
-			ErrorFrame.log("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
+			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			return "Error: " + ex.getMessage();
 		}
 	}

@@ -3,6 +3,7 @@ package gui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
 import javax.swing.event.CaretListener;
 
 import javax.swing.event.CaretEvent;
@@ -10,6 +11,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.StyleConstants;
+
+import util.ErrorManager;
 
 public class BracketMatcher implements CaretListener {
 	SchemeTextArea textArea;
@@ -70,7 +73,7 @@ public class BracketMatcher implements CaretListener {
         } catch (BadLocationException ex) {
 			
         } catch (Exception ex) {
-        	ErrorFrame.log("Unable to match paranthesis: " + ex.getMessage());
+        	ErrorManager.logError("Unable to match paranthesis: " + ex.getMessage());
         	disabled = true;
         }
     }

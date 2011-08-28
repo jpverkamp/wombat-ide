@@ -1,11 +1,14 @@
 package gui;
 
+import gnu.mapping.OutPort;
 import icons.IconManager;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
 import wombat.Wombat;
+import util.ErrorListener;
+import util.ErrorManager;
 import util.KawaWrap;
 
 import java.awt.*;
@@ -25,11 +28,11 @@ public class MainFrame extends JFrame {
 	RootWindow Root;
     KawaWrap Kawa;
     JToolBar ToolBar;
+    StringViewMap ViewMap;
     
     // Unique code components.
     NonEditableTextArea History;
-    NonEditableTextArea Output;
-    NonEditableTextArea Error;
+    NonEditableTextArea Display;
     NonEditableTextArea Debug;
     REPLTextArea REPL;
 
@@ -69,21 +72,31 @@ public class MainFrame extends JFrame {
         // Create a display for any open documents.
         Root = DockingUtil.createRootWindow(new ViewMap(), true);
         TabWindow documents = new TabWindow();
-        StringViewMap viewMap = new StringViewMap();
-        DocumentManager.init(this, Root, viewMap, documents);
+        ViewMap = new StringViewMap();
+        DocumentManager.init(this, Root, ViewMap, documents);
         DocumentManager.New();
          
         // Create displays for a split REPL.
         History = new NonEditableTextArea(this);
-        Error = new NonEditableTextArea(this);
-        Debug = new NonEditableTextArea(this);
         REPL = new REPLTextArea(this);
-        viewMap.addView("REPL - Execute", new View("REPL - Execute", null, REPL));
-        viewMap.addView("REPL - History", new View("REPL - History", null, History));
-        SplitWindow replSplit = new SplitWindow(false, viewMap.getView("REPL - Execute"), viewMap.getView("REPL - History"));
+        ViewMap.addView("REPL - Execute", new View("REPL - Execute", null, REPL));
+        ViewMap.addView("REPL - History", new View("REPL - History", null, History));
+        SplitWindow replSplit = new SplitWindow(false, ViewMap.getView("REPL - Execute"), ViewMap.getView("REPL - History"));
         
-        viewMap.getView("REPL - Execute").getWindowProperties().setCloseEnabled(false);
-        viewMap.getView("REPL - History").getWindowProperties().setCloseEnabled(false);
+        ViewMap.getView("REPL - Execute").getWindowProperties().setCloseEnabled(false);
+        ViewMap.getView("REPL - History").getWindowProperties().setCloseEnabled(false);
+        
+        // Create the error/debug/display views.
+        Display = new NonEditableTextArea(this);
+        Debug = new NonEditableTextArea(this);
+        ViewMap.addView("Display", new View("Display", null, Display));
+        ViewMap.addView("Debug", new View("Debug", null, Debug));
+        ErrorManager.addErrorListener(new ErrorListener() {
+			@Override
+			public void logError(String msg) {
+				Debug.append(msg + "\n");
+			}
+        });
         
         // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
@@ -91,9 +104,9 @@ public class MainFrame extends JFrame {
         add(Root);
         
         // Connect to Kawa.
+        OutPort.setOutDefault(new SchemePrinter("Display", Display));
+        OutPort.setErrDefault(new SchemePrinter("Display", Display));
         Kawa = new KawaWrap();
-        Kawa.eval("(current-output-port (util.SchemePrinter:new (*:.Output (gui.MainFrame))))");
-		Kawa.eval("(current-error-port (util.SchemePrinter:new (*:.Error (gui.MainFrame))))");
         
         // Add a toolbar.
         ToolBar = new JToolBar();
@@ -130,12 +143,12 @@ public class MainFrame extends JFrame {
      */
 	public boolean updateDisplay() {
 		boolean reloaded = true;
-		for (SchemeTextArea ss : new SchemeTextArea[]{History, Output, Error, Debug, REPL}) {
+		for (SchemeTextArea ss : new SchemeTextArea[]{History, Display, Debug, REPL}) {
 			try {
 				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
 	    	}  catch (BadLocationException e) {
 	    		reloaded = false;
-				ErrorFrame.log("Unable to format History view: " + e.getMessage());
+	    		ErrorManager.logError("Unable to format History view: " + e.getMessage());
 			}
 		}
 		return reloaded;
@@ -162,5 +175,37 @@ public class MainFrame extends JFrame {
 	public void resetKawa() {
 		Kawa.reset();
 		History.append("\n>>> Environment reset <<<\n");
+	}
+
+	/**
+	 * Show the debug view.
+	 */
+	public void showDebug() {
+		View view = ViewMap.getView("Debug");
+		
+		if (!view.isShowing()) {
+			if (view.getSize().width == 0 || view.getSize().height == 0)
+				view.setSize(400, 400);
+			
+			FloatingWindow win = Root.createFloatingWindow(getLocation(), view.getSize(), view);
+			win.getTopLevelAncestor().setVisible(true);
+		}
+	}
+
+	/**
+	 * Show the given view.
+	 * @param which Which display we are writing to.
+	 */
+	public void showView(String which) {
+		View view = ViewMap.getView(which);
+		
+		if (!view.isShowing()) {
+			if (view.getSize().width == 0 || view.getSize().height == 0)
+				view.setSize(200, 200);
+			
+			
+			FloatingWindow win = Root.createFloatingWindow(getLocation(), view.getSize(), view);
+			win.getTopLevelAncestor().setVisible(true);
+		}
 	}
 }

@@ -20,6 +20,8 @@ import java.util.Scanner;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 
+import util.ErrorManager;
+
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
 
@@ -113,7 +115,7 @@ public final class DocumentManager implements FocusListener {
         File file = new File(fc.getDirectory(), fc.getFile());
         if (!file.exists())
         {
-            ErrorFrame.log("Unable to load file (does not exist): " + fc.getFile());
+        	ErrorManager.logError("Unable to load file (does not exist): " + fc.getFile());
             return false;
         }
         
@@ -156,16 +158,15 @@ public final class DocumentManager implements FocusListener {
 
             me.Documents.addTab(me.Views.getView(id));
             
-            RootWindow root = me.Root;
-            if (root != null && !me.Documents.isShowing())
-            	root.setWindow(new SplitWindow(false, 0.6f, me.Documents, root.getWindow()));
+            if (me.Root != null && !me.Documents.isShowing())
+            	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
             
             ss.code.requestFocusInWindow();
 
             return true;
         }
         catch(IOException ex) {
-            ErrorFrame.log("Unable to load file (" + file.getName() + "): " + ex.getMessage());
+        	ErrorManager.logError("Unable to load file (" + file.getName() + "): " + ex.getMessage());
             return false;
         }
     }
@@ -334,7 +335,7 @@ public final class DocumentManager implements FocusListener {
 		try {
 			doc.code.getDocument().insertString(doc.code.getCaretPosition(), "\n", null);
         } catch (BadLocationException ble) {
-        	ErrorFrame.log("Unable to add a new line on ENTER.");
+        	ErrorManager.logError("Unable to add a new line on ENTER.");
         	return false;
         }
 		
