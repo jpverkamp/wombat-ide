@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import gnu.expr.ModuleMethod;
 import gnu.mapping.*;
 import gnu.math.IntNum;
-import gui.ErrorFrame;
 import gui.MainFrame;
 import util.FileAccess;
 import util.KawaWrap;
@@ -114,7 +113,22 @@ public class WImage extends Globals {
 		// Check if two images are equal.
 		kawa.bind(new Procedure2("image-equal?") {
 			public Object apply2(Object img1, Object img2) throws Throwable {
-				return (img1 instanceof ImageShell && img2 instanceof ImageShell && ((ImageShell) img1).Data.equals(((ImageShell) img2).Data));
+				if (!(img1 instanceof ImageShell && img2 instanceof ImageShell)) 
+					return false;
+				
+				Raster left = ((ImageShell) img1).Data.getData();
+				Raster right = ((ImageShell) img2).Data.getData();
+				
+				if (left.getWidth() != right.getWidth() || left.getHeight() != right.getHeight())
+					return false;
+				
+				for (int x = 0; x < left.getWidth(); x++)
+					for (int y = 0; y < right.getHeight(); y++)
+						for (int b = 0; b < 3; b++)
+							if (left.getSample(x, y, b) != right.getSample(x, y, b))
+								return false;
+				
+				return true;
 			}
 		});
 		
@@ -174,20 +188,7 @@ public class WImage extends Globals {
 		});
 		
 		// Read an image from a file.
-		kawa.bind(new Procedure1("read-image") {
-			public Object apply1(Object filename) throws Throwable {
-				if (!(filename instanceof String)) throw new IllegalArgumentException("Error in read-image: " + filename + " is not a string.");
-				
-				RenderedImage img = ImageIO.read(new File((String) filename));
-				if (img == null)
-					throw new IllegalArgumentException("Error in read-image: unable to read image '" + filename + "'");
-				else
-					return new ImageShell(img);
-			}
-		});
-		
-		// Read an image via a gui.
-		kawa.bind(new Procedure0("read-image-gui") {
+		kawa.bind(new Procedure0or1("read-image") {
 			public Object apply0() throws Throwable {
 				FileDialog fc = new FileDialog(MainFrame.me(), "read-image-gui", FileDialog.LOAD);
 		        fc.setVisible(true);
@@ -206,23 +207,20 @@ public class WImage extends Globals {
 				else
 					return new ImageShell(img);
 			}
-		});
-		
-		// Write an image to a file.
-		kawa.bind(new Procedure2("write-image") {
-			public Object apply2(Object img, Object filename) throws Throwable {
-				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image: " + img + " is not an image.");
-				if (!(filename instanceof String)) throw new IllegalArgumentException("Error in write-image: " + filename + " is not a string.");
+			
+			public Object apply1(Object filename) throws Throwable {
+				if (!(filename instanceof String)) throw new IllegalArgumentException("Error in read-image: " + filename + " is not a string.");
 				
-			    File outputFile = new File((String) filename);
-			    ImageIO.write(((ImageShell) img).Data, FileAccess.extension(outputFile.getName()), outputFile);
-			    
-			    return null;
+				RenderedImage img = ImageIO.read(new File((String) filename));
+				if (img == null)
+					throw new IllegalArgumentException("Error in read-image: unable to read image '" + filename + "'");
+				else
+					return new ImageShell(img);
 			}
 		});
-		
-		// Write an image to a file using a gui to choose the file.
-		kawa.bind(new Procedure1("write-image-gui") {
+
+		// Write an image to a file.
+		kawa.bind(new Procedure1or2("write-image") {
 			public Object apply1(Object img) throws Throwable {
 				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image-gui: " + img + " is not an image.");
 				
@@ -234,6 +232,16 @@ public class WImage extends Globals {
 		        
 		        File file = new File(fc.getDirectory(), fc.getFile());
 		        String filename = file.getAbsolutePath();
+				
+			    File outputFile = new File((String) filename);
+			    ImageIO.write(((ImageShell) img).Data, FileAccess.extension(outputFile.getName()), outputFile);
+			    
+			    return null;
+			}
+			
+			public Object apply2(Object img, Object filename) throws Throwable {
+				if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image: " + img + " is not an image.");
+				if (!(filename instanceof String)) throw new IllegalArgumentException("Error in write-image: " + filename + " is not a string.");
 				
 			    File outputFile = new File((String) filename);
 			    ImageIO.write(((ImageShell) img).Data, FileAccess.extension(outputFile.getName()), outputFile);
