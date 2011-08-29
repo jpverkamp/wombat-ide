@@ -231,7 +231,7 @@ public final class DocumentManager implements FocusListener {
         if (!me.activeDocument.isEmpty())
         {
             String name = me.activeDocument.myView.getViewProperties().getTitle();
-            if (!Options.ConfirmOnRunClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+            if (!Options.ConfirmOnClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                     me.activeDocument,
                     "Save " + name + " before closing?",
                     "Close...",
@@ -288,7 +288,7 @@ public final class DocumentManager implements FocusListener {
         if (!me.activeDocument.isEmpty())
         {
             String name = me.activeDocument.myView.getViewProperties().getTitle();
-            if (!Options.ConfirmOnRunClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+            if (!Options.ConfirmOnRun || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
                     me.activeDocument,
                     "Save " + name + " before running?",
                     "Close...",

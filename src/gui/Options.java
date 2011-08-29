@@ -36,7 +36,8 @@ public final class Options {
 	
 	// Options menu options.
 	public static boolean EmacsKeybindings = false;
-	public static boolean ConfirmOnRunClose = true;
+	public static boolean ConfirmOnRun = true;
+	public static boolean ConfirmOnClose = true;
 	
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
@@ -59,7 +60,8 @@ public final class Options {
     	CommandFormat = prefs.get("Command/Format", CommandFormat);
 
     	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", EmacsKeybindings);
-    	ConfirmOnRunClose = prefs.getBoolean("Options/ConfirmOnRunClose", ConfirmOnRunClose);
+    	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", ConfirmOnRun);
+    	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", ConfirmOnClose);
     	
     	Colors = new HashMap<String, Color>();
     	Colors.put("default", new Color(prefs.getInt("Colors/default", 0x000000)));
@@ -103,7 +105,8 @@ public final class Options {
     	prefs.put("Command/Format", CommandFormat);
     	
     	prefs.putBoolean("Options/EmacsKeybindings", EmacsKeybindings);
-    	prefs.putBoolean("Options/ConfirmOnRunClose", ConfirmOnRunClose);
+    	prefs.putBoolean("Options/ConfirmOnRun", ConfirmOnRun);
+    	prefs.putBoolean("Options/ConfirmOnClose", ConfirmOnClose);
     	
     	for (String key : Colors.keySet())
     		prefs.putInt("Colors/" + key, Colors.get(key).getRGB());
@@ -139,13 +142,21 @@ public final class Options {
     		optionsMenu.add(emacs);
     		*/
     		
-    		JCheckBoxMenuItem confirm = new JCheckBoxMenuItem("Confirm on Run/Close", ConfirmOnRunClose);
-    		confirm.addItemListener(new ItemListener() {
+    		JCheckBoxMenuItem confirmRun = new JCheckBoxMenuItem("Confirm on Run", ConfirmOnRun);
+    		confirmRun.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
-					ConfirmOnRunClose = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					ConfirmOnRun = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
 				}
     		});
-    		optionsMenu.add(confirm);
+    		optionsMenu.add(confirmRun);
+    		
+    		JCheckBoxMenuItem confirmClose = new JCheckBoxMenuItem("Confirm on Close", ConfirmOnClose);
+    		confirmClose.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					ConfirmOnClose = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+				}
+    		});
+    		optionsMenu.add(confirmClose);
     		
     		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
     		toolbar.addItemListener(new ItemListener() {
