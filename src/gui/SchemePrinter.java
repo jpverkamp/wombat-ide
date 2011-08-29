@@ -17,7 +17,7 @@ public class SchemePrinter extends OutPort {
 	/**
 	 * Create a new SchemePrinter.
 	 */
-	public SchemePrinter(String name, final SchemeTextArea writeTo) {
+	public SchemePrinter(final String name, final SchemeTextArea writeTo) {
 		super(new Writer() {
 			@Override
 			public void close() throws IOException {}
@@ -28,6 +28,10 @@ public class SchemePrinter extends OutPort {
 			@Override
 			public void write(char[] cbuf, int off, int len) throws IOException {
 				writeTo.append(new String(cbuf, off, len));
+				
+				for (Frame frame : JFrame.getFrames())
+					if (frame instanceof MainFrame)
+						((MainFrame) frame).showView(name);
 			}
 		}, true, true);
 		
