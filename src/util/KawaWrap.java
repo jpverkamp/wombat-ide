@@ -30,8 +30,6 @@ public class KawaWrap {
 		
 		// Load globals.
         for (Globals g : new Globals[]{
-        		new WBoolean(),
-        		new WOutput(),
         		new WRandom(),
         		new WMath(),
         		new WTree(),
@@ -68,7 +66,7 @@ public class KawaWrap {
 			if (result == null || result.toString().length() == 0)
 				return null;
 			else 
-				return result;
+				return formatObject(result);
 		} catch (StackOverflowError ex) {
 			return "Possible infinite loop detected.";
 		} catch (UnboundLocationException ex) {
@@ -83,5 +81,54 @@ public class KawaWrap {
 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			return "Error: " + ex.getMessage();
 		}
+	}
+	
+	/**
+	 * Format an object using Scheme rules.
+	 * @param v The object to format.
+	 * @return
+	 */
+	public static String formatObject(Object v) {
+		if (v == null)
+			return "";
+		
+		else if (v instanceof String)
+			return '"' + ((String) v) + '"';
+		
+		else if (v instanceof Boolean)
+			return ((((Boolean) v).booleanValue()) ? "#t" : "#f");
+		
+		else if (v instanceof gnu.text.Char)
+			return "#\\" + (((gnu.text.Char) v).charValue());
+		
+		else if (v instanceof gnu.lists.Pair) {
+			gnu.lists.Pair p = (gnu.lists.Pair) v;
+			
+			if (p.getCdr() instanceof gnu.lists.LList) {
+				if (((gnu.lists.LList) p.getCdr()).isEmpty())
+					return "(" + formatObject(p.getCar()) + ")";
+				else
+					return "(" + formatObject(p.getCar()) + " " + formatObject(p.getCdr()).substring(1);
+			} else
+				return "(" + formatObject(p.getCar()) + " . " + formatObject(p.getCdr()) + ")";
+		}
+		
+		else if (v instanceof gnu.lists.FVector) {
+			gnu.lists.FVector vec = (gnu.lists.FVector) v;
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("#(");
+			for (Object o : vec) {
+				sb.append(formatObject(o));
+				sb.append(" ");
+			}
+			sb.delete(sb.length() - 1, sb.length());
+			sb.append(")");
+					
+			return sb.toString();
+		}
+		
+		else 
+			return v.toString();
 	}
 }
