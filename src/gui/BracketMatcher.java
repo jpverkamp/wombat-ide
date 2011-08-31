@@ -38,36 +38,47 @@ public class BracketMatcher implements CaretListener {
             if (pos >= 0 && pos < textArea.getText().length() && "()[]".contains(textArea.code.getDocument().getText(pos, 1))) {
                 // Find the matching bracket.
                 String text = textArea.code.getDocument().getText(0, textArea.code.getDocument().getLength());
-                char c = text.charAt(pos), cc;
-                int matchPos, d = ((c == '(' || c == '[') ? 1 : -1);
+                
+                char orig, c;
+                orig = c = text.charAt(pos);
+                int matchPos, d = ((orig == '(' || orig == '[') ? 1 : -1);
                 Stack<Character> brackets = new Stack<Character>();
+                
                 boolean foundMatch = false;
                 for (matchPos = pos; matchPos >= 0 && matchPos < text.length(); matchPos += d) {
-                    cc = text.charAt(matchPos);
+                    c = text.charAt(matchPos);
 
-                    if (!brackets.isEmpty() && brackets.peek() == cc) {
+                    if (!brackets.isEmpty() && brackets.peek() == c) {
                         brackets.pop();
                         if (brackets.isEmpty()) {
                             foundMatch = true;
                             break;
                         }
-                    } else if (cc == '(') brackets.push(')');
-                    else if (cc == ')') brackets.push('(');
-                    else if (cc == '[') brackets.push(']');
-                    else if (cc == ']') brackets.push('[');
+                    } else if (!brackets.isEmpty() &&
+                    		((brackets.peek() == '(' && c == '[') ||
+            				 (brackets.peek() == '[' && c == '(') ||
+            				 (brackets.peek() == ')' && c == ']') ||
+            				 (brackets.peek() == ']' && c == ')'))) {
+                    	
+                    	foundMatch = false;
+                    	break;
+                    }
+                    
+                    else if (c == '(') brackets.push(')');
+                    else if (c == ')') brackets.push('(');
+                    else if (c == '[') brackets.push(']');
+                    else if (c == ']') brackets.push('[');
                 }
 
                 // Highlight it.
-                if (foundMatch) {
-                    Highlighter.HighlightPainter hp = new DefaultHighlighter.DefaultHighlightPainter(
-                            StyleConstants.getForeground(SchemeDocument.attributes.get("bracket"))
-                    );
+                Highlighter.HighlightPainter hp = new DefaultHighlighter.DefaultHighlightPainter(
+                        StyleConstants.getForeground(SchemeDocument.attributes.get(foundMatch ? "bracket" : "invalid-bracket"))
+                );
 
-                    try {
-                        activeTags.add(h.addHighlight(pos, pos + 1, hp));
-                        activeTags.add(h.addHighlight(matchPos, matchPos + 1, hp));
-                    } catch (BadLocationException ble) {
-                    }
+                try {
+                    activeTags.add(h.addHighlight(pos, pos + 1, hp));
+                    activeTags.add(h.addHighlight(matchPos, matchPos + 1, hp));
+                } catch (BadLocationException ble) {
                 }
             }
         } catch (BadLocationException ex) {

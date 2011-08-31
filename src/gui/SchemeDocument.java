@@ -30,7 +30,7 @@ class SchemeDocument extends DefaultStyledDocument {
     public static void reload() {
     	attributes.clear();
     	
-        for (String key : "default keyword comment string bracket".split(" "))
+        for (String key : "default keyword comment string bracket invalid-bracket".split(" "))
         {
             attributes.put(key, new SimpleAttributeSet());
             StyleConstants.setFontSize(attributes.get(key), Options.FontSize);

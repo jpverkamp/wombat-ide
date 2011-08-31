@@ -54,6 +54,7 @@ public class MainFrame extends JFrame {
         }
         
         // Wait for the program to end.
+        final MainFrame me = this;
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
             	DocumentManager.CloseAll();
@@ -62,6 +63,7 @@ public class MainFrame extends JFrame {
             	Options.DisplayWidth = Math.max(400, e.getWindow().getWidth());
             	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
             	Options.save();
+            	me.dispose();
             }
         });
 

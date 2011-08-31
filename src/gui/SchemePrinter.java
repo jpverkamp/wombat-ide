@@ -31,7 +31,8 @@ public class SchemePrinter extends OutPort {
 				
 				for (Frame frame : JFrame.getFrames())
 					if (frame instanceof MainFrame)
-						((MainFrame) frame).showView(name);
+						if (frame.isVisible()) // make sure that it doesn't try to keep writing once everything is closing down
+							((MainFrame) frame).showView(name);
 			}
 		}, true, true);
 		

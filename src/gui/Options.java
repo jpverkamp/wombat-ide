@@ -73,6 +73,7 @@ public final class Options {
     	Colors.put("keyword", new Color(prefs.getInt("Colors/keyword", 0x000099)));
     	Colors.put("string", new Color(prefs.getInt("Colors/string", 0xFF8C00)));
     	Colors.put("bracket", new Color(prefs.getInt("Colors/bracket", 0x00FFFF)));
+    	Colors.put("invalid-bracket", new Color(prefs.getInt("Colors/invalid-bracket", 0xFF0000)));
     	
     	Keywords = new HashMap<String, Integer>();
     	String keywordString = prefs.get("Keywords", 
@@ -185,6 +186,7 @@ public final class Options {
 	    	    	Colors.put("keyword", new Color(0x000099));
 	    	    	Colors.put("string", new Color(0xFF8C00));
 	    	    	Colors.put("bracket", new Color(0x00FFFF));
+	    	    	Colors.put("invalid-bracket", new Color(0x00FFFF));
 	    	    	SchemeDocument.reload();
 					DocumentManager.ReloadAll();
 				};
