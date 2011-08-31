@@ -89,7 +89,7 @@ public class SchemeTextArea extends JPanel {
         int tokenEnd = 0;
 
         // Get the start of this line.
-        int lineStart = text.lastIndexOf(NL, pos);
+        int lineStart = text.lastIndexOf(NL, pos - 1);
         insertAt = (lineStart < 0 ? 0 : lineStart + NL.length());
 
         // Get the indentation on the current line.
@@ -157,7 +157,7 @@ public class SchemeTextArea extends JPanel {
             else
                 indentTo += 2;
         }
-
+        
         // Add new indentation if we need to.
         if (indentNow < indentTo) {
             String toInsert = "";

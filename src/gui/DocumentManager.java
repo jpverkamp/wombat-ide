@@ -332,12 +332,13 @@ public final class DocumentManager implements FocusListener {
 		
 		SchemeTextArea doc = me.activeDocument;
 		
-		try {
-			doc.code.getDocument().insertString(doc.code.getCaretPosition(), "\n", null);
-        } catch (BadLocationException ble) {
-        	ErrorManager.logError("Unable to add a new line on ENTER.");
-        	return false;
-        }
+		if (insertReturn) {
+			try {
+				doc.code.getDocument().insertString(doc.code.getCaretPosition(), "\n", null);
+	        } catch (BadLocationException ble) {
+	        	ErrorManager.logError("Unable to add a new line on ENTER.");
+	        }
+		}
 		
 		doc.tab();
 		return true;
