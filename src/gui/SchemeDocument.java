@@ -37,7 +37,7 @@ class SchemeDocument extends DefaultStyledDocument {
         }
 
         for (String key : Options.Colors.keySet())
-        	if (attributes.containsKey(key))
+        	if (attributes.containsKey(key) && Options.Colors.containsKey(key))
         		StyleConstants.setForeground(attributes.get(key), Options.Colors.get(key));
     }
     

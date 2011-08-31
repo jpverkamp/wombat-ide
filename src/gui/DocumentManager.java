@@ -277,6 +277,13 @@ public final class DocumentManager implements FocusListener {
     public static boolean ReloadAll() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
+    	for (SchemeTextArea ss : me.allDocuments)
+			try {
+				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
+			} catch (BadLocationException e) {
+				ErrorManager.logError("Unable to format " + ss.getFile() + ": " + e.getMessage());
+			}
+    	
     	return me.Main.updateDisplay();
     }
 

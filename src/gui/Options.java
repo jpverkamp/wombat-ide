@@ -176,6 +176,22 @@ public final class Options {
     		optionsMenu.add(toolbar);
     		
     		JMenu colorMenu = new JMenu("Colors");
+    		JMenuItem resetColors = new JMenuItem("Reset colors");
+    		resetColors.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Colors.put("default", new Color(0x000000));
+	    	    	Colors.put("comment", new Color(0x006600));
+	    	    	Colors.put("keyword", new Color(0x000099));
+	    	    	Colors.put("string", new Color(0xFF8C00));
+	    	    	Colors.put("bracket", new Color(0x00FFFF));
+	    	    	SchemeDocument.reload();
+					DocumentManager.ReloadAll();
+				};
+    		});
+    		colorMenu.add(resetColors);
+    		colorMenu.addSeparator();
+    		
     		for (final String key : Colors.keySet()) {
     			String fixed = ("" + key.charAt(0)).toUpperCase() + key.substring(1);
     			final JMenuItem item = new JMenuItem(fixed);

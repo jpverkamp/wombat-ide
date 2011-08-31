@@ -146,9 +146,10 @@ public class MainFrame extends JFrame {
 		for (SchemeTextArea ss : new SchemeTextArea[]{History, Display, Debug, REPL}) {
 			try {
 				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
+				ss.updateUI();
 	    	}  catch (BadLocationException e) {
 	    		reloaded = false;
-	    		ErrorManager.logError("Unable to format History view: " + e.getMessage());
+	    		ErrorManager.logError("Unable to format view: " + e.getMessage());
 			}
 		}
 		return reloaded;
