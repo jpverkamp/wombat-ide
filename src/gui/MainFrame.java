@@ -133,7 +133,7 @@ public class MainFrame extends JFrame {
         if (command.length() == 0)
             return;
 
-        History.append("\n� " + command.replace("\n", "\n  ") + "\n");
+        History.append("\n~ " + command.replace("\n", "\n  ") + "\n");
         
         Object result = Kawa.eval(command);
         if (result != null)

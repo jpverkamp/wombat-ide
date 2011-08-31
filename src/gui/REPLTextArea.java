@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -17,6 +18,7 @@ import javax.swing.text.BadLocationException;
  */
 public class REPLTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 8753865168892947915L;
+	MainFrame Main;
 	
 	// Store previously entered commands.
 	List<String> commandHistory;
@@ -26,6 +28,7 @@ public class REPLTextArea extends SchemeTextArea {
 	 * Create a new REPL area.
 	 */
 	public REPLTextArea(final MainFrame main) {
+		Main = main;
 		commandHistory = new ArrayList<String>();
 		setPreferredSize(new Dimension(100, 100));
 		
@@ -36,31 +39,28 @@ public class REPLTextArea extends SchemeTextArea {
                     private static final long serialVersionUID = 723647997099071931L;
 
 					public void actionPerformed(ActionEvent e) {
-                        Stack<Character> brackets = new Stack<Character>();
-                        for (char c : getText().toCharArray()) {
-                            if (c == '(') brackets.push(')');
-                            else if (c == '[') brackets.push(']');
-                            else if (c == ')' || c == ']')
-                                if (!brackets.empty() && brackets.peek() == c)
-                                    brackets.pop();
-                                else
-                                    return;
-                        }
+						checkRun();
+                    }
+                });
+        
+        // On CTRL-ENTER (command-ENTER on a mac).
+        code.getInputMap().put(
+        		KeyStroke.getKeyStroke(
+                    KeyEvent.VK_ENTER,
+                    Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
+                ),
+                new AbstractAction() {
+                    private static final long serialVersionUID = 723647997099071931L;
 
-                        if (brackets.empty()) {
-                        	commandHistory.add(getText());
-                        	currentCommand = commandHistory.size();
-                        	
-                            main.doCommand(getText());
-                            setText("");
-                        } else {
-                            try {
-                                code.getDocument().insertString(code.getCaretPosition(), SchemeTextArea.NL, null);
-                            } catch (BadLocationException ble) {
-                                System.err.println("badwolf");
-                            }
-                            tab();
-                        }
+					public void actionPerformed(ActionEvent e) {
+						if (getText().trim().isEmpty())
+							return;
+						
+						commandHistory.add(getText());
+			        	currentCommand = commandHistory.size();
+			        	
+						main.doCommand(getText());
+						setText("");
                     }
                 });
         
@@ -70,7 +70,8 @@ public class REPLTextArea extends SchemeTextArea {
 				if (arg0.getKeyCode() == KeyEvent.VK_UP) {
 					if (getText().lastIndexOf("\n", code.getCaretPosition()) == -1) {
 						if (currentCommand == commandHistory.size())
-							commandHistory.add(getText());
+							if (!getText().isEmpty())
+								commandHistory.add(getText());
 						
 						if (currentCommand == 0)
 							return;
@@ -102,5 +103,48 @@ public class REPLTextArea extends SchemeTextArea {
 				
 			}
         });
+	}
+
+	/**
+	 * Check if the command should run, run it if it should.
+	 * 
+	 * To run:
+	 * - Last line
+	 * - Brackets are matched
+	 */
+	protected void checkRun() {
+		// The cursor should be on the last line.
+		if (getText().substring(code.getCaretPosition()).trim().isEmpty()) {
+			
+			// Check to see that we have a matched pair of brackets.
+	        Stack<Character> brackets = new Stack<Character>();
+	        for (char c : getText().toCharArray()) {
+	            if (c == '(') brackets.push(')');
+	            else if (c == '[') brackets.push(']');
+	            else if (c == ')' || c == ']')
+	                if (!brackets.empty() && brackets.peek() == c)
+	                    brackets.pop();
+	                else
+	                    return;
+	        }
+	
+	        // This means we matched them all.
+	        if (brackets.empty()) {
+	        	commandHistory.add(getText());
+	        	currentCommand = commandHistory.size();
+	        	
+	            Main.doCommand(getText());
+	            setText("");
+	            return;
+	        }
+		}
+        
+        // Either we didn't match the brackets or we aren't on the last line. Insert the return normally.
+        try {
+            code.getDocument().insertString(code.getCaretPosition(), SchemeTextArea.NL, null);
+        } catch (BadLocationException ble) {
+            System.err.println("badwolf");
+        }
+        tab();
 	}
 }
