@@ -14,7 +14,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import util.ErrorManager;
+import util.errors.ErrorManager;
+import util.files.RecentDocumentManager;
 
 /**
  * Store options.
@@ -43,6 +44,9 @@ public final class Options {
 	public static Map<String, Color> Colors;
 	public static Map<String, Integer> Keywords;
 	public static int FontSize = 12;
+	
+	// Recently used documents.
+	public static String RecentDocuments;
 
 	/**
      * Initialize.
@@ -89,6 +93,8 @@ public final class Options {
     	FontSize = prefs.getInt("FontSize", FontSize);
     	
     	SchemeDocument.reload();
+    	
+    	RecentDocumentManager.setFiles(prefs.get("RecentDocuments", ""));
     }
     
     /**
@@ -122,6 +128,8 @@ public final class Options {
     	prefs.put("Keywords", keywordString.toString());
     	
     	prefs.putInt("FontSize", FontSize);
+    	
+    	prefs.put("RecentDocuments", RecentDocumentManager.getFiles());
     }
     
     /**

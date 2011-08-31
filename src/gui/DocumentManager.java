@@ -20,7 +20,8 @@ import java.util.Scanner;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 
-import util.ErrorManager;
+import util.errors.ErrorManager;
+import util.files.RecentDocumentManager;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
@@ -163,6 +164,8 @@ public final class DocumentManager implements FocusListener {
             
             ss.code.requestFocusInWindow();
 
+            RecentDocumentManager.addFile(file);
+            
             return true;
         }
         catch(IOException ex) {
@@ -188,6 +191,9 @@ public final class DocumentManager implements FocusListener {
             out.write(me.activeDocument.getText());
             out.flush();
             out.close();
+            
+            RecentDocumentManager.addFile(me.activeDocument.myFile);
+            
             return true;
         } catch(FileNotFoundException ex) {
             return false;
@@ -243,8 +249,7 @@ public final class DocumentManager implements FocusListener {
         }
         
         me.allDocuments.remove(me.activeDocument);
-        View toClose = me.activeDocument.myView;
-        toClose.close();
+        me.activeDocument.myView.close();
         	        
         return true;
     }
@@ -364,8 +369,6 @@ public final class DocumentManager implements FocusListener {
 
             c = c.getParent();
         }
-
-        
     }
 
     /**

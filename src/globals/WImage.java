@@ -17,8 +17,8 @@ import gnu.expr.ModuleMethod;
 import gnu.mapping.*;
 import gnu.math.IntNum;
 import gui.MainFrame;
-import util.FileAccess;
 import util.KawaWrap;
+import util.files.FileAccess;
 
 public class WImage extends Globals {
 	/**

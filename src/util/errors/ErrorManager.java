@@ -1,7 +1,8 @@
-package util;
+package util.errors;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ErrorManager {
 	private ErrorManager() {}

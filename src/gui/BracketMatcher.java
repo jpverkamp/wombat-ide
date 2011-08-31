@@ -12,7 +12,7 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.StyleConstants;
 
-import util.ErrorManager;
+import util.errors.ErrorManager;
 
 public class BracketMatcher implements CaretListener {
 	SchemeTextArea textArea;

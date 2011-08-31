@@ -8,6 +8,8 @@ package gui;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 
+import util.files.RecentDocumentManager;
+
 import java.awt.Toolkit;
 import java.util.*;
 
@@ -36,6 +38,7 @@ public final class MenuManager {
         myMenu = buildBar(
             buildMenu("File", 'F',
                     buildItem("New", 'N', new actions.New()),
+                    RecentDocumentManager.buildRecentDocumentsMenu(),
                     buildItem("Open", 'O', new actions.Open()),
                     buildItem("Save", 'S', new actions.Save()),
                     buildItem("Save as", null, new actions.SaveAs()),

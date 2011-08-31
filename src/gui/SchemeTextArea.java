@@ -111,17 +111,7 @@ public class SchemeTextArea extends JPanel {
             Stack<Character> brackets = new Stack<Character>();
             for (int i = lineStart; i >= 0; i--) {
                 char c = text.charAt(i);
-                if (i > 0) {
-                    cp = (i > 0 ? text.charAt(i - 1) : '\0');
-
-                    delimCP = (delimiters.indexOf(cp) != -1);
-                    delimC = (delimiters.indexOf(c) != -1);
-                    
-                    if (delimCP && !delimC) tokenStart = i;
-                    if (!delimCP && delimC) tokenEnd = i;
-                    if (delimCP && delimC) tokenStart = tokenEnd = i;
-                }
-
+                
                 if (c == ')') brackets.push('(');
                 if (c == ']') brackets.push('[');
 
@@ -140,18 +130,25 @@ public class SchemeTextArea extends JPanel {
                         brackets.pop();
                     }
                 }
+                
+                if (i > 0) {
+                    cp = (i > 0 ? text.charAt(i - 1) : '\0');
+
+                    delimCP = (delimiters.indexOf(cp) != -1);
+                    delimC = (delimiters.indexOf(c) != -1);
+                    
+                    if (delimCP && !delimC) tokenStart = i;
+                    if (!delimCP && delimC) tokenEnd = i; 
+                    if (delimCP && delimC) tokenStart = tokenEnd = i;
+                }
             }
 
             // Get the token.
             String token = null;
             try {
                 token = text.substring(tokenStart, tokenEnd).trim();
-            } catch (StringIndexOutOfBoundsException sioobe) {
-
-            }
+            } catch (StringIndexOutOfBoundsException sioobe) {}
             
-            System.out.print("token = " + token + "; original indentTo = " + indentTo + "; ");
-
             // If there aren't any unmatched brackets, start a line.
             if (!unmatched)
                 indentTo = 0;
@@ -167,8 +164,6 @@ public class SchemeTextArea extends JPanel {
             // Otherwise, fall back on the default indentation.
             else
                 indentTo += 2;
-            
-            System.out.println("new indentTo = " + indentTo);
         }
         
         // Add new indentation if we need to.

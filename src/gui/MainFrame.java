@@ -7,9 +7,9 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
 import wombat.Wombat;
-import util.ErrorListener;
-import util.ErrorManager;
 import util.KawaWrap;
+import util.errors.ErrorListener;
+import util.errors.ErrorManager;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -131,7 +131,7 @@ public class MainFrame extends JFrame {
         if (command.length() == 0)
             return;
 
-        History.append("\n§ " + command.replace("\n", "\n  ") + "\n");
+        History.append("\nï¿½ " + command.replace("\n", "\n  ") + "\n");
         
         Object result = Kawa.eval(command);
         if (result != null)

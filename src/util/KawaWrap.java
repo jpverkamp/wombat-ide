@@ -1,5 +1,6 @@
 package util;
 
+import util.errors.ErrorManager;
 import globals.*;
 
 import gnu.mapping.*;
