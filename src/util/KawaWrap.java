@@ -114,6 +114,11 @@ public class KawaWrap {
 				return "(" + formatObject(p.getCar()) + " . " + formatObject(p.getCdr()) + ")";
 		}
 		
+		else if (v instanceof kawa.lang.Quote)
+			return "#<macro quote>";
+		else if (v instanceof kawa.lang.Lambda)
+			return "#<macro lambda>";
+		
 		else if (v instanceof gnu.lists.FVector) {
 			gnu.lists.FVector vec = (gnu.lists.FVector) v;
 			
