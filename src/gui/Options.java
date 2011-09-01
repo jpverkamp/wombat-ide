@@ -7,14 +7,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 
 import util.files.RecentDocumentManager;
 
@@ -106,16 +104,6 @@ public final class Options {
     	
     	for (String key : Colors.keySet())
     		prefs.putInt("Colors/" + key, Colors.get(key).getRGB());
-    			
-//		StringBuilder keywordString = new StringBuilder();
-//    	for (String key : Keywords.keySet())
-//    	{
-//    		keywordString.append(key);
-//    		keywordString.append("\t");
-//    		keywordString.append(Keywords.get(key));
-//    		keywordString.append("\n");
-//    	}
-//    	prefs.put("Keywords", keywordString.toString());
     	
     	prefs.putInt("FontSize", FontSize);
     	
@@ -231,31 +219,6 @@ public final class Options {
     		}
     		optionsMenu.add(fontSizeMenu);
     	}
-    	
-    	optionsMenu.addSeparator();
-    	
-    	optionsMenu.addSeparator();
-    	
-    	JMenuItem resetOptions = new JMenuItem("Reset all options");
-    	resetOptions.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-	                    optionsMenu,
-	                    "Are you sure you wish to reset all options?\n(This cannot be undone)",
-	                    "Reset options?",
-	                    JOptionPane.YES_NO_OPTION
-	                )) {
-					try {
-						prefs.clear();
-					} catch (BackingStoreException e1) {
-					} finally {
-						load();
-					}
-				}
-			}    		
-    	});
-    	optionsMenu.add(resetOptions);
     	
     	return optionsMenu;
     }

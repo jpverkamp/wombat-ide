@@ -10,8 +10,6 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 public final class SyntaxDialog {
-	private static final long serialVersionUID = 6110006176994509078L;
-	
 	public final static String DEFAULT_SYNTAX =
 		"define		2 \n" +
 		"lambda		2 \n" +
@@ -34,7 +32,10 @@ public final class SyntaxDialog {
 		"letrec		2 \n" +
 		"quote		2 \n" +
 		"case		2 \n" +
-		"do			2 \n";
+		"do			2 \n" +
+		"color\ncolor?\ncolor-equal?\ncolor-ref" +
+		"image?\nimage-equal?\nimage-rows\nimage-cols\nimage-ref\nimage-set!\nread-image\nwrite-image\ndraw-image\nimage-map\nmake-image\ndraw-image-file" +
+		"tree\ntree?\nleaf\nleaf?\nempty-tree\nempty-tree?\nleft-subtree\nright-subtree\nroot-value\ndraw-tree";
 	
 	static JDialog dialog;
 	static List<String> syntaxNames = new ArrayList<String>();
@@ -121,6 +122,7 @@ public final class SyntaxDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setSyntax(null);
+				dialog.setVisible(false);
 			}
 		});
 		buttons.add(resetButton);
@@ -178,13 +180,19 @@ public final class SyntaxDialog {
 		val = val.replaceAll("\t+", "\t");
 		for (String line : val.split("\\s*\n\\s*")) {
 			String[] pair = line.split("\t");
-			if (pair.length != 2)
-				continue;
-			
-			String name = pair[0].trim();
+
+			String name = null;
 			int indent = 2;
-			try { indent = Integer.parseInt(pair[1].trim()); } catch(NumberFormatException nfe) { }
 			
+			if (pair.length == 1) {
+				name = pair[0].trim();
+				indent = 2;
+			} else if (pair.length == 2) {
+				name = pair[0].trim();
+				try { indent = Integer.parseInt(pair[1].trim()); } catch(NumberFormatException nfe) { }		
+			} else {
+				continue;
+			}
 			
 			syntaxNames.add(name);
 			Options.Keywords.put(name, indent);

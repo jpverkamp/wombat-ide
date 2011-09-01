@@ -33,8 +33,13 @@ public class MainFrame extends JFrame {
 	// Display components.
 	RootWindow Root;
     KawaWrap Kawa;
-    JToolBar ToolBar;
     StringViewMap ViewMap;
+    
+    // Toolbar.
+    JToolBar ToolBar;
+    JButton ToolBarRun;
+    JButton ToolBarStop;
+    boolean Running = false;
     
     // Unique code components.
     NonEditableTextArea History;
@@ -119,15 +124,30 @@ public class MainFrame extends JFrame {
         
         // Add a toolbar.
         ToolBar = new JToolBar();
+        ToolBarRun = new JButton(MenuManager.itemForName("Run").getAction());
+        ToolBarStop = new JButton(MenuManager.itemForName("Stop").getAction());
+        
         ToolBar.setFloatable(false);
-        for (Action a : new Action[]{new actions.New(), new actions.Open(), new actions.Save(), new actions.Close()})
-        	ToolBar.add(a);
+        for (Action a : new Action[]{
+        		MenuManager.itemForName("New").getAction(),
+        		MenuManager.itemForName("Open").getAction(),
+        		MenuManager.itemForName("Save").getAction(),
+        		MenuManager.itemForName("Close").getAction()})
+        	ToolBar.add(new JButton(a));
         ToolBar.addSeparator();
-        for (Action a : new Action[]{new actions.Run(), new actions.Stop(), new actions.Format(), new actions.Reset()})
-        	ToolBar.add(a);
+        ToolBar.add(ToolBarRun);
+        ToolBar.add(ToolBarStop);
+        for (Action a : new Action[]{
+        		MenuManager.itemForName("Format").getAction(),
+        		MenuManager.itemForName("Reset").getAction()})
+        	ToolBar.add(new JButton(a));
         
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(Options.DisplayToolbar);
+        
+        // Disable items by default.
+        MenuManager.itemForName("Stop").setEnabled(false);
+		ToolBarStop.setEnabled(false);
     }
 
 	/**
@@ -136,6 +156,14 @@ public class MainFrame extends JFrame {
      * @param command The command to run.
      */
     void doCommand(String command) {
+    	MenuManager.itemForName("Run").setEnabled(false);
+    	MenuManager.itemForName("Stop").setEnabled(true);
+    	
+    	ToolBarRun.setEnabled(false);
+    	ToolBarStop.setEnabled(true);
+    	
+    	Running = true;
+    	
         final String cmd = command.trim();
         if (cmd.length() == 0)
             return;
@@ -156,7 +184,16 @@ public class MainFrame extends JFrame {
 					if (result != null)
 			        	History.append(result.toString() + "\n");
 					
+					MenuManager.itemForName("Run").setEnabled(true);
+			    	MenuManager.itemForName("Stop").setEnabled(false);
+					
+			    	ToolBarRun.setEnabled(true);
+			    	ToolBarStop.setEnabled(false);
+			    	
+			    	Running = false;
+			    	
 					workers.remove(this);
+					
 				} catch (CancellationException e) {
 				} catch (InterruptedException e) {
 				} catch (ExecutionException e) {
@@ -248,5 +285,15 @@ public class MainFrame extends JFrame {
 			workers.peek().cancel(true);
 			workers.poll();
 		}
+		
+		MenuManager.itemForName("Run").setEnabled(true);
+    	MenuManager.itemForName("Stop").setEnabled(false);
+		
+    	ToolBarRun.setEnabled(true);
+    	ToolBarStop.setEnabled(false);
+    	
+    	Running = false;
+    	
+    	History.append("\n>>> Execution halted <<<<\n");
 	}
 }
