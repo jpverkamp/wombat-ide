@@ -128,6 +128,8 @@ public class MainFrame extends JFrame {
         
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(Options.DisplayToolbar);
+        
+        new SyntaxFrame();
     }
 
 	/**
