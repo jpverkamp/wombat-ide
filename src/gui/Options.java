@@ -7,43 +7,44 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
-import util.errors.ErrorManager;
 import util.files.RecentDocumentManager;
 
 /**
  * Store options.
  */
 public final class Options {
-	static Preferences prefs;
+	static Preferences prefs = Preferences.userNodeForPackage(new Options().getClass());
 	static JMenu optionsMenu;
 			
 	// Used for the main display. 
-	public static int DisplayWidth = 600;
-	public static int DisplayHeight = 800;
-	public static int DisplayTop = 100;
-	public static int DisplayLeft = 100;
-	public static boolean DisplayToolbar = true;
+	public static int DisplayWidth;
+	public static int DisplayHeight;
+	public static int DisplayTop;
+	public static int DisplayLeft;
+	public static boolean DisplayToolbar;
 	
 	// Keyboard shortcuts.
-	public static String CommandRun = "F5";
-	public static String CommandFormat = "F6";
+	public static String CommandRun;
+	public static String CommandFormat;
 	
 	// Options menu options.
-	public static boolean EmacsKeybindings = false;
-	public static boolean ConfirmOnRun = true;
-	public static boolean ConfirmOnClose = true;
+	public static boolean EmacsKeybindings;
+	public static boolean ConfirmOnRun;
+	public static boolean ConfirmOnClose;
 	
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
 	public static Map<String, Integer> Keywords;
-	public static int FontSize = 12;
+	public static int FontSize;
 	
 	// Recently used documents.
 	public static String RecentDocuments;
@@ -51,21 +52,21 @@ public final class Options {
 	/**
      * Initialize.
      */
-    static {
-    	prefs = Preferences.userNodeForPackage(new Options().getClass());
+    static { load(); }
+    
+    private static void load() {
+    	DisplayTop = prefs.getInt("Display/Top", 100);
+    	DisplayLeft = prefs.getInt("Display/Left", 100);
+    	DisplayWidth = prefs.getInt("Display/Width", 800);
+    	DisplayHeight = prefs.getInt("Display/Height", 600);
+    	DisplayToolbar = prefs.getBoolean("Display/Toolbar", true);
     	
-    	DisplayTop = prefs.getInt("Display/Top", DisplayTop);
-    	DisplayLeft = prefs.getInt("Display/Left", DisplayLeft);
-    	DisplayWidth = prefs.getInt("Display/Width", DisplayWidth);
-    	DisplayHeight = prefs.getInt("Display/Height", DisplayHeight);
-    	DisplayToolbar = prefs.getBoolean("Display/Toolbar", DisplayToolbar);
-    	
-    	CommandRun = prefs.get("Command/Run", CommandRun);
-    	CommandFormat = prefs.get("Command/Format", CommandFormat);
+    	CommandRun = prefs.get("Command/Run", "F5");
+    	CommandFormat = prefs.get("Command/Format", "F6");
 
-    	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", EmacsKeybindings);
-    	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", ConfirmOnRun);
-    	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", ConfirmOnClose);
+    	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", false);
+    	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", true);
+    	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", true);
     	
     	Colors = new HashMap<String, Color>();
     	Colors.put("default", new Color(prefs.getInt("Colors/default", 0x000000)));
@@ -76,26 +77,14 @@ public final class Options {
     	Colors.put("invalid-bracket", new Color(prefs.getInt("Colors/invalid-bracket", 0xFF0000)));
     	
     	Keywords = new HashMap<String, Integer>();
-    	String keywordString = prefs.get("Keywords", 
-    			"define\t2\nlambda\t2\nif\t4\ncond\t2\nand\t5\nor\t4\n" +
-    			"+\t2\n-\t2\n*\t2\n/\t2\nadd1\t6\nsub1\t6\nlist\t6\n" +
-    			"cons\t6\ncar\t5\ncdr\t\n");
-    	for (String pair : keywordString.split("\n")) {
-    		String[] parts = pair.split("\t");
-    		if (parts.length == 2) {
-    			try {
-    				Keywords.put(parts[0], Integer.parseInt(parts[1]));
-    			} catch (NumberFormatException ex) {
-    				ErrorManager.logError("Unable to load keyword '" + parts[0] + "', unknown indentation format: " + parts[1]);
-    			}
-    		}
-    	}
     	
-    	FontSize = prefs.getInt("FontSize", FontSize);
+    	FontSize = prefs.getInt("FontSize", 12);
     	
     	SchemeDocument.reload();
     	
-    	RecentDocumentManager.setFiles(prefs.get("RecentDocuments", ""));
+    	RecentDocumentManager.setFiles(prefs.get("RecentDocuments", null));
+    	SyntaxDialog.setSyntax(prefs.get("Syntax", null));
+
     }
     
     /**
@@ -118,19 +107,20 @@ public final class Options {
     	for (String key : Colors.keySet())
     		prefs.putInt("Colors/" + key, Colors.get(key).getRGB());
     			
-		StringBuilder keywordString = new StringBuilder();
-    	for (String key : Keywords.keySet())
-    	{
-    		keywordString.append(key);
-    		keywordString.append("\t");
-    		keywordString.append(Keywords.get(key));
-    		keywordString.append("\n");
-    	}
-    	prefs.put("Keywords", keywordString.toString());
+//		StringBuilder keywordString = new StringBuilder();
+//    	for (String key : Keywords.keySet())
+//    	{
+//    		keywordString.append(key);
+//    		keywordString.append("\t");
+//    		keywordString.append(Keywords.get(key));
+//    		keywordString.append("\n");
+//    	}
+//    	prefs.put("Keywords", keywordString.toString());
     	
     	prefs.putInt("FontSize", FontSize);
     	
     	prefs.put("RecentDocuments", RecentDocumentManager.getFiles());
+    	prefs.put("Syntax", SyntaxDialog.getSyntax());
     }
     
     /**
@@ -175,6 +165,17 @@ public final class Options {
 				}
     		});
     		optionsMenu.add(toolbar);
+    		
+    		optionsMenu.addSeparator();
+    		
+    		JMenuItem resetSyntax = new JMenuItem("Keywords");
+        	resetSyntax.addActionListener(new ActionListener() {
+    			@Override
+    			public void actionPerformed(ActionEvent e) {
+    				SyntaxDialog.show();
+    			}    		
+        	});
+        	optionsMenu.add(resetSyntax);
     		
     		JMenu colorMenu = new JMenu("Colors");
     		JMenuItem resetColors = new JMenuItem("Reset colors");
@@ -230,6 +231,31 @@ public final class Options {
     		}
     		optionsMenu.add(fontSizeMenu);
     	}
+    	
+    	optionsMenu.addSeparator();
+    	
+    	optionsMenu.addSeparator();
+    	
+    	JMenuItem resetOptions = new JMenuItem("Reset all options");
+    	resetOptions.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+	                    optionsMenu,
+	                    "Are you sure you wish to reset all options?\n(This cannot be undone)",
+	                    "Reset options?",
+	                    JOptionPane.YES_NO_OPTION
+	                )) {
+					try {
+						prefs.clear();
+					} catch (BackingStoreException e1) {
+					} finally {
+						load();
+					}
+				}
+			}    		
+    	});
+    	optionsMenu.add(resetOptions);
     	
     	return optionsMenu;
     }

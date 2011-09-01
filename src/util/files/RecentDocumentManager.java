@@ -92,9 +92,10 @@ public class RecentDocumentManager {
 	 * Set the files to a string.
 	 */
 	public static void setFiles(String files) {
-		for (String doc : files.split(";"))
-			if (!doc.trim().isEmpty())
-				fileList.add(new File(doc));
+		if (files != null)
+			for (String doc : files.split(";"))
+				if (!doc.trim().isEmpty())
+					fileList.add(new File(doc));
 		
 		rebuildMenu();
 	}

@@ -128,8 +128,6 @@ public class MainFrame extends JFrame {
         
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(Options.DisplayToolbar);
-        
-        new SyntaxFrame();
     }
 
 	/**
@@ -167,11 +165,6 @@ public class MainFrame extends JFrame {
         };
         worker.execute();
         workers.add(worker);
-        
-//        Object result = Kawa.eval(cmd);
-//        
-//        if (result != null)
-//        	History.append(result.toString() + "\n");
     }
 
     /**
