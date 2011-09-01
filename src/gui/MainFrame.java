@@ -14,6 +14,9 @@ import util.errors.ErrorManager;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.*;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
@@ -24,6 +27,9 @@ import net.infonode.docking.util.*;
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 2574330949324570164L;
 
+	// Keep track of execution workers.
+	Queue<SwingWorker<Object, Void>> workers = new LinkedList<SwingWorker<Object, Void>>();
+	
 	// Display components.
 	RootWindow Root;
     KawaWrap Kawa;
@@ -57,6 +63,7 @@ public class MainFrame extends JFrame {
         final MainFrame me = this;
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+            	stopAllThreads();
             	DocumentManager.CloseAll();
             	Options.DisplayTop = Math.max(0, e.getWindow().getLocation().y);
             	Options.DisplayLeft = Math.max(0, e.getWindow().getLocation().x);
@@ -116,7 +123,7 @@ public class MainFrame extends JFrame {
         for (Action a : new Action[]{new actions.New(), new actions.Open(), new actions.Save(), new actions.Close()})
         	ToolBar.add(a);
         ToolBar.addSeparator();
-        for (Action a : new Action[]{new actions.Run(), new actions.Format(), new actions.Reset()})
+        for (Action a : new Action[]{new actions.Run(), new actions.Stop(), new actions.Format(), new actions.Reset()})
         	ToolBar.add(a);
         
         add(ToolBar, BorderLayout.PAGE_START);
@@ -129,15 +136,40 @@ public class MainFrame extends JFrame {
      * @param command The command to run.
      */
     void doCommand(String command) {
-        command = command.trim();
-        if (command.length() == 0)
+        final String cmd = command.trim();
+        if (cmd.length() == 0)
             return;
 
-        History.append("\n~ " + command.replace("\n", "\n  ") + "\n");
+        History.append("\n~ " + cmd.replace("\n", "\n  ") + "\n");
         
-        Object result = Kawa.eval(command);
-        if (result != null)
-        	History.append(result.toString() + "\n");
+        final SwingWorker<Object, Void> worker = new SwingWorker<Object, Void>() {
+			@Override
+			protected Object doInBackground() throws Exception {
+				return Kawa.eval(cmd);
+			}
+			
+			@Override
+			protected void done() {
+				try {
+					
+					Object result = get();
+					if (result != null)
+			        	History.append(result.toString() + "\n");
+					
+					workers.remove(this);
+				} catch (CancellationException e) {
+				} catch (InterruptedException e) {
+				} catch (ExecutionException e) {
+				}
+			}
+        };
+        worker.execute();
+        workers.add(worker);
+        
+//        Object result = Kawa.eval(cmd);
+//        
+//        if (result != null)
+//        	History.append(result.toString() + "\n");
     }
 
     /**
@@ -161,7 +193,7 @@ public class MainFrame extends JFrame {
 	 * Focus the REPL.
 	 */
 	public void focusREPL() {
-		REPL.requestFocusInWindow();
+		REPL.code.requestFocusInWindow();
 	}
 
 	/**
@@ -209,6 +241,17 @@ public class MainFrame extends JFrame {
 			
 			FloatingWindow win = Root.createFloatingWindow(getLocation(), view.getSize(), view);
 			win.getTopLevelAncestor().setVisible(true);
+		}
+	}
+	
+	/**
+	 * Stop all running worker threads.
+	 */
+	public void stopAllThreads() {
+		while (!workers.isEmpty())
+		{
+			workers.peek().cancel(true);
+			workers.poll();
 		}
 	}
 }

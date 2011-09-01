@@ -50,6 +50,7 @@ public final class MenuManager {
             		buildItem("Paste", 'V', new DefaultEditorKit.PasteAction())),
                 buildMenu("Scheme",
                     buildItem("Run", Options.CommandRun, new actions.Run()),
+                    buildItem("Stop", null, new actions.Stop()),
                     buildItem("Format", Options.CommandFormat, new actions.Format()),
                     buildItem("Reset", null, new actions.Reset())),
                 Options.buildOptionsMenu(main),

@@ -86,7 +86,7 @@ public class SchemeTextArea extends JPanel {
         int indentTo = 0;
         int insertAt = 0;
         int tokenStart = 0;
-        int tokenEnd = 0;
+        int tokenEnd = pos;
 
         // Get the start of this line.
         int lineStart = text.lastIndexOf(NL, pos - 1);
@@ -103,14 +103,14 @@ public class SchemeTextArea extends JPanel {
             // Otherwise, figure out how far we want to indent.
         else {
         	// Don't reallocate.
-        	char cp;
+        	char c, cp;
         	boolean delimCP, delimC;
         	
             // Scan upwards until we find the first unmatched opening bracket.
             boolean unmatched = false;
             Stack<Character> brackets = new Stack<Character>();
             for (int i = lineStart; i >= 0; i--) {
-                char c = text.charAt(i);
+                c = text.charAt(i);
                 
                 if (c == ')') brackets.push('(');
                 if (c == ']') brackets.push('[');
@@ -132,7 +132,7 @@ public class SchemeTextArea extends JPanel {
                 }
                 
                 if (i > 0) {
-                    cp = (i > 0 ? text.charAt(i - 1) : '\0');
+                    cp = text.charAt(i - 1);
 
                     delimCP = (delimiters.indexOf(cp) != -1);
                     delimC = (delimiters.indexOf(c) != -1);
@@ -142,12 +142,13 @@ public class SchemeTextArea extends JPanel {
                     if (delimCP && delimC) tokenStart = tokenEnd = i;
                 }
             }
-
+            
             // Get the token.
             String token = null;
             try {
                 token = text.substring(tokenStart, tokenEnd).trim();
-            } catch (StringIndexOutOfBoundsException sioobe) {}
+            } catch (StringIndexOutOfBoundsException sioobe) {
+            }
             
             // If there aren't any unmatched brackets, start a line.
             if (!unmatched)

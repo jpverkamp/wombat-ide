@@ -343,6 +343,8 @@ public final class DocumentManager implements FocusListener {
 		if (me == null) throw new RuntimeException("Document manager not initialized.");
 		
 		SchemeTextArea doc = me.activeDocument;
+		if (doc == null)
+			return false;
 		
 		if (insertReturn) {
 			try {

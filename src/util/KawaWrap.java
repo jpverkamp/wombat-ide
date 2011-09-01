@@ -62,7 +62,7 @@ public class KawaWrap {
 		try {
 			cmd = cmd.replace('[', '(').replace(']', ')');
 			Object result = Scheme.eval(cmd, env);
-
+			
 			// Return the final result.
 			if (result == null || result.toString().length() == 0)
 				return null;
@@ -78,6 +78,8 @@ public class KawaWrap {
 			return ex.getMessage();
 		} catch (NamedException ex) {
 			return ex.toString();
+		} catch (WrongType ex) {
+			return "Error in " + ex.procname + ": " + ex.argValue + " isn't the expected type.";
 		} catch (Throwable ex) {
 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			return "Error: " + ex.getMessage();
