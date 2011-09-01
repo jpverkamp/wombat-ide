@@ -82,9 +82,12 @@ public class KawaWrap {
 		} catch (NamedException ex) {
 			return ex.toString();
 		} catch (WrongType ex) {
-			return "Error in " + ex.procname + ": " + ex.argValue + " isn't the expected type.";
+			if ("procedure".equals(ex.expectedType.toString()))
+				return "Error: Attempted to apply non-procedure '" + ex.argValue + "'";
+			else 
+				return "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
 		} catch (Throwable ex) {
-			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
+ 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			return "Error: " + ex.getMessage();
 		}
 	}
