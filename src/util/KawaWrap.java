@@ -3,6 +3,7 @@ package util;
 import util.errors.ErrorManager;
 import globals.*;
 
+import gnu.kawa.lispexpr.ReadTable;
 import gnu.mapping.*;
 import kawa.lang.NamedException;
 import kawa.standard.Scheme;
@@ -25,6 +26,8 @@ public class KawaWrap {
 	 * Reset the stored Scheme interpreter and environment.
 	 */
 	public void reset() {
+		ReadTable.defaultBracketMode = 1; // allow square brackets
+		
 		Scheme.registerEnvironment();
 		kawa = new Scheme();
 		env = kawa.getEnvironment();
@@ -60,7 +63,7 @@ public class KawaWrap {
 	 */
 	public Object eval(String cmd) {
 		try {
-			cmd = cmd.replace('[', '(').replace(']', ')');
+//			cmd = cmd.replace('[', '(').replace(']', ')');
 			Object result = Scheme.eval(cmd, env);
 			
 			// Return the final result.
