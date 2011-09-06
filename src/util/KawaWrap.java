@@ -1,5 +1,8 @@
 package util;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+
 import util.errors.ErrorManager;
 import globals.*;
 
@@ -26,7 +29,7 @@ public class KawaWrap {
 	 * Reset the stored Scheme interpreter and environment.
 	 */
 	public void reset() {
-		ReadTable.defaultBracketMode = 1; // allow square brackets
+		ReadTable.defaultBracketMode = 0; // allow square brackets
 		
 		Scheme.registerEnvironment();
 		kawa = new Scheme();
@@ -63,7 +66,6 @@ public class KawaWrap {
 	 */
 	public Object eval(String cmd) {
 		try {
-//			cmd = cmd.replace('[', '(').replace(']', ')');
 			Object result = Scheme.eval(cmd, env);
 			
 			// Return the final result.
@@ -87,7 +89,8 @@ public class KawaWrap {
 			else 
 				return "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
 		} catch (Throwable ex) {
- 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
+			ex.printStackTrace();
+			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			return "Error: " + ex.getMessage();
 		}
 	}
