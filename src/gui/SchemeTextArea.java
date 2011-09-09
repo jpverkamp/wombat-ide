@@ -1,9 +1,16 @@
 package gui;
 
 import javax.swing.*;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Stack;
 
@@ -57,6 +64,46 @@ public class SchemeTextArea extends JPanel {
         
         // Bracket highlighting.
         code.addCaretListener(new BracketMatcher(this));
+        
+        // Undo/redo
+        final UndoManager undo = new UndoManager();
+
+        // Listen for undo and redo events
+        doc.addUndoableEditListener(new UndoableEditListener() {
+            public void undoableEditHappened(UndoableEditEvent evt) {
+                undo.addEdit(evt.getEdit());
+            }
+        });
+
+        // Create an undo action and add it to the text component
+        code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), 
+            new AbstractAction("Undo") {
+				private static final long serialVersionUID = -8039739065888107926L;
+
+				public void actionPerformed(ActionEvent evt) {
+                    try {
+                        if (undo.canUndo()) {
+                            undo.undo();
+                        }
+                    } catch (CannotUndoException e) {
+                    }
+                }
+           });
+        
+        // Create a redo action and add it to the text component
+        code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+            new AbstractAction("Redo") {
+				private static final long serialVersionUID = 7821227314611856861L;
+
+				public void actionPerformed(ActionEvent evt) {
+                    try {
+                        if (undo.canRedo()) {
+                            undo.redo();
+                        }
+                    } catch (CannotRedoException e) {
+                    }
+                }
+            });
     }
 
     /**
