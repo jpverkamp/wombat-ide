@@ -8,6 +8,8 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
+import wombat.Options;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -20,9 +22,9 @@ import java.util.Stack;
 public class SchemeTextArea extends JPanel {
 	private static final long serialVersionUID = -5290625425897085428L;
 
-	File myFile;
+	public File myFile;
+	public net.infonode.docking.View myView;
     JScrollPane pane;
-    net.infonode.docking.View myView;
     boolean dirty;
 
     public JEditorPane code;

@@ -6,6 +6,9 @@ import icons.IconManager;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
+import wombat.DocumentManager;
+import wombat.Options;
+import wombat.Update;
 import wombat.Wombat;
 import util.KawaWrap;
 import util.errors.ErrorListener;
@@ -148,6 +151,31 @@ public class MainFrame extends JFrame {
         // Disable items by default.
         MenuManager.itemForName("Stop").setEnabled(false);
 		ToolBarStop.setEnabled(false);
+		
+		// Fire off an update notification in the background.
+//		final SwingWorker<Boolean, Void> updateWorker = new SwingWorker<Boolean, Void>() {
+//			@Override
+//			protected Boolean doInBackground() throws Exception {
+//				return Update.update();
+//			}
+//			
+//			@Override
+//			protected void done() {
+//				try {
+//					
+//					boolean neededToUpdate = get();
+//					if (neededToUpdate) {
+//						ToolBar.addSeparator();
+//						ToolBar.add(new JButton(new actions.RestartOnUpdate()));
+//					}
+//
+//				} catch (CancellationException e) {
+//				} catch (InterruptedException e) {
+//				} catch (ExecutionException e) {
+//				}
+//			}
+//        };
+//        updateWorker.execute();
     }
 
 	/**
@@ -155,7 +183,7 @@ public class MainFrame extends JFrame {
      *
      * @param command The command to run.
      */
-    void doCommand(String command) {
+    public void doCommand(String command) {
     	MenuManager.itemForName("Run").setEnabled(false);
     	MenuManager.itemForName("Stop").setEnabled(true);
     	

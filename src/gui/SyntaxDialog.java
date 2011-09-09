@@ -9,6 +9,8 @@ import javax.swing.*;
 
 import javax.swing.table.AbstractTableModel;
 
+import wombat.Options;
+
 public final class SyntaxDialog {
 	public final static String DEFAULT_SYNTAX =
 		"define		2 \n" +

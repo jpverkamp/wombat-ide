@@ -1,6 +1,9 @@
 package gui;
 
 import javax.swing.text.*;
+
+import wombat.Options;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +12,7 @@ import java.util.Map;
  * Original source: http://www.squidy-lib.de/
  * (heavily modified)
  */
-class SchemeDocument extends DefaultStyledDocument {
+public class SchemeDocument extends DefaultStyledDocument {
 	private static final long serialVersionUID = 8684954217591619402L;
 	
 	// For use in formatting.

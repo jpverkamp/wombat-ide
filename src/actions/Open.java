@@ -3,10 +3,10 @@ package actions;
 import icons.IconManager;
 
 import java.awt.event.ActionEvent;
-
-import gui.*;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+
+import wombat.DocumentManager;
 
 /**
  * Open a new document.

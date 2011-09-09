@@ -1,6 +1,5 @@
 package util.files;
 
-import gui.DocumentManager;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +8,8 @@ import java.util.Stack;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
+import wombat.DocumentManager;
 
 
 public class RecentDocumentManager {

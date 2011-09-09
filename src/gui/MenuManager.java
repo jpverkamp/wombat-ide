@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 
 import util.files.RecentDocumentManager;
+import wombat.Options;
 
 import java.awt.Toolkit;
 import java.util.*;
