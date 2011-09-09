@@ -73,13 +73,20 @@ public class SchemeTextArea extends JPanel {
      * Perform a tab at the current position.
      */
     public void tab() {
-        // Things that break tokens.
+    	// Things that break tokens.
         String delimiters = "()[] ";
 
         // Get the text and current position.
         String text = getText();
         int pos = code.getCaretPosition();
         int len = text.length();
+        
+        // Fix tabs.
+        if (text.indexOf('\t') != -1) {
+        	text = text.replace('\t', ' ');
+        	setText(text);
+        	code.setCaretPosition(pos);
+        }
 
         // Variables we are trying to determine.
         int indentNow = 0;
