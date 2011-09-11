@@ -6,7 +6,7 @@ import gui.MainFrame;
  * Main entry point of the program.
  */
 public class Wombat {
-	public static final int VERSION = 177;
+	public static final String VERSION = "@{revision}";
 	
     public static void main(String[] argv) {
     	System.setSecurityManager(null);

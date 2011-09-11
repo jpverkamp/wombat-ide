@@ -8,7 +8,6 @@ import javax.swing.text.BadLocationException;
 
 import wombat.DocumentManager;
 import wombat.Options;
-import wombat.Update;
 import wombat.Wombat;
 import util.KawaWrap;
 import util.errors.ErrorListener;

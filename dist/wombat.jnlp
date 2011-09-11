@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<jnlp codebase="http://cs.indiana.edu/~verkampj/wombat/" href="wombat.jnlp" spec="1.0+">
+    <information>
+        <title>Wombat</title>
+        <vendor>JP Verkamp</vendor>
+        <homepage href="http://cs.indiana.edu/~verkampj/wombat/" />
+        <description>Wombat Scheme IDE</description>
+        <description kind="short">Wombat Scheme IDE</description>
+
+		<offline-allowed />
+	</information>
+    
+	<update check="background" />
+    
+	<security>
+		<all-permissions />
+	</security>
+    
+	<resources>
+        <j2se version="1.6+" />
+        <jar href="Wombat-{REVISION}.jar" main="true" />
+		<jar href="lib/idw-gpl.jar" />
+		<jar href="lib/kawa-1.11.jar" />
+	</resources>
+    
+	<application-desc main-class="wombat.Wombat">
+    </application-desc>
+</jnlp>
