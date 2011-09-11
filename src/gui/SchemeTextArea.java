@@ -30,7 +30,6 @@ public class SchemeTextArea extends JPanel {
     public JEditorPane code;
     public static String NL = "\n"; //System.getProperty("line.separator");
     
-    
     /**
      * Create a new Scheme text area.
      */

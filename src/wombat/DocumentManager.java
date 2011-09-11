@@ -146,7 +146,7 @@ public final class DocumentManager implements FocusListener {
 
             Scanner scanner = new Scanner(file);
             StringBuilder content = new StringBuilder();
-            String NL = System.getProperty("line.separator");
+            String NL = "\n"; //System.getProperty("line.separator");
 
             while (scanner.hasNextLine()) {
                 content.append(scanner.nextLine());
