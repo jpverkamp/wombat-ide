@@ -10,11 +10,9 @@
 	<property name="lib-dir" location="lib" />
 	<property name="jnlp-dir" location="jnlp" />
 	
-	<property name="jnlp-home" value="http://www.cs.indiana.edu/cgi-pub/c211/wombat/test/index.htm" />
-		
 	<property name="deploy-user" value="c211" />
 	<property name="deploy-server" value="tank.cs.indiana.edu" />
-	<property name="deploy-dir" value="~/cgi/wombat/test" />
+	<property name="deploy-dir" value="~/cgi/wombat" />
 	
 	<property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
 	
@@ -37,12 +35,6 @@
 
 	<!-- compile java files to class files -->
 	<target name="compile" depends="revision" description="compile the source ">
-		<exec executable="svn" output="${build-dir}/svn.properties">
-			<arg value="info" />
-		</exec>
-		<property prefix="svn" file="${build-dir}/svn.properties"/>
-		<echo>Sandbox Revision: ${svn.Revision}</echo>
-		
 		<delete dir="${build-dir}" />
 		<mkdir dir="${build-dir}" />
 		
@@ -59,6 +51,7 @@
 
 	<!-- create a jar containing just the wombat code --> 
 	<target name="dist" depends="compile" description="generate the distribution">
+		<delete dir="${dist-dir}" />
 		<mkdir dir="${dist-dir}"/>
 		
 		<copy todir="${dist-dir}">
@@ -93,12 +86,14 @@
 			<fileset dir="${jnlp-dir}" />
 		</copy>
 		
-		<replace dir="${dist-dir}" includes="*.htm *.jnlp *.txt" token="{DATE}" value="${date}" />
-		<replace dir="${dist-dir}" includes="*.htm *.jnlp *.txt" token="{REVISION}" value="${revision}" />
+		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
+		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{REVISION}" value="${revision}" />
 		
 		<input message="Password:" addproperty="scp-passphrase">
 		      <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
 		</input>
+		
+		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="rm -f ${deploy-dir}/Wombat-*.jar" failonerror="false" />
 		
 		<scp todir="${deploy-user}@${deploy-server}:${deploy-dir}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
 			<fileset dir="${dist-dir}" />

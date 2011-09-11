@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 
-<jnlp codebase="http://www.cs.indiana.edu/cgi-pub/c211/wombat/test/" href="wombat.jnlp" spec="1.0+">
+<jnlp codebase="http://www.cs.indiana.edu/cgi-pub/c211/wombat" href="wombat.jnlp" spec="1.0+">
     <information>
         <title>Wombat</title>
         <vendor>JP Verkamp</vendor>
-        <homepage href="http://www.cs.indiana.edu/cgi-pub/c211/wombat/test/" />
+        <homepage href="http://www.cs.indiana.edu/cgi-pub/c211/wombat" />
         <description>Wombat Scheme IDE</description>
         <description kind="short">Wombat Scheme IDE</description>
 
