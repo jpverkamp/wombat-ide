@@ -12,15 +12,8 @@ import java.awt.Component;
 import java.awt.FileDialog;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 
@@ -135,6 +128,20 @@ public final class DocumentManager implements FocusListener {
     public static boolean Open(File file) {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
+    	// Check if the document was already opened, it it was use that one.
+    	for (SchemeTextArea ss : me.allDocuments) {
+    		if (ss.myFile != null && ss.myFile.equals(file)) {
+    			for (int i = 0; i < me.Documents.getChildWindowCount(); i++) {
+    	    		if (me.Documents.getChildWindow(i).equals(ss.myView)) {
+    	    			me.Documents.setSelectedTab(i);
+    	    			ss.code.requestFocusInWindow();
+    	    			return true;
+    	    		}
+    			}
+    		}
+    	}
+    	
+    	// Otherwise, load the document.
         me.lastIndex++;
         
         String id = "document-" + me.lastIndex;
@@ -144,16 +151,7 @@ public final class DocumentManager implements FocusListener {
             if (!file.exists())
                 file.createNewFile();
 
-            Scanner scanner = new Scanner(file);
-            StringBuilder content = new StringBuilder();
-            String NL = "\n"; //System.getProperty("line.separator");
-
-            while (scanner.hasNextLine()) {
-                content.append(scanner.nextLine());
-                content.append(NL);
-            }
-
-            SchemeTextArea ss = new SchemeTextArea(content.toString());
+            SchemeTextArea ss = new SchemeTextArea(file);
             me.allDocuments.add(ss);
             ss.myFile = file;
             ss.code.addFocusListener(me);
@@ -191,10 +189,7 @@ public final class DocumentManager implements FocusListener {
             return SaveAs();
         
         try {
-            Writer out = new OutputStreamWriter(new FileOutputStream(me.activeDocument.myFile));
-            out.write(me.activeDocument.getText());
-            out.flush();
-            out.close();
+            me.activeDocument.save();
             
             RecentDocumentManager.addFile(me.activeDocument.myFile);
             
@@ -232,7 +227,7 @@ public final class DocumentManager implements FocusListener {
      * Close the active document.
      * @return If it worked.
      */
-    public static boolean Close() {
+    public static boolean Close(boolean force) {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
         if (me.activeDocument == null)
@@ -241,14 +236,21 @@ public final class DocumentManager implements FocusListener {
         if (!me.activeDocument.isEmpty())
         {
             String name = me.activeDocument.myView.getViewProperties().getTitle();
-            if (!Options.ConfirmOnClose || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-                    me.activeDocument,
-                    "Save " + name + " before closing?",
-                    "Close...",
-                    JOptionPane.YES_NO_OPTION
-                ))
-            {
-                Save();
+            if (me.activeDocument.isDirty()) {
+            	if (Options.ConfirmOnClose) {
+            		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+            				me.activeDocument,
+            				"Save " + name + " before closing?",
+            				"Close...",
+            				JOptionPane.YES_NO_OPTION)) {
+            			Save();
+            		} else {
+            			if (!force)
+            				return false;
+            		}
+            	} else {
+            		Save();
+            	}
             }
         }
         
@@ -269,7 +271,7 @@ public final class DocumentManager implements FocusListener {
     	while (!me.allDocuments.isEmpty())
     	{
     		me.activeDocument = me.allDocuments.get(0);
-    		closedAll &= Close();
+    		closedAll &= Close(true);
     	}
     	return closedAll;
     }
@@ -301,19 +303,21 @@ public final class DocumentManager implements FocusListener {
         if (me.activeDocument == null)
             return false;
 
-        if (!me.activeDocument.isEmpty())
-        {
-            String name = me.activeDocument.myView.getViewProperties().getTitle();
-            if (!Options.ConfirmOnRun || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-                    me.activeDocument,
-                    "Save " + name + " before running?",
-                    "Close...",
-                    JOptionPane.YES_NO_OPTION
-                ))
-            {
-                if (!Save())
-                	return false;
-            }
+        String name = me.activeDocument.myView.getViewProperties().getTitle();
+        if (me.activeDocument.isDirty()) {
+        	if (Options.ConfirmOnRun) {
+        		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+	                    me.activeDocument,
+	                    "Save " + name + " before running?",
+	                    "Save...",
+	                    JOptionPane.YES_NO_OPTION)) {
+        			Save();
+        		} else {
+        			return false;
+        		}
+        	} else {
+        		Save();
+        	}
         }
 
         me.Main.doCommand("(load \"" + me.activeDocument.myFile.getAbsolutePath().replace("\\", "/")  + "\")");

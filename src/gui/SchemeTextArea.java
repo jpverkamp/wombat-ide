@@ -14,6 +14,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.Scanner;
 import java.util.Stack;
 
 /**
@@ -24,11 +30,11 @@ public class SchemeTextArea extends JPanel {
 
 	public File myFile;
 	public net.infonode.docking.View myView;
-    JScrollPane pane;
-    boolean dirty;
-
-    public JEditorPane code;
+	public JEditorPane code;
     public static String NL = "\n"; //System.getProperty("line.separator");
+    public int SavedHash;
+    
+    JScrollPane pane;
     
     /**
      * Create a new Scheme text area.
@@ -111,10 +117,55 @@ public class SchemeTextArea extends JPanel {
      * Create a new Scheme text area with content.
      *
      * @param text Content.
+     * @throws FileNotFoundException, IOException 
      */
-    public SchemeTextArea(String text) {
+    public SchemeTextArea(File file) throws FileNotFoundException, IOException {
         this();
-        setText(text);
+        myFile = file;
+        load();
+    }
+    
+    /**
+     * Load the document from it's file (throws an exception if the file hasn't been set).
+     * @throws FileNotFoundException, IOException If we can't save based on a file error.
+     */
+    public void load() throws FileNotFoundException, IOException {
+    	if (myFile == null) throw new FileNotFoundException("No file set");
+    	
+    	Scanner scanner = new Scanner(myFile);
+        StringBuilder content = new StringBuilder();
+        String NL = "\n"; //System.getProperty("line.separator");
+
+        while (scanner.hasNextLine()) {
+            content.append(scanner.nextLine());
+            content.append(NL);
+        }
+        
+        setText(content.toString());
+        SavedHash = getText().hashCode();
+    }
+    
+    /**
+     * Save the document to its file (throws an exception if the file hasn't been set).
+     * @throws FileNotFoundException, IOException If it doesn't work.
+     */
+    public void save() throws FileNotFoundException, IOException {
+    	if (myFile == null) throw new FileNotFoundException("No file set");
+    	
+    	Writer out = new OutputStreamWriter(new FileOutputStream(myFile));
+        out.write(getText());
+        out.flush();
+        out.close();
+        
+        SavedHash = getText().hashCode();
+    }
+    
+    /**
+     * Is the document dirty?
+     * @return If it has changed since the last time.
+     */
+    public boolean isDirty() {
+    	return getText().hashCode() != SavedHash;
     }
 
     /**

@@ -153,30 +153,10 @@ public class MainFrame extends JFrame {
         MenuManager.itemForName("Stop").setEnabled(false);
 		ToolBarStop.setEnabled(false);
 		
-		// Fire off an update notification in the background.
-//		final SwingWorker<Boolean, Void> updateWorker = new SwingWorker<Boolean, Void>() {
-//			@Override
-//			protected Boolean doInBackground() throws Exception {
-//				return Update.update();
-//			}
-//			
-//			@Override
-//			protected void done() {
-//				try {
-//					
-//					boolean neededToUpdate = get();
-//					if (neededToUpdate) {
-//						ToolBar.addSeparator();
-//						ToolBar.add(new JButton(new actions.RestartOnUpdate()));
-//					}
-//
-//				} catch (CancellationException e) {
-//				} catch (InterruptedException e) {
-//				} catch (ExecutionException e) {
-//				}
-//			}
-//        };
-//        updateWorker.execute();
+		// Remove text on toolbar buttons.
+		for (Component c : ToolBar.getComponents())
+			if (c instanceof JButton)
+				((JButton) c).setText("");
     }
 
 	/**
