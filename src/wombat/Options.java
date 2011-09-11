@@ -50,10 +50,6 @@ public final class Options {
 	
 	// Recently used documents.
 	public static String RecentDocuments;
-	
-	// Versioning information.
-	public static String Version;
-	public static String NewestWombat;
 
 	/**
      * Initialize.
@@ -90,9 +86,6 @@ public final class Options {
     	
     	RecentDocumentManager.setFiles(prefs.get("RecentDocuments", null));
     	SyntaxDialog.setSyntax(prefs.get("Syntax", null));
-
-    	Version = prefs.get("Version", null);
-    	NewestWombat = prefs.get("Version/NewestWombat", "Wombat.jar");
     }
     
     /**
@@ -119,9 +112,6 @@ public final class Options {
     	
     	prefs.put("RecentDocuments", RecentDocumentManager.getFiles());
     	prefs.put("Syntax", SyntaxDialog.getSyntax());
-    	
-    	prefs.put("Version", Version);
-    	prefs.put("Version/NewestWombat", NewestWombat);
     }
     
     /**

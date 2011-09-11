@@ -4,9 +4,6 @@
 		Wombat aims to be a simple cross-platform IDE for writing Scheme programs in a classroom environment.
 	</description>
 	
-	<property name="revision" value="179" />
-	<property name="jar-name" value="Wombat-${revision}.jar" />
-	
 	<property name="src-dir" location="src" />
 	<property name="build-dir" location="bin" />
 	<property name="dist-dir" location="dist" />
@@ -26,14 +23,38 @@
 			<include name="*.jar"/>
 		</fileset>
 	</path>
+	
+	<!-- get the revision from subversion -->
+	<target name="revision" description="initialize things">
+		<exec executable="svn" output="${build-dir}/svn.properties">
+			<arg value="info" />
+		</exec>
+		<property prefix="svn" file="${build-dir}/svn.properties"/>
+		<property name="revision" value="${svn.Revision}" />
+		<property name="jar-name" value="Wombat-${revision}.jar" />
+		<echo>Current version: ${revision}</echo>
+	</target>
 
 	<!-- compile java files to class files -->
-	<target name="compile" description="compile the source ">
+	<target name="compile" depends="revision" description="compile the source ">
+		<exec executable="svn" output="${build-dir}/svn.properties">
+			<arg value="info" />
+		</exec>
+		<property prefix="svn" file="${build-dir}/svn.properties"/>
+		<echo>Sandbox Revision: ${svn.Revision}</echo>
+		
 		<delete dir="${build-dir}" />
 		<mkdir dir="${build-dir}" />
-		<replace file="${src-dir}/wombat/Wombat.java" token="{REVISION}" value="@{revision}" />
+		
+		<copy file="${src-dir}/wombat/Wombat.java" tofile="${src-dir}/wombat/Wombat.java.bak" />
+		<replace file="${src-dir}/wombat/Wombat.java" token="{REVISION}" value="${revision}" />
 
+		<copy todir="${build-dir}">
+			<fileset dir="${src-dir}" />
+		</copy>
 		<javac srcdir="${src-dir}" destdir="${build-dir}" classpathref="classpath" />
+		
+		<move file="${src-dir}/wombat/Wombat.java.bak" tofile="${src-dir}/wombat/Wombat.java" />
 	</target>
 
 	<!-- create a jar containing just the wombat code --> 
@@ -63,7 +84,7 @@
 	</target>
 	
 	<!-- deploy to webstart -->
-	<target name="deploy" depends="dist,sign" description="deploy to webstart">
+	<target name="deploy" depends="dist,sign,revision" description="deploy to webstart">
 		<tstamp>
 			<format property="date" pattern="d MMMM yyyy" />
 		</tstamp>
@@ -78,13 +99,6 @@
 		<input message="Password:" addproperty="scp-passphrase">
 		      <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
 		</input>
-		
-		<!--
-		<scp todir="c211@tank.cs.indiana.edu:~/cgi/wombat/test" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
-			<fileset dir="${dist-dir}" />
-		</scp>
-		-->
-		
 		
 		<scp todir="${deploy-user}@${deploy-server}:${deploy-dir}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
 			<fileset dir="${dist-dir}" />

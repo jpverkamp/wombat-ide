@@ -70,13 +70,15 @@ public class MainFrame extends JFrame {
         final MainFrame me = this;
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-            	stopAllThreads();
-            	DocumentManager.CloseAll();
-            	Options.DisplayTop = Math.max(0, e.getWindow().getLocation().y);
+        		Options.DisplayTop = Math.max(0, e.getWindow().getLocation().y);
             	Options.DisplayLeft = Math.max(0, e.getWindow().getLocation().x);
             	Options.DisplayWidth = Math.max(400, e.getWindow().getWidth());
             	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
             	Options.save();
+            	
+            	stopAllThreads();
+            	DocumentManager.CloseAll();
+            	
             	me.dispose();
             }
         });
