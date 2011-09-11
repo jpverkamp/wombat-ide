@@ -5,6 +5,7 @@
 	</description>
 	
 	<property name="revision" value="178" />
+	<property name="jar-name" value="Wombat-${revision}.jar" />
 	
 	<property name="src-dir" location="src" />
 	<property name="build-dir" location="build" />
@@ -19,6 +20,7 @@
 		</fileset>
 	</path>
 
+	<!-- compile java files to class files -->
 	<target name="compile" description="compile the source ">
 		<delete dir="${build-dir}" />
 		<mkdir dir="${build-dir}" />
@@ -27,12 +29,13 @@
 		<javac srcdir="${src-dir}" destdir="${build-dir}" classpathref="classpath" />
 	</target>
 
+	<!-- create a jar containing just the wombat code --> 
 	<target name="dist" depends="compile" description="generate the distribution">
 		<mkdir dir="${dist-dir}"/>
 		<copy todir="${dist-dir}">
 			<fileset dir="${lib-dir}"/>
 		</copy>
-		<jar jarfile="${dist-dir}/Wombat-${revision}.jar" basedir="${build-dir}">
+		<jar jarfile="${dist-dir}/${jar-name}" basedir="${build-dir}">
 			<manifest>
 				<attribute name="Main-Class" value="wombat.Wombat" />
 				<attribute name="Class-Path" value="${libs}" />
@@ -40,6 +43,8 @@
 		</jar>
 	</target>
 	
+	<!-- sign all jars in the distribution directory -->
+	<!-- TODO: make this work -->
 	<target name="sign" depends="dist" description="sign the jars">
 		<signjar alias="testonly" keystore="testkeystore" storepass="apacheant" lazy="true">
 		  <path>
@@ -48,6 +53,7 @@
 		</signjar>
 	</target>
 	
+	<!-- deploy to webstart -->
 	<target name="deploy" depends="dist,sign" description="deploy to webstart">
 		<tstamp>
 			<format property="date" pattern="d MMMM yyyy" />
@@ -68,5 +74,18 @@
 				<include name="wombat.jnlp" />
 			</fileset>
 		</scp>
+	</target>
+	
+	<!-- clean everything up -->
+	<target name="clean" description="remove all of the extra files / directories">
+		<delete dir="${build-dir}" />
+		<delete>
+			<fileset dir="${dist-dir}" includes="*.jar"/>
+		</delete>
+	</target>
+	
+	<!-- build a distribution and run it -->
+	<target name="run" depends="dist" description="build and run">
+		<java dir="${dist-dir}" jar="${dist-dir}/${jar-name}" fork="true" failonerror="true" />
 	</target>
 </project>
