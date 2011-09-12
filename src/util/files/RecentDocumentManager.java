@@ -85,7 +85,6 @@ public class RecentDocumentManager {
 			rebuildMenu();
 		}
 		
-		// TODO Auto-generated method stub
 		return menu;
 	}
 

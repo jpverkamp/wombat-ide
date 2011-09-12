@@ -41,8 +41,9 @@ public class MainFrame extends JFrame {
     JToolBar ToolBar;
     JButton ToolBarRun;
     JButton ToolBarStop;
+    public static JLabel RowColumn;
     boolean Running = false;
-    
+
     // Unique code components.
     NonEditableTextArea History;
     NonEditableTextArea Display;
@@ -157,6 +158,11 @@ public class MainFrame extends JFrame {
 		for (Component c : ToolBar.getComponents())
 			if (c instanceof JButton)
 				((JButton) c).setText("");
+				
+		// Add a tool to show the current row and column.
+		RowColumn = new JLabel("row:column");
+		ToolBar.addSeparator();
+        ToolBar.add(RowColumn);
     }
 
 	/**

@@ -11,6 +11,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.Utilities;
 
 import util.errors.ErrorManager;
 
@@ -24,6 +25,22 @@ public class BracketMatcher implements CaretListener {
 	}
 	
 	public void caretUpdate(CaretEvent e) {
+		try {
+			int caretPos = textArea.code.getCaretPosition();
+			int rowNum = (caretPos == 0) ? 1 : 0;
+			for (int offset = caretPos; offset > 0;) {
+			    offset = Utilities.getRowStart(textArea.code, offset) - 1;
+			    rowNum++;
+			}
+
+			int offset = Utilities.getRowStart(textArea.code, caretPos);
+			int colNum = caretPos - offset + 1;
+			
+			MainFrame.RowColumn.setText(rowNum + ":" + colNum);
+		} catch(BadLocationException ex) {
+			MainFrame.RowColumn.setText("row:column");
+		}
+		
 		if (disabled)
 			return;
 		

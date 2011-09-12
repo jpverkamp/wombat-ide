@@ -71,29 +71,35 @@ public class KawaWrap {
 				return null;
 			else 
 				return formatObject(result);
+		
 		} catch (StackOverflowError ex) {
 			return "Possible infinite loop detected.";
+		
 		} catch (UnboundLocationException ex) {
 			return "Error: " + ex.getMessage().replace("location", "variable");
+		
 		} catch (WrongArguments ex) {
-			
-			System.out.println(ex.number + "," + ex.procname + "," + ex.usage);
 			return "Error: " + ex.getMessage();
+		
 		} catch (IllegalArgumentException ex) {
 			return ex.getMessage();
+		
 		} catch (NamedException ex) {
 			return ex.toString();
+		
 		} catch (WrongType ex) {
 			if ("procedure".equals(ex.expectedType.toString()))
 				return "Error: Attempted to apply non-procedure '" + ex.argValue + "'";
 			else 
 				return "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
+		
 		} catch (RuntimeException ex) {
-			return "Error: " + ex.getMessage().replace(';', ',');
+			return "Error: " + ex.getMessage().replace(';', ',').replace("<string>", "<repl>");
+		
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
-			return "Error: " + ex.getMessage().replace(';', ',');
+			return "Error: " + ex.getMessage().replace(';', ',').replace("<string>", "<repl>");
 		}
 	}
 	
