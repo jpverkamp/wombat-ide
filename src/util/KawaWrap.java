@@ -34,6 +34,7 @@ public class KawaWrap {
 		
 		// Load globals.
         for (Globals g : new Globals[]{
+        		new WDefine(),
         		new WRandom(),
         		new WMath(),
         		new WTree(),
@@ -75,6 +76,8 @@ public class KawaWrap {
 		} catch (UnboundLocationException ex) {
 			return "Error: " + ex.getMessage().replace("location", "variable");
 		} catch (WrongArguments ex) {
+			
+			System.out.println(ex.number + "," + ex.procname + "," + ex.usage);
 			return "Error: " + ex.getMessage();
 		} catch (IllegalArgumentException ex) {
 			return ex.getMessage();
@@ -85,10 +88,12 @@ public class KawaWrap {
 				return "Error: Attempted to apply non-procedure '" + ex.argValue + "'";
 			else 
 				return "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
+		} catch (RuntimeException ex) {
+			return "Error: " + ex.getMessage().replace(';', ',');
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
-			return "Error: " + ex.getMessage();
+			return "Error: " + ex.getMessage().replace(';', ',');
 		}
 	}
 	
