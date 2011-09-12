@@ -5,7 +5,6 @@
 package wombat;
 
 import gui.MainFrame;
-import gui.SchemeDocument;
 import gui.SchemeTextArea;
 
 import java.awt.Component;
@@ -284,11 +283,7 @@ public final class DocumentManager implements FocusListener {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
     	for (SchemeTextArea ss : me.allDocuments)
-			try {
-				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
-			} catch (BadLocationException e) {
-				ErrorManager.logError("Unable to format " + ss.getFile() + ": " + e.getMessage());
-			}
+			ss.updateFont();
     	
     	return me.Main.updateDisplay();
     }

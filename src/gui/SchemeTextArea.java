@@ -12,6 +12,8 @@ import wombat.Options;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,7 +36,7 @@ public class SchemeTextArea extends JPanel {
     public static String NL = "\n"; //System.getProperty("line.separator");
     public int SavedHash;
     
-    JScrollPane pane;
+    JTextArea LineNumbers;
     
     /**
      * Create a new Scheme text area.
@@ -44,8 +46,32 @@ public class SchemeTextArea extends JPanel {
         setLayout(new BorderLayout());
 
         code = new JEditorPane();
-        pane = new JScrollPane(code);
-        add(pane);
+        final JScrollPane cs = new JScrollPane(code);
+        add(cs);
+        
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 100; i++)
+        	sb.append(i + "\n");
+        
+        LineNumbers = new JTextArea(sb.toString()); // TODO: make dynamic
+        LineNumbers.setEditable(false);  
+        LineNumbers.setCursor(null);  
+        LineNumbers.setOpaque(false);  
+        LineNumbers.setFocusable(false);  
+        
+        LineNumbers.setFont(new Font("Monospaced", Font.PLAIN, Options.FontSize));
+        
+        final JScrollPane lns = new JScrollPane(LineNumbers);
+        lns.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        lns.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+//        add(lns, BorderLayout.WEST);
+        
+        cs.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				lns.getVerticalScrollBar().setValue(e.getValue());
+			}
+		});
 
         final SchemeDocument doc = new SchemeDocument();
         final StyledEditorKit sek = new StyledEditorKit() {
@@ -361,4 +387,21 @@ public class SchemeTextArea extends JPanel {
     public void append(String text) {
         setText(getText() + text);
     }
+
+    /**
+     * Update the font.
+     */
+	public void updateFont() {
+		// For the document to refresh.
+		try {
+			((SchemeDocument) code.getDocument()).processChangedLines(0, getText().length());
+		} catch (BadLocationException e) {
+		}
+		
+		// Update the line numbers.
+		LineNumbers.setFont(new Font("Monospaced", Font.PLAIN, Options.FontSize));
+		
+		System.out.println(code.getMargin());
+		System.out.println(LineNumbers.getMargin());
+	}
 }
