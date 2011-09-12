@@ -142,7 +142,20 @@ public class KawaWrap {
 			return sb.toString();
 		}
 		
-		else 
+		else if (v instanceof gnu.expr.ModuleMethod) {
+			gnu.expr.ModuleMethod m = (gnu.expr.ModuleMethod) v;
+			
+			if (m.getName() != null)
+				return "#<procedure " + m.getName() + ">";
+			else if (m.getSymbol() != null)
+				return "#<procedure " + m.getSymbol() + ">";
+			else
+				return "#<procedure>";
+		}
+		
+		else {
 			return v.toString();
+		}
+			
 	}
 }

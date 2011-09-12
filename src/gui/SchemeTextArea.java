@@ -401,7 +401,7 @@ public class SchemeTextArea extends JPanel {
 		// Update the line numbers.
 		LineNumbers.setFont(new Font("Monospaced", Font.PLAIN, Options.FontSize));
 		
-		System.out.println(code.getMargin());
-		System.out.println(LineNumbers.getMargin());
+//		System.out.println(code.getMargin());
+//		System.out.println(LineNumbers.getMargin());
 	}
 }
