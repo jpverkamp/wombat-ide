@@ -24,6 +24,7 @@
 	
 	<!-- get the revision from subversion -->
 	<target name="revision" description="initialize things">
+		<mkdir dir="${build-dir}" />
 		<exec executable="svn" output="${build-dir}/svn.properties">
 			<arg value="info" />
 		</exec>
