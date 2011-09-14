@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 2574330949324570164L;
 
 	// Keep track of execution workers.
-	Queue<SwingWorker<Object, Void>> workers = new LinkedList<SwingWorker<Object, Void>>();
+	Queue<SwingWorker<String, Void>> workers = new LinkedList<SwingWorker<String, Void>>();
 	
 	// Display components.
 	RootWindow Root;
@@ -185,9 +185,9 @@ public class MainFrame extends JFrame {
 
         History.append("\n~ " + cmd.replace("\n", "\n  ") + "\n");
         
-        final SwingWorker<Object, Void> worker = new SwingWorker<Object, Void>() {
+        final SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
 			@Override
-			protected Object doInBackground() throws Exception {
+			protected String doInBackground() throws Exception {
 				return Kawa.eval(cmd);
 			}
 			
@@ -195,9 +195,9 @@ public class MainFrame extends JFrame {
 			protected void done() {
 				try {
 					
-					Object result = get();
+					String result = get();
 					if (result != null)
-			        	History.append(result.toString() + "\n");
+			        	History.append(result + "\n");
 					
 					MenuManager.itemForName("Run").setEnabled(true);
 			    	MenuManager.itemForName("Stop").setEnabled(false);

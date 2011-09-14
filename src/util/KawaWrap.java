@@ -62,12 +62,12 @@ public class KawaWrap {
 	 * @param s The string to evaluate.
 	 * @return The result.
 	 */
-	public Object eval(String cmd) {
+	public String eval(String cmd) {
 		try {
 			Object result = Scheme.eval(cmd, env);
 			
 			// Return the final result.
-			if (result == null || result.toString().length() == 0)
+			if (result == null)
 				return null;
 			else 
 				return formatObject(result);
@@ -114,6 +114,9 @@ public class KawaWrap {
 		
 		else if (v instanceof String)
 			return '"' + ((String) v) + '"';
+		
+		else if (v instanceof gnu.lists.FString)
+			return '"' + v.toString() + '"';
 		
 		else if (v instanceof Boolean)
 			return ((((Boolean) v).booleanValue()) ? "#t" : "#f");
