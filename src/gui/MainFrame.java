@@ -139,9 +139,20 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Save").getAction(),
         		MenuManager.itemForName("Close").getAction()})
         	ToolBar.add(new JButton(a));
+        
+        ToolBar.addSeparator();
+        for (Action a : new Action[]{
+        		MenuManager.itemForName("Cut").getAction(),
+        		MenuManager.itemForName("Copy").getAction(),
+        		MenuManager.itemForName("Paste").getAction(),
+        		MenuManager.itemForName("Undo").getAction(),
+        		MenuManager.itemForName("Redo").getAction()})
+        	ToolBar.add(new JButton(a));
+        	
         ToolBar.addSeparator();
         ToolBar.add(ToolBarRun);
         ToolBar.add(ToolBarStop);
+        
         for (Action a : new Action[]{
         		MenuManager.itemForName("Format").getAction(),
         		MenuManager.itemForName("Reset").getAction()})

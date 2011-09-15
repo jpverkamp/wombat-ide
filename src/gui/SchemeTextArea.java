@@ -4,23 +4,13 @@ import javax.swing.*;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import wombat.Options;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Scanner;
-import java.util.Stack;
+import java.io.*;
+import java.util.*;
 
 /**
  * Text area specialized for Scheme (Woo!)
@@ -33,6 +23,7 @@ public class SchemeTextArea extends JPanel {
 	public JEditorPane code;
     public static String NL = "\n"; //System.getProperty("line.separator");
     public int SavedHash;
+    public UndoManager Undo = new UndoManager();
     
     /**
      * Create a new Scheme text area.
@@ -66,7 +57,10 @@ public class SchemeTextArea extends JPanel {
         code.getInputMap().put(KeyStroke.getKeyStroke("TAB"), new actions.Tab());
         code.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new actions.Return());
         
-        for (String name : new String[]{"New", "Open", "Save", "Save as", "Close", "Exit", "Run", "Format"}) {
+        for (String name : new String[]{
+        		"New", "Open", "Save", "Save as", "Close", "Exit", 
+        		"Cut", "Copy", "Paste", "Undo", "Redo", 
+        		"Run", "Format"}) {
         	JMenuItem item = MenuManager.itemForName(name);
         	code.getInputMap().put(item.getAccelerator(), item.getAction());
         }
@@ -75,44 +69,14 @@ public class SchemeTextArea extends JPanel {
         code.addCaretListener(new BracketMatcher(this));
         
         // Undo/redo
-        final UndoManager undo = new UndoManager();
+        
 
         // Listen for undo and redo events
         doc.addUndoableEditListener(new UndoableEditListener() {
             public void undoableEditHappened(UndoableEditEvent evt) {
-                undo.addEdit(evt.getEdit());
+                Undo.addEdit(evt.getEdit());
             }
         });
-
-        // Create an undo action and add it to the text component
-        code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), 
-            new AbstractAction("Undo") {
-				private static final long serialVersionUID = -8039739065888107926L;
-
-				public void actionPerformed(ActionEvent evt) {
-                    try {
-                        if (undo.canUndo()) {
-                            undo.undo();
-                        }
-                    } catch (CannotUndoException e) {
-                    }
-                }
-           });
-        
-        // Create a redo action and add it to the text component
-        code.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
-            new AbstractAction("Redo") {
-				private static final long serialVersionUID = 7821227314611856861L;
-
-				public void actionPerformed(ActionEvent evt) {
-                    try {
-                        if (undo.canRedo()) {
-                            undo.redo();
-                        }
-                    } catch (CannotRedoException e) {
-                    }
-                }
-            });
     }
 
     /**

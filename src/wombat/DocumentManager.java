@@ -15,6 +15,8 @@ import java.io.*;
 import java.util.*;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 import util.errors.ErrorManager;
 import util.files.RecentDocumentManager;
@@ -359,6 +361,40 @@ public final class DocumentManager implements FocusListener {
 		
 		doc.tab();
 		return true;
+	}
+	
+	/**
+	 * Undo on the active document.
+	 * @return If it worked.
+	 */
+	public static boolean Undo() {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+		SchemeTextArea doc = me.activeDocument;
+		
+		try {
+            if (doc.Undo.canUndo())
+            	doc.Undo.undo();
+            return true;
+        } catch (CannotUndoException e) {
+        	return false;
+        }
+	}
+	
+	/**
+	 * Redo on the active document.
+	 * @return If it worked.
+	 */
+	public static boolean Redo() {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+		SchemeTextArea doc = me.activeDocument;
+		
+		try {
+            if (doc.Undo.canRedo())
+            	doc.Undo.redo();
+            return true;
+        } catch (CannotRedoException e) {
+        	return false;
+        }
 	}
 
     /**

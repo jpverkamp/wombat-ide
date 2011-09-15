@@ -5,8 +5,9 @@
 
 package gui;
 
+import icons.IconManager;
+
 import javax.swing.*;
-import javax.swing.text.DefaultEditorKit;
 
 import util.files.RecentDocumentManager;
 import wombat.Options;
@@ -46,9 +47,11 @@ public final class MenuManager {
                     buildItem("Close", 'W', new actions.Close()),
                     buildItem("Exit", "ALT F4", new actions.Exit())),
                 buildMenu("Edit",
-            		buildItem("Cut", 'X', new DefaultEditorKit.CutAction()),
-            		buildItem("Copy", 'C', new DefaultEditorKit.CopyAction()),
-            		buildItem("Paste", 'V', new DefaultEditorKit.PasteAction())),
+            		buildItem("Cut", 'X', new actions.Cut()),
+            		buildItem("Copy", 'C', new actions.Copy()),
+            		buildItem("Paste", 'V', new actions.Paste()),
+            		buildItem("Undo", 'Z', new actions.Undo()),
+            		buildItem("Redo", 'Y', new actions.Redo())),
                 buildMenu("Scheme",
                     buildItem("Run", Options.CommandRun, new actions.Run()),
                     buildItem("Stop", null, new actions.Stop()),
@@ -58,6 +61,9 @@ public final class MenuManager {
                 buildMenu("Help",
                     buildItem("Show debug console", null, new actions.ShowError()),
                     buildItem("About", "F1", new actions.ShowAbout())));
+        
+        for (String name : new String[]{"Cut", "Copy", "Paste"})
+        	nameToItem.get(name).setIcon(IconManager.icon(name + ".png"));
     }
     
     /**
