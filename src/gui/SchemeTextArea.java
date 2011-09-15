@@ -32,7 +32,23 @@ public class SchemeTextArea extends JPanel {
         super();
         setLayout(new BorderLayout());
 
-        code = new JEditorPane();
+        code = new JEditorPane() {
+			private static final long serialVersionUID = 2523699493531510651L;
+
+			@Override
+        	public void paint(Graphics go) {
+            	super.paint(go);
+            	
+            	Graphics2D g = (Graphics2D) go;
+            	
+            	
+            	int width =g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
+            	System.out.println(width);
+            	
+            	g.setColor(Color.LIGHT_GRAY);
+            	g.drawLine(80 * width + 2, 0, 80 * width + 2, getHeight() + 10);
+        	}
+        };
         final JScrollPane cs = new JScrollPane(code);
         add(cs);
         
@@ -133,7 +149,7 @@ public class SchemeTextArea extends JPanel {
     public boolean isDirty() {
     	return getText().hashCode() != SavedHash;
     }
-
+    
     /**
      * Perform a tab at the current position.
      */

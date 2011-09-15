@@ -5,10 +5,14 @@ import gui.SchemeDocument;
 import gui.SyntaxDialog;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.font.FontRenderContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -47,6 +51,7 @@ public final class Options {
 	public static Map<String, Color> Colors;
 	public static Map<String, Integer> Keywords;
 	public static int FontSize;
+	public static int FontWidth;
 	
 	// Recently used documents.
 	public static String RecentDocuments;
@@ -81,6 +86,7 @@ public final class Options {
     	Keywords = new HashMap<String, Integer>();
     	
     	FontSize = prefs.getInt("FontSize", 12);
+    	calculateFontWidth();
     	
     	SchemeDocument.reload();
     	
@@ -88,7 +94,12 @@ public final class Options {
     	SyntaxDialog.setSyntax(prefs.get("Syntax", null));
     }
     
-    /**
+    private static void calculateFontWidth() {
+    	Component c = new Component(){};
+    	FontWidth = c.getFontMetrics(new Font("Monospaced", Font.PLAIN, FontSize)).charWidth(' ');
+	}
+
+	/**
      * Save to preferences on dispose.
      */
     public static void save() {
@@ -216,6 +227,8 @@ public final class Options {
 						FontSize = fontSize;
 						SchemeDocument.reload();
 						DocumentManager.ReloadAll();
+						
+						calculateFontWidth();
 					}
     			});
     			fontSizeMenu.add(item);
