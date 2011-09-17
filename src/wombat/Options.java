@@ -7,12 +7,10 @@ import gui.SyntaxDialog;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.font.FontRenderContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -95,7 +93,7 @@ public final class Options {
     }
     
     private static void calculateFontWidth() {
-    	Component c = new Component(){};
+    	Component c = new Component(){ private static final long serialVersionUID = 366311035336037525L; };
     	FontWidth = c.getFontMetrics(new Font("Monospaced", Font.PLAIN, FontSize)).charWidth(' ');
 	}
 

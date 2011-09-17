@@ -241,13 +241,10 @@ public final class DocumentManager implements FocusListener {
             	if (Options.ConfirmOnClose) {
             		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
             				me.activeDocument,
-            				"Save " + name + " before closing?",
+            				"Save " + name + " before closing?\n\n(If you select no, any unsaved work will be lost.)",
             				"Close...",
             				JOptionPane.YES_NO_OPTION)) {
             			Save();
-            		} else {
-            			if (!force)
-            				return false;
             		}
             	} else {
             		Save();
@@ -305,7 +302,7 @@ public final class DocumentManager implements FocusListener {
         	if (Options.ConfirmOnRun) {
         		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 	                    me.activeDocument,
-	                    "Save " + name + " before running?",
+	                    "Save " + name + " before running?\n\n(You must save your code to run it.)",
 	                    "Save...",
 	                    JOptionPane.YES_NO_OPTION)) {
         			Save();
