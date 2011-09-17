@@ -1,5 +1,7 @@
 package util;
 
+import java.util.regex.Pattern;
+
 import util.errors.ErrorManager;
 import globals.*;
 
@@ -14,6 +16,8 @@ import kawa.standard.Scheme;
 public class KawaWrap {
 	Scheme kawa;
 	Environment env;
+	
+	Pattern classRegex = Pattern.compile("(gnu|java)\\.[^\\s]+\\.([^\\.\\s]+)");
 
 	/**
 	 * Connect to Kawa.
@@ -63,6 +67,8 @@ public class KawaWrap {
 	 * @return The result.
 	 */
 	public String eval(String cmd) {
+		String err = null;
+		
 		try {
 			Object result = Scheme.eval(cmd, env);
 			
@@ -73,34 +79,41 @@ public class KawaWrap {
 				return formatObject(result);
 		
 		} catch (StackOverflowError ex) {
-			return "Possible infinite loop detected.";
+			err = "Possible infinite loop detected.";
 		
 		} catch (UnboundLocationException ex) {
-			return "Error: " + ex.getMessage().replace("location", "variable");
+			err = "Error: " + ex.getMessage().replace("location", "variable");
 		
 		} catch (WrongArguments ex) {
-			return "Error: " + ex.getMessage();
+			err = "Error: " + ex.getMessage();
 		
 		} catch (IllegalArgumentException ex) {
-			return ex.getMessage();
+			err = ex.getMessage();
 		
 		} catch (NamedException ex) {
-			return ex.toString();
+			err = ex.toString();
 		
 		} catch (WrongType ex) {
 			if ("procedure".equals(ex.expectedType.toString()))
-				return "Error: Attempted to apply non-procedure '" + ex.argValue + "'";
+				err = "Error: Attempted to apply non-procedure '" + ex.argValue + "'";
 			else 
-				return "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
+				err = "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
 		
 		} catch (RuntimeException ex) {
-			return "Error: " + ex.getMessage().replace(';', ',').replace("<string>", "<repl>");
+			err = "Error: " + ex.getMessage();
 		
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
-			return "Error: " + ex.getMessage().replace(';', ',').replace("<string>", "<repl>");
+			err = "Error: " + ex.getMessage();
 		}
+		
+		err = err.replace(';', ',');
+		err = err.replace("<string>", "<repl>");
+		
+		err = classRegex.matcher(err).replaceAll("$2");
+		
+		return err;
 	}
 	
 	/**
