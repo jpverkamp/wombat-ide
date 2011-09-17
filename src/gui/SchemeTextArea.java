@@ -42,11 +42,10 @@ public class SchemeTextArea extends JPanel {
             	Graphics2D g = (Graphics2D) go;
             	
             	
-            	int width =g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
-            	System.out.println(width);
+            	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
             	
             	g.setColor(Color.LIGHT_GRAY);
-            	g.drawLine(80 * width + 2, 0, 80 * width + 2, getHeight() + 10);
+            	g.drawLine(width, 0, width, getHeight() + 10);
         	}
         };
         final JScrollPane cs = new JScrollPane(code);

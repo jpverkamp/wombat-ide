@@ -17,7 +17,8 @@ public class KawaWrap {
 	Scheme kawa;
 	Environment env;
 	
-	Pattern classRegex = Pattern.compile("(gnu|java)\\.[^\\s]+\\.([^\\.\\s]+)");
+	Pattern reClass = Pattern.compile("(gnu|java)\\.[^\\s]+\\.([^\\.\\s]+)");
+	Pattern reRemoveSource = Pattern.compile("to '[^']+' ");
 
 	/**
 	 * Connect to Kawa.
@@ -94,11 +95,8 @@ public class KawaWrap {
 			err = ex.toString();
 		
 		} catch (WrongType ex) {
-			if ("procedure".equals(ex.expectedType.toString()))
-				err = "Error: Attempted to apply non-procedure '" + ex.argValue + "'";
-			else 
-				err = "Error in " + ex.procname + ": Incorrect argument type. Got " + ex.argValue.getClass().getName() + ", expected " + ex.expectedType.getClass().getName() + ".";
-		
+			err = "Error: " + ex.toString();
+
 		} catch (RuntimeException ex) {
 			err = "Error: " + ex.getMessage();
 		
@@ -110,8 +108,11 @@ public class KawaWrap {
 		
 		err = err.replace(';', ',');
 		err = err.replace("<string>", "<repl>");
+		err = err.replace("FString", "String");
 		
-		err = classRegex.matcher(err).replaceAll("$2");
+		err = reClass.matcher(err).replaceAll("$2");
+		err = reRemoveSource.matcher(err).replaceAll("");
+		
 		
 		return err;
 	}
