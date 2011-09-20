@@ -152,11 +152,13 @@ public class MainFrame extends JFrame {
         ToolBar.addSeparator();
         ToolBar.add(ToolBarRun);
         ToolBar.add(ToolBarStop);
-        
         for (Action a : new Action[]{
         		MenuManager.itemForName("Format").getAction(),
         		MenuManager.itemForName("Reset").getAction()})
         	ToolBar.add(new JButton(a));
+        
+        ToolBar.addSeparator();
+        ToolBar.add(new JButton(MenuManager.itemForName("Share").getAction()));
         
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(Options.DisplayToolbar);
