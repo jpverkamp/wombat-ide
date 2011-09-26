@@ -20,7 +20,7 @@ public class SchemeTextArea extends JPanel {
 
 	public File myFile;
 	public net.infonode.docking.View myView;
-	public JEditorPane code;
+	public JTextPane code;
     public static String NL = "\n"; //System.getProperty("line.separator");
     public int SavedHash;
     public UndoManager Undo = new UndoManager();
@@ -32,7 +32,7 @@ public class SchemeTextArea extends JPanel {
         super();
         setLayout(new BorderLayout());
 
-        code = new JEditorPane() {
+        code = new JTextPane() {
 			private static final long serialVersionUID = 2523699493531510651L;
 
 			@Override
@@ -64,6 +64,7 @@ public class SchemeTextArea extends JPanel {
             }
         };
 
+        code.setFont(new Font("Monospaced", Font.PLAIN, Options.FontSize));
         code.setEditorKitForContentType("text/scheme", sek);
         code.setContentType("text/scheme");
         code.setEditorKit(sek);
@@ -276,10 +277,13 @@ public class SchemeTextArea extends JPanel {
      */
     public void format() {
         int next = -1;
+        int eof = getText().indexOf("#!eof");
+        if (eof == -1) eof = getText().length();
+        
         while (true) {
             next = getText().indexOf(NL, next + 1) + NL.length();
 
-            if (next > 0 && next < getText().length()) {
+            if (next > 0 && next < eof) {
                 try {
                     code.setCaretPosition(next);
                     tab();
