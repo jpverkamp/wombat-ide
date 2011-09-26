@@ -100,7 +100,7 @@ public class MainFrame extends JFrame {
         REPL = new REPLTextArea(this);
         ViewMap.addView("REPL - Execute", new View("REPL - Execute", null, REPL));
         ViewMap.addView("REPL - History", new View("REPL - History", null, History));
-        SplitWindow replSplit = new SplitWindow(false, ViewMap.getView("REPL - Execute"), ViewMap.getView("REPL - History"));
+        SplitWindow replSplit = new SplitWindow(true, 0.5f, ViewMap.getView("REPL - Execute"), ViewMap.getView("REPL - History"));
         
         ViewMap.getView("REPL - Execute").getWindowProperties().setCloseEnabled(false);
         ViewMap.getView("REPL - History").getWindowProperties().setCloseEnabled(false);

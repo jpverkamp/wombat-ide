@@ -35,6 +35,8 @@ public final class SyntaxDialog {
 		"quote		2 \n" +
 		"case		2 \n" +
 		"do			2 \n" +
+		"else		1 \n" +
+		"trace-define	\n" + 
 		"color\ncolor?\ncolor-equal?\ncolor-ref" +
 		"image?\nimage-equal?\nimage-rows\nimage-cols\nimage-ref\nimage-set!\nread-image\nwrite-image\ndraw-image\nimage-map\nmake-image\ndraw-image-file" +
 		"tree\ntree?\nleaf\nleaf?\nempty-tree\nempty-tree?\nleft-subtree\nright-subtree\nroot-value\ndraw-tree";
