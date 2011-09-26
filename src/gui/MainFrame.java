@@ -157,8 +157,10 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Reset").getAction()})
         	ToolBar.add(new JButton(a));
         
+        /*
         ToolBar.addSeparator();
         ToolBar.add(new JButton(MenuManager.itemForName("Share").getAction()));
+        */
         
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(Options.DisplayToolbar);
@@ -297,7 +299,6 @@ public class MainFrame extends JFrame {
 		if (!view.isShowing()) {
 			if (view.getSize().width == 0 || view.getSize().height == 0)
 				view.setSize(200, 200);
-			
 			
 			FloatingWindow win = Root.createFloatingWindow(getLocation(), view.getSize(), view);
 			win.getTopLevelAncestor().setVisible(true);

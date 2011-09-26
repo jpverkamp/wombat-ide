@@ -45,10 +45,12 @@ public class SchemePrinter extends OutPort {
 	 * @param v
 	 */
 	public void print(Object v) {
-		if (v instanceof String || v instanceof gnu.lists.FString)
+		
+		if (v instanceof String || v instanceof gnu.lists.FString) {
 			WriteTo.append(v.toString());
-		else
+		} else {
 			WriteTo.append(KawaWrap.formatObject(v));
+		}
 		
 		for (Frame frame : JFrame.getFrames())
 			if (frame instanceof MainFrame)
