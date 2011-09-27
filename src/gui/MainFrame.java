@@ -110,6 +110,9 @@ public class MainFrame extends JFrame {
         ViewMap.getView("REPL - Execute").getWindowProperties().setCloseEnabled(false);
         ViewMap.getView("REPL - History").getWindowProperties().setCloseEnabled(false);
         
+        ViewMap.getView("REPL - Execute").getWindowProperties().setUndockEnabled(false);
+        ViewMap.getView("REPL - History").getWindowProperties().setUndockEnabled(false);
+        
         // Create the error/debug/display views.
         Display = new NonEditableTextArea(this);
         Debug = new NonEditableTextArea(this);
