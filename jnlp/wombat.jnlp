@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
 <jnlp codebase="http://www.cs.indiana.edu/cgi-pub/c211/wombat" href="wombat.jnlp" spec="1.0+">
     <information>
-        <title>Wombat</title>
-        <vendor>JP Verkamp</vendor>
-        <homepage href="http://www.cs.indiana.edu/cgi-pub/c211/wombat" />
-        <description>Wombat Scheme IDE</description>
-        <description kind="short">Wombat Scheme IDE</description>
-
-		<offline-allowed />
-	</information>
+      <title>Wombat</title>
+      <vendor>JP Verkamp</vendor>
+      <homepage href="http://www.cs.indiana.edu/cgi-pub/c211/wombat" />
+      <description>Wombat Scheme IDE</description>
+      <description kind="short">Wombat Scheme IDE</description>
+      
+      <offline-allowed />
+    </information>
     
-	<update check="background" />
+    <update check="background" />
     
-	<security>
-		<all-permissions />
-	</security>
+    <security>
+      <all-permissions />
+    </security>
     
-	<resources>
-        <j2se version="1.6+" java-vm-args="-Xss64m" />
-        <jar href="Wombat-{REVISION}.jar" main="true" />
-		<jar href="idw-gpl.jar" />
-		<jar href="kawa-1.11.jar" />
-	</resources>
+    <resources>
+      <j2se version="1.6+" java-vm-args="-Xmx512m -Xms256m -Xss16m" />
+      <jar href="Wombat-{REVISION}.jar" main="true" />
+      <jar href="idw-gpl.jar" />
+      <jar href="kawa-1.11.jar" />
+    </resources>
     
-	<application-desc main-class="wombat.Wombat">
+    <application-desc main-class="wombat.Wombat">
     </application-desc>
 </jnlp>
