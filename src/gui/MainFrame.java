@@ -283,7 +283,7 @@ public class MainFrame extends JFrame {
 		
 		if (!view.isShowing()) {
 			if (view.getSize().width == 0 || view.getSize().height == 0)
-				view.setSize(400, 400);
+				view.setSize(500, 500);
 			
 			FloatingWindow win = Root.createFloatingWindow(getLocation(), view.getSize(), view);
 			win.getTopLevelAncestor().setVisible(true);
@@ -299,7 +299,7 @@ public class MainFrame extends JFrame {
 		
 		if (!view.isShowing()) {
 			if (view.getSize().width == 0 || view.getSize().height == 0)
-				view.setSize(200, 200);
+				view.setSize(500, 500);
 			
 			FloatingWindow win = Root.createFloatingWindow(getLocation(), view.getSize(), view);
 			win.getTopLevelAncestor().setVisible(true);

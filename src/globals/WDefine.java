@@ -39,10 +39,11 @@ public class WDefine extends Globals {
     	
     	kawa.eval(
 			"(define ($indent$ args)" +
-    		"  (let loop ([i $indent-level$])" +
+    		"  (let loop ([i (min 10 $indent-level$)])" +
     	    "    (when (positive? i)" +
     	    "      (display \"  \")" +
     	    "      (loop (sub1 i))))" +
+    	    "  (when (> $indent-level$ 10) (display \"|\") (display $indent-level$) (display \"| \"))" +
     	    "  (cond" +
     	    "    [(null? args) (void)]" +
     	    "    [(null? (cdr args)) (display (car args))]" +
