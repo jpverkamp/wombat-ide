@@ -1,8 +1,7 @@
 package gui;
 
 import java.awt.Frame;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.StringWriter;
 
 import javax.swing.JFrame;
 
@@ -14,30 +13,20 @@ public class SchemePrinter extends OutPort {
 	String Name;
 	SchemeTextArea WriteTo;
 	
+	StringBuilder Buffer;
+	boolean HasContent;
+	
 	/**
 	 * Create a new SchemePrinter.
 	 */
 	public SchemePrinter(final String name, final SchemeTextArea writeTo) {
-		super(new Writer() {
-			@Override
-			public void close() throws IOException {}
-
-			@Override
-			public void flush() throws IOException {}
-
-			@Override
-			public void write(char[] cbuf, int off, int len) throws IOException {
-				writeTo.append(new String(cbuf, off, len));
-				
-				for (Frame frame : JFrame.getFrames())
-					if (frame instanceof MainFrame)
-						if (frame.isVisible()) // make sure that it doesn't try to keep writing once everything is closing down
-							((MainFrame) frame).showView(name);
-			}
-		}, true, true);
+		super(new StringWriter());
 		
 		Name = name;
 		WriteTo = writeTo;
+		
+		Buffer = new StringBuilder();
+		HasContent = false;
 	}
 	
 	/**
@@ -47,11 +36,19 @@ public class SchemePrinter extends OutPort {
 	public void print(Object v) {
 		
 		if (v instanceof String || v instanceof gnu.lists.FString) {
-			WriteTo.append(v.toString());
+			Buffer.append(v.toString());
 		} else {
-			WriteTo.append(KawaWrap.formatObject(v));
+			Buffer.append(KawaWrap.formatObject(v));
 		}
+		HasContent = true;
 		
+	}
+
+	public void showContent() {
+		WriteTo.append(Buffer.toString());
+		Buffer.delete(0, Buffer.length());
+		HasContent = false;
+
 		for (Frame frame : JFrame.getFrames())
 			if (frame instanceof MainFrame)
 				((MainFrame) frame).showView(Name);

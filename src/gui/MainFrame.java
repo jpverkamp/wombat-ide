@@ -4,6 +4,8 @@ import gnu.mapping.OutPort;
 import icons.IconManager;
 
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.text.BadLocationException;
 
 import wombat.DocumentManager;
@@ -49,6 +51,9 @@ public class MainFrame extends JFrame {
     NonEditableTextArea Display;
     NonEditableTextArea Debug;
     REPLTextArea REPL;
+    
+    // Output/error redirect.
+    SchemePrinter OutErr;
 
     /**
      * Don't directly create this, use me().
@@ -116,6 +121,18 @@ public class MainFrame extends JFrame {
 				Debug.append(msg + "\n");
 			}
         });
+        Display.addAncestorListener(new AncestorListener() {
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+				Display.setText("");
+			}
+			
+			@Override
+			public void ancestorMoved(AncestorEvent event) {}
+			
+			@Override
+			public void ancestorAdded(AncestorEvent event) {}
+		});
         
         // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
@@ -123,8 +140,9 @@ public class MainFrame extends JFrame {
         add(Root);
         
         // Connect to Kawa.
-        OutPort.setOutDefault(new SchemePrinter("Display", Display));
-        OutPort.setErrDefault(new SchemePrinter("Display", Display));
+        OutErr = new SchemePrinter("Display", Display);
+        OutPort.setOutDefault(OutErr);
+        OutPort.setErrDefault(OutErr);
         Kawa = new KawaWrap();
         
         // Add a toolbar.
@@ -213,6 +231,9 @@ public class MainFrame extends JFrame {
 					String result = get();
 					if (result != null)
 			        	History.append(result + "\n");
+					
+					if (OutErr.HasContent)
+						OutErr.showContent();
 					
 					MenuManager.itemForName("Run").setEnabled(true);
 			    	MenuManager.itemForName("Stop").setEnabled(false);
@@ -321,6 +342,9 @@ public class MainFrame extends JFrame {
 		
     	ToolBarRun.setEnabled(true);
     	ToolBarStop.setEnabled(false);
+    	
+    	if (OutErr.HasContent)
+			OutErr.showContent();
     	
     	Running = false;
     	
