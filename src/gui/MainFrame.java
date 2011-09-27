@@ -271,7 +271,8 @@ public class MainFrame extends JFrame {
 	 */
 	public void resetKawa() {
 		Kawa.reset();
-		History.append("\n>>> Environment reset <<<\n");
+		History.setText("");
+		History.append(">>> Environment reset <<<\n");
 	}
 
 	/**
