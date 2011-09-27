@@ -113,7 +113,7 @@
 	<!-- build a distribution and run it -->
 	<target name="run" depends="dist" description="build and run">
 		<java dir="${dist-dir}" jar="${dist-dir}/${jar-name}" fork="true" failonerror="true">
-			<jvmarg value="-Xss512m"/>
+			<jvmarg value="-Xss64m"/>
 		</java>
 	</target>
 </project>

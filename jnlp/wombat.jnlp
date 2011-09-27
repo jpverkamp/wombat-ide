@@ -18,7 +18,7 @@
 	</security>
     
 	<resources>
-        <j2se version="1.6+" java-vm-args="-Xss512m" />
+        <j2se version="1.6+" java-vm-args="-Xss64m" />
         <jar href="Wombat-{REVISION}.jar" main="true" />
 		<jar href="idw-gpl.jar" />
 		<jar href="kawa-1.11.jar" />
