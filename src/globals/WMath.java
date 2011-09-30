@@ -19,20 +19,28 @@ public class WMath extends Globals {
     	kawa.bind(new Procedure1("even?") {
 			@Override
 			public Object apply1(Object arg1) throws Throwable {
-				if (!(arg1 instanceof IntNum))
+				if (arg1 instanceof IntNum)
+					return !((IntNum) arg1).isOdd();
+				else if (arg1 instanceof Integer)
+					return ((Integer) arg1).intValue() % 2 == 0;
+				else if (arg1 instanceof Long)
+					return ((Long) arg1).longValue() % 2 == 0;
+				else
 					throw new IllegalArgumentException("Error in even?, expected integer as first argument, got '" + KawaWrap.formatObject(arg1) + "'.");
-				
-				return !((IntNum) arg1).isOdd();
 			}
     	});
     	
     	kawa.bind(new Procedure1("odd?") {
 			@Override
 			public Object apply1(Object arg1) throws Throwable {
-				if (!(arg1 instanceof IntNum))
+				if (arg1 instanceof IntNum)
+					return ((IntNum) arg1).isOdd();
+				else if (arg1 instanceof Integer)
+					return ((Integer) arg1).intValue() % 2 != 0;
+				else if (arg1 instanceof Long)
+					return ((Long) arg1).longValue() % 2 != 0;
+				else
 					throw new IllegalArgumentException("Error in odd?, expected integer as first argument, got '" + KawaWrap.formatObject(arg1) + "'.");
-				
-				return ((IntNum) arg1).isOdd();
 			}
     	});
 	}
