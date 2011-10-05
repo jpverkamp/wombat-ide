@@ -150,7 +150,7 @@ public class KawaWrap {
 			StringBuilder sb = new StringBuilder();
 			for (Object obj : val.objects) {
 				String temp = formatObject(obj);
-				if (!temp.isEmpty()) {
+				if (temp != null && !temp.isEmpty()) {
 					sb.append(temp);
 					sb.append(", ");
 				}
@@ -204,6 +204,10 @@ public class KawaWrap {
 				return "#<procedure " + m.getSymbol() + ">";
 			else
 				return "#<procedure>";
+		} 
+		
+		else if (v instanceof gnu.lists.EofClass) {
+			return null;
 		}
 		
 		else {
