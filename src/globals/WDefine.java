@@ -1,5 +1,10 @@
 package globals;
 
+import javax.swing.JOptionPane;
+
+import gnu.expr.ModuleMethod;
+import gnu.lists.FString;
+import gnu.mapping.*;
 import util.KawaWrap;
 
 public class WDefine extends Globals {
@@ -9,7 +14,7 @@ public class WDefine extends Globals {
 	 * @param kawa The interpreter to add them to.
 	 */
 	@Override
-	public void addMethods(KawaWrap kawa) throws Throwable {
+	public void addMethods(final KawaWrap kawa) throws Throwable {
 		kawa.eval("(define (void) (values))");
     	kawa.eval("(set! $define$ define)");
     	kawa.eval(
@@ -68,5 +73,21 @@ public class WDefine extends Globals {
     	    "            (let ([result (apply f args)])" +
     	    "              ($indent--$ \"=> \" result)" +
 			"              result))))]))");
+		
+		final ModuleMethod call_with_input_string = (ModuleMethod) kawa.get("call-with-input-string");
+		final ModuleMethod read = (ModuleMethod) kawa.get("read");
+		
+		kawa.bind(new Procedure0("read") {
+			@Override
+			public Object apply0() throws Throwable {
+				FString str = new FString(JOptionPane.showInputDialog(
+					null,
+					"(read)",
+					"(read)",
+					JOptionPane.QUESTION_MESSAGE));
+				
+				return call_with_input_string.apply2(str, read);
+			}
+		});
 	}
 }

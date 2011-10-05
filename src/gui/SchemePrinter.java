@@ -34,7 +34,6 @@ public class SchemePrinter extends OutPort {
 	 * @param v
 	 */
 	public void print(Object v) {
-		
 		if (v instanceof String || v instanceof gnu.lists.FString) {
 			Buffer.append(v.toString());
 		} else {

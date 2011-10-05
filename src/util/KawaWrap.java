@@ -63,6 +63,15 @@ public class KawaWrap {
 	}
 	
 	/**
+	 * Get something out of the environment.
+	 * @param name The name to fetch.
+	 * @return The object.
+	 */
+	public Object get(String name) {
+		return kawa.getEnvironment().get(name, null);
+	}
+	
+	/**
 	 * Evaluate a command, given as a string.
 	 * @param s The string to evaluate.
 	 * @return The result.

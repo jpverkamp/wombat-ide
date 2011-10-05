@@ -17,7 +17,7 @@ public class WRandom extends Globals {
 	 * @param kawa The interpreter to add them to.
 	 */
 	@Override
-	public void addMethods(KawaWrap kawa) throws Throwable {
+	public void addMethods(final KawaWrap kawa) throws Throwable {
 		kawa.eval("(define (iota n) (define (^ i) (if (= n i) '() (cons i (^ (add1 i))))) (^ 0))");
 		
     	kawa.bind(new Procedure1("random") {

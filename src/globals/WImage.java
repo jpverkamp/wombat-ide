@@ -28,7 +28,7 @@ public class WImage extends Globals {
 	 * @throws Throwable If anything breaks while adding them.
 	 */
 	@Override
-	public void addMethods(KawaWrap kawa) throws Throwable {
+	public void addMethods(final KawaWrap kawa) throws Throwable {
 		/**
 		 * Custom image class to help without output. 
 		 */

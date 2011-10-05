@@ -16,7 +16,7 @@ public class WTree extends Globals {
 	 * @throws Throwable If anything breaks while adding them.
 	 */
 	@Override
-	public void addMethods(KawaWrap kawa) throws Throwable {
+	public void addMethods(final KawaWrap kawa) throws Throwable {
 		kawa.bind(new Procedure3("tree") {
 			public Object apply3(Object value, Object left, Object right) throws Throwable {
 				if (!(left instanceof Tree)) throw new IllegalArgumentException("Error in tree: " + left + " is not a valid subtree.");

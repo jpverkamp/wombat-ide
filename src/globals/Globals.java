@@ -10,5 +10,5 @@ public abstract class Globals {
 	 * Add any methods this class wants to define.
 	 * @param kawa The scheme to add the methods to.
 	 */
-	public abstract void addMethods(KawaWrap kawa) throws Throwable;
+	public abstract void addMethods(final KawaWrap kawa) throws Throwable;
 }
