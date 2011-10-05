@@ -135,6 +135,22 @@ public class KawaWrap {
 		else if (v instanceof Boolean)
 			return ((((Boolean) v).booleanValue()) ? "#t" : "#f");
 		
+		else if (v instanceof gnu.mapping.Values) {
+			gnu.mapping.Values val = (gnu.mapping.Values) v;
+			
+			StringBuilder sb = new StringBuilder();
+			for (Object obj : val.objects) {
+				String temp = formatObject(obj);
+				if (!temp.isEmpty()) {
+					sb.append(temp);
+					sb.append(", ");
+				}
+			}
+			if (sb.length() >= 2)
+				sb.delete(sb.length() - 2, sb.length());
+			return sb.toString();
+		}
+		
 		else if (v instanceof gnu.text.Char)
 			return "#\\" + (((gnu.text.Char) v).charValue());
 		
