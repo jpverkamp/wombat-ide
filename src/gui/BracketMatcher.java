@@ -61,10 +61,37 @@ public class BracketMatcher implements CaretListener {
                 int matchPos, d = ((orig == '(' || orig == '[') ? 1 : -1);
                 Stack<Character> brackets = new Stack<Character>();
                 
+                int index;
                 boolean foundMatch = false;
                 for (matchPos = pos; matchPos >= 0 && matchPos < text.length(); matchPos += d) {
-                    c = text.charAt(matchPos);
-
+                	if (d < 0) {
+	                	index = text.lastIndexOf(';', matchPos);
+	                    if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
+	                    	matchPos = index;
+	                    	continue;
+	                    }
+	                    
+	                    index = text.lastIndexOf("|#", matchPos);
+	                    if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
+	                    	matchPos = text.lastIndexOf("#|", index);
+	                    	continue;
+	                    }
+                	} else {
+                		index = text.indexOf(';', matchPos);
+	                    if (index >= 0 && text.indexOf('\n', matchPos) < index) {
+	                    	matchPos = index;
+	                    	continue;
+	                    }
+	                    
+	                    index = text.indexOf("#|", matchPos);
+	                    if (index >= 0 && text.indexOf('\n', matchPos) < index) {
+	                    	matchPos = text.indexOf("|#", index);
+	                    	continue;
+	                    }
+                	}
+                	
+                	c = text.charAt(matchPos);
+                    
                     if (!brackets.isEmpty() && brackets.peek() == c) {
                         brackets.pop();
                         if (brackets.isEmpty()) {
