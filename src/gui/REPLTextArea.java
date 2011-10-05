@@ -70,7 +70,7 @@ public class REPLTextArea extends SchemeTextArea {
         code.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_UP) {
-					if (getText().lastIndexOf("\n", code.getCaretPosition()) == -1) {
+					if (getText().lastIndexOf("\n", code.getCaretPosition() - 1) == -1) {
 						if (currentCommand == commandHistory.size())
 							if (!getText().isEmpty())
 								commandHistory.add(getText());
@@ -80,6 +80,7 @@ public class REPLTextArea extends SchemeTextArea {
 						
 						currentCommand--;
 						setText(commandHistory.get(currentCommand));
+						code.setCaretPosition(0);
 					}
 				}
 				
@@ -92,6 +93,7 @@ public class REPLTextArea extends SchemeTextArea {
 						} else {
 							currentCommand++;
 							setText(commandHistory.get(currentCommand));
+							code.setCaretPosition(getText().length());
 						}
 					}
 				}
