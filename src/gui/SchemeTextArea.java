@@ -168,7 +168,10 @@ public class SchemeTextArea extends JPanel {
         	setText(text);
         	code.setCaretPosition(pos);
         }
-
+        
+        // If we're after the #!eof, don't format.
+        if (text.lastIndexOf("#!eof", pos) >= 0) return;
+        
         // Variables we are trying to determine.
         int indentNow = 0;
         int indentTo = 0;
@@ -196,9 +199,22 @@ public class SchemeTextArea extends JPanel {
         	
             // Scan upwards until we find the first unmatched opening bracket.
             boolean unmatched = false;
+            int index;
             Stack<Character> brackets = new Stack<Character>();
             for (int i = lineStart; i >= 0; i--) {
                 c = text.charAt(i);
+                
+                index = text.lastIndexOf(';', i);
+                if (index >= 0 && text.lastIndexOf('\n', i) < index) {
+                	i = index;
+                	continue;
+                }
+                
+                index = text.lastIndexOf("|#", i);
+                if (index >= 0 && text.lastIndexOf('\n', i) < index) {
+                	i = text.lastIndexOf("#|", index);
+                	continue;
+                }
                 
                 if (c == ')') brackets.push('(');
                 if (c == ']') brackets.push('[');
