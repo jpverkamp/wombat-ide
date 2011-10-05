@@ -22,25 +22,23 @@
 		</fileset>
 	</path>
 	
-	<!-- get the revision from subversion -->
-	<target name="revision" description="initialize things">
-		<mkdir dir="${build-dir}" />
-		<exec executable="svn" output="${build-dir}/svn.properties">
-			<arg value="info" />
-		</exec>
-		<property prefix="svn" file="${build-dir}/svn.properties"/>
-		<property name="revision" value="${svn.Revision}" />
-		<property name="jar-name" value="Wombat-${revision}.jar" />
-		<echo>Current version: ${revision}</echo>
+	<property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
+	
+	<!-- read the current version -->
+	<target name="version" description="calculate current version">
+		<tstamp>
+			<format property="version" pattern="1.D.k" />
+		</tstamp>
+		<echo>${version}</echo>
 	</target>
-
+	
 	<!-- compile java files to class files -->
-	<target name="compile" depends="revision" description="compile the source ">
+	<target name="compile" depends="version" description="compile the source ">
 		<delete dir="${build-dir}" />
 		<mkdir dir="${build-dir}" />
 		
 		<copy file="${src-dir}/wombat/Wombat.java" tofile="${src-dir}/wombat/Wombat.java.bak" />
-		<replace file="${src-dir}/wombat/Wombat.java" token="{REVISION}" value="${revision}" />
+		<replace file="${src-dir}/wombat/Wombat.java" token="{version}" value="${version}" />
 
 		<copy todir="${build-dir}">
 			<fileset dir="${src-dir}" />
@@ -78,7 +76,7 @@
 	</target>
 	
 	<!-- deploy to webstart -->
-	<target name="deploy" depends="dist,sign,revision" description="deploy to webstart">
+	<target name="deploy" depends="dist,sign,version" description="deploy to webstart">
 		<tstamp>
 			<format property="date" pattern="d MMMM yyyy" />
 		</tstamp>
@@ -88,7 +86,7 @@
 		</copy>
 		
 		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
-		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{REVISION}" value="${revision}" />
+		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{version}" value="${version}" />
 		
 		<input message="Password:" addproperty="scp-passphrase">
 		      <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
