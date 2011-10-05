@@ -154,7 +154,138 @@ public class SchemeTextArea extends JPanel {
      * Perform a tab at the current position.
      */
     public void tab() {
-    	
+    	// Things that break tokens.
+        String delimiters = "()[] ";
+
+        // Get the text and current position.
+        String text = getText();
+        int pos = code.getCaretPosition();
+        int len = text.length();
+        
+        // Fix tabs.
+        if (text.indexOf('\t') != -1) {
+        	text = text.replace('\t', ' ');
+        	setText(text);
+        	code.setCaretPosition(pos);
+        }
+        
+        // If we're after the #!eof, don't format.
+        if (text.lastIndexOf("#!eof", pos) >= 0) return;
+        
+        // Variables we are trying to determine.
+        int indentNow = 0;
+        int indentTo = 0;
+        int insertAt = 0;
+        int tokenStart = 0;
+        int tokenEnd = pos;
+
+        // Get the start of this line.
+        int lineStart = text.lastIndexOf(NL, pos - 1);
+        insertAt = (lineStart < 0 ? 0 : lineStart + NL.length());
+
+        // Get the indentation on the current line.
+        for (int i = Math.max(0, lineStart + NL.length()); i < len && text.charAt(i) == ' '; i++)
+            indentNow++;
+
+        // If we're on the first line, don't indent.
+        if (lineStart == -1)
+            indentTo = 0;
+
+            // Otherwise, figure out how far we want to indent.
+        else {
+        	// Don't reallocate.
+        	char c, cp;
+        	boolean delimCP, delimC;
+        	
+            // Scan upwards until we find the first unmatched opening bracket.
+            boolean unmatched = false;
+            int index;
+            Stack<Character> brackets = new Stack<Character>();
+            for (int i = lineStart; i >= 0; i--) {
+                c = text.charAt(i);
+                
+                index = text.lastIndexOf(';', i);
+                if (index >= 0 && text.lastIndexOf('\n', i) < index) {
+                	i = index;
+                	continue;
+                }
+                
+                index = text.lastIndexOf("|#", i);
+                if (index >= 0 && text.lastIndexOf('\n', i) < index) {
+                	i = text.lastIndexOf("#|", index);
+                	continue;
+                }
+                
+                if (c == ')') brackets.push('(');
+                if (c == ']') brackets.push('[');
+
+                if (c == '(' || c == '[') {
+                    if (brackets.isEmpty() || brackets.peek() != c) {
+                        int thatLine = text.lastIndexOf(NL, i);
+                        if (thatLine < 0)
+                            thatLine = 0;
+                        else
+                            thatLine = thatLine + NL.length();
+
+                        indentTo = i - thatLine;
+                        unmatched = true;
+                        break;
+                    } else {
+                        brackets.pop();
+                    }
+                }
+                
+                if (i > 0) {
+                    cp = text.charAt(i - 1);
+
+                    delimCP = (delimiters.indexOf(cp) != -1);
+                    delimC = (delimiters.indexOf(c) != -1);
+                    
+                    if (delimCP && !delimC) tokenStart = i;
+                    if (!delimCP && delimC) tokenEnd = i; 
+                    if (delimCP && delimC) tokenStart = tokenEnd = i;
+                }
+            }
+            
+            // Get the token.
+            String token = null;
+            try {
+                token = text.substring(tokenStart, tokenEnd).trim();
+            } catch (StringIndexOutOfBoundsException sioobe) {
+            }
+            
+            // If there aren't any unmatched brackets, start a line.
+            if (!unmatched)
+                indentTo = 0;
+
+            // If there isn't a string, don't add anything.
+            else if (token == null || token.isEmpty())
+            	indentTo += 1;
+            
+            // Otherwise, if there's a valid keyword, indent based on that.
+            else if (Options.Keywords.containsKey(token))
+                indentTo += Options.Keywords.get(token);
+
+            // Otherwise, fall back on the default indentation.
+            else
+                indentTo += 2;
+        }
+        
+        // Add new indentation if we need to.
+        if (indentNow < indentTo) {
+            String toInsert = "";
+            for (int i = indentNow; i < indentTo; i++)
+                toInsert += " ";
+
+            setText(text.substring(0, insertAt) + toInsert + text.substring(insertAt));
+            code.setCaretPosition(pos + (indentTo - indentNow));
+        }
+
+        // Or remove it, if we need to.
+        else if (indentNow > indentTo) {
+            setText(text.substring(0, insertAt) + text.substring(insertAt + (indentNow - indentTo)));
+            code.setCaretPosition(pos - (indentNow - indentTo));
+        }
     }
 
     /**
