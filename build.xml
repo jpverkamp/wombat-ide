@@ -30,6 +30,7 @@
 			<format property="version" pattern="1.D.k" />
 		</tstamp>
 		<echo>${version}</echo>
+		<property name="jar-name" value="Wombat-${version}.jar" />
 	</target>
 	
 	<!-- compile java files to class files -->
@@ -38,7 +39,7 @@
 		<mkdir dir="${build-dir}" />
 		
 		<copy file="${src-dir}/wombat/Wombat.java" tofile="${src-dir}/wombat/Wombat.java.bak" />
-		<replace file="${src-dir}/wombat/Wombat.java" token="{version}" value="${version}" />
+		<replace file="${src-dir}/wombat/Wombat.java" token="{REVISION}" value="${version}" />
 
 		<copy todir="${build-dir}">
 			<fileset dir="${src-dir}" />
@@ -49,7 +50,7 @@
 	</target>
 
 	<!-- create a jar containing just the wombat code --> 
-	<target name="dist" depends="compile" description="generate the distribution">
+	<target name="dist" depends="compile,version" description="generate the distribution">
 		<delete dir="${dist-dir}" />
 		<mkdir dir="${dist-dir}"/>
 		
@@ -86,7 +87,7 @@
 		</copy>
 		
 		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
-		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{version}" value="${version}" />
+		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{REVISION}" value="${version}" />
 		
 		<input message="Password:" addproperty="scp-passphrase">
 		      <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
@@ -109,7 +110,7 @@
 	</target>
 	
 	<!-- build a distribution and run it -->
-	<target name="run" depends="dist" description="build and run">
+	<target name="run" depends="dist,version" description="build and run">
 		<java dir="${dist-dir}" jar="${dist-dir}/${jar-name}" fork="true" failonerror="true">
 			<jvmarg value="-Xss64m"/>
 		</java>
