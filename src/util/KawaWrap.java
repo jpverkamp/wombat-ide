@@ -59,7 +59,11 @@ public class KawaWrap {
 	 * @param proc The function to bind.
 	 */
 	public void bind(Named proc) {
-		kawa.defineFunction(proc);
+		try {
+			kawa.defineFunction(proc);
+		} catch(Exception e) {
+			// Shouldn't do this. But meh.
+		}
 	}
 	
 	/**
