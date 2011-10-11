@@ -222,6 +222,10 @@ public class KawaWrap {
 			return null;
 		}
 		
+		else if (v instanceof gnu.kawa.lispexpr.LangObjType) {
+			return "#<procedure " + ((gnu.kawa.lispexpr.LangObjType) v).getName().toLowerCase() + ">";
+		}
+		
 		else {
 			return v.toString();
 		}
