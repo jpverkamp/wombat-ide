@@ -214,6 +214,10 @@ public class KawaWrap {
 			return null;
 		}
 		
+		else if (v instanceof gnu.kawa.lispexpr.LangObjType) {
+			return "#<procedure " + ((gnu.kawa.lispexpr.LangObjType) v).getName() + ">";
+		}
+		
 		else {
 			return v.toString();
 		}
