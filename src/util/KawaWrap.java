@@ -15,7 +15,6 @@ import kawa.standard.Scheme;
  */
 public class KawaWrap {
 	Scheme kawa;
-	Environment env;
 	
 	Pattern reClass = Pattern.compile("(gnu|java)\\.[^\\s]+\\.([^\\.\\s]+)");
 	Pattern reRemoveSource = Pattern.compile("to '[^']+' ");
@@ -35,7 +34,6 @@ public class KawaWrap {
 		
 		Scheme.registerEnvironment();
 		kawa = new Scheme();
-		env = kawa.getEnvironment();
 		
 		// Load globals.
         for (Globals g : new Globals[]{
@@ -59,7 +57,11 @@ public class KawaWrap {
 	 * @param proc The function to bind.
 	 */
 	public void bind(Named proc) {
-		kawa.defineFunction(proc);
+		try {
+			kawa.defineFunction(proc);
+		} catch (Exception e) {
+			// Shouldn't suppress this, but for now it works.
+		}
 	}
 	
 	/**
@@ -80,7 +82,7 @@ public class KawaWrap {
 		String err = null;
 		
 		try {
-			Object result = Scheme.eval(cmd, env);
+			Object result = Scheme.eval(cmd, kawa.getEnvironment());
 			
 			// Return the final result.
 			if (result == null)
@@ -193,6 +195,16 @@ public class KawaWrap {
 			sb.append(")");
 					
 			return sb.toString();
+		}
+		
+		else if (v instanceof gnu.mapping.Procedure) {
+			gnu.mapping.Procedure proc = (gnu.mapping.Procedure) v;
+			
+			String name = proc.getName();
+			if (name == null)
+				return "#<procedure>";
+			else
+				return "#<procedure " + name + ">";
 		}
 		
 		else if (v instanceof gnu.expr.ModuleMethod) {
