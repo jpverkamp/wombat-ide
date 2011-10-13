@@ -270,17 +270,15 @@ public class WImage extends Globals {
 				
 		    File outputFile = new File((String) filename);
 
-		    ImageShell is = (ImageShell) img;
-		    BufferedImage image = new BufferedImage(is.Width, is.Height, BufferedImage.TYPE_INT_RGB);
+		    ImageShell i = (ImageShell) img;
+		    BufferedImage image = new BufferedImage(i.Width, i.Height, BufferedImage.TYPE_INT_RGB);
 		    WritableRaster raster = (WritableRaster) image.getData();
-		    for (int r = 0; r < is.Height; r++) {
-			for (int c = 0; c < is.Width; c++) {
-			    int[] a = new int[]{is.Data[r][c].getRed(),
-						is.Data[r][c].getGreen(),
-						is.Data[r][c].getBlue()};
-			    raster.setPixel(c, r, a);
-			}
-		    }
+		    for (int r = 0; r < i.Height; r++)
+			for (int c = 0; c < i.Width; c++)
+			    raster.setPixel(c, r, new int[]{i.Data[r][c].getRed(),
+							    i.Data[r][c].getGreen(),
+							    i.Data[r][c].getBlue()});
+		    image.setData(raster);
 		    ImageIO.write(image, FileAccess.extension(outputFile.getName()), outputFile);
 			    
 		    return null;
@@ -291,7 +289,6 @@ public class WImage extends Globals {
 		    if (!(filename instanceof String)) throw new IllegalArgumentException("Error in write-image: " + filename + " is not a string.");
 
 		    ImageShell i = (ImageShell) img;
-
 		    BufferedImage image = new BufferedImage(i.Width, i.Height, BufferedImage.TYPE_INT_RGB);
 		    WritableRaster raster = (WritableRaster) image.getData();
 		    for (int r = 0; r < i.Height; r++)
@@ -314,7 +311,6 @@ public class WImage extends Globals {
 		    if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in draw-image: " + img + " is not an image.");
 
 		    ImageShell i = (ImageShell) img;
-
 		    BufferedImage image = new BufferedImage(i.Width, i.Height, BufferedImage.TYPE_INT_RGB);
 		    WritableRaster raster = (WritableRaster) image.getData();
 		    for (int r = 0; r < i.Height; r++)
@@ -323,6 +319,7 @@ public class WImage extends Globals {
 							    i.Data[r][c].getGreen(),
 							    i.Data[r][c].getBlue()});
 		    image.setData(raster);
+
 				
 		    JFrame treeFrame = new JFrame("draw-image");
 		    treeFrame.setLayout(new BorderLayout());
