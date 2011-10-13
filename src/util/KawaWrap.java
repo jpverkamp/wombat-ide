@@ -15,7 +15,6 @@ import kawa.standard.Scheme;
  */
 public class KawaWrap {
 	Scheme kawa;
-	Environment env;
 	
 	Pattern reClass = Pattern.compile("(gnu|java)\\.[^\\s]+\\.([^\\.\\s]+)");
 	Pattern reRemoveSource = Pattern.compile("to '[^']+' ");
@@ -35,7 +34,6 @@ public class KawaWrap {
 		
 		Scheme.registerEnvironment();
 		kawa = new Scheme();
-		env = kawa.getEnvironment();
 		
 		// Load globals.
         for (Globals g : new Globals[]{
@@ -61,8 +59,8 @@ public class KawaWrap {
 	public void bind(Named proc) {
 		try {
 			kawa.defineFunction(proc);
-		} catch(Exception e) {
-			// Shouldn't do this. But meh.
+		} catch (Exception e) {
+			// Shouldn't suppress this, but for now it works.
 		}
 	}
 	
@@ -84,7 +82,7 @@ public class KawaWrap {
 		String err = null;
 		
 		try {
-			Object result = Scheme.eval(cmd, env);
+			Object result = Scheme.eval(cmd, kawa.getEnvironment());
 			
 			// Return the final result.
 			if (result == null)
@@ -199,6 +197,22 @@ public class KawaWrap {
 			return sb.toString();
 		}
 		
+		else if (v instanceof gnu.mapping.Procedure) {
+			gnu.mapping.Procedure proc = (gnu.mapping.Procedure) v;
+			
+			String name = proc.getName();
+			if (name == null)
+				return "#<procedure>";
+			else
+				return "#<procedure " + name + ">";
+		}
+
+		else if (v instanceof java.awt.Color) {
+		    java.awt.Color c = (java.awt.Color) v;
+		    
+		    return "[color " + c.getRed() + " " + c.getGreen() + " " + c.getBlue() + "]";
+		}
+		
 		else if (v instanceof gnu.expr.ModuleMethod) {
 			gnu.expr.ModuleMethod m = (gnu.expr.ModuleMethod) v;
 			
@@ -215,7 +229,7 @@ public class KawaWrap {
 		}
 		
 		else if (v instanceof gnu.kawa.lispexpr.LangObjType) {
-			return "#<procedure " + ((gnu.kawa.lispexpr.LangObjType) v).getName() + ">";
+			return "#<procedure " + ((gnu.kawa.lispexpr.LangObjType) v).getName().toLowerCase() + ">";
 		}
 		
 		else {
