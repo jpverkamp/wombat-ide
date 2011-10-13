@@ -347,13 +347,9 @@ public class WImage extends Globals {
 
 		    ImageShell o = new ImageShell(i.Width, i.Height);
 				
-		    try {
-			for (int r = 0; r < i.Height; r++)
-			    for (int c = 0; c < i.Width; c++)
-				o.Data[r][c] = (Color) p.apply1(i.Data[r][c]);
-		    } catch(Exception e) {
-			throw new IllegalArgumentException("Error in image-map: procedure did not return a color.");
-		    }
+		    for (int r = 0; r < i.Height; r++)
+			for (int c = 0; c < i.Width; c++)
+			    o.Data[r][c] = (Color) p.apply1(i.Data[r][c]);
 
 		    return o;
 		}
@@ -382,20 +378,16 @@ public class WImage extends Globals {
 		    if (is_proc) procv = (ModuleMethod) proc;
 		    else procc = (Color) proc;
 
-		    try {
-			ImageShell o = new ImageShell(colsv, rowsv);
+		    ImageShell o = new ImageShell(colsv, rowsv);
 
-			for (int r = 0; r < rowsv; r++)
-			    for (int c = 0; c < colsv; c++)
-				if (is_proc)
-				    o.Data[r][c] = (Color) (procv.apply4(r, c, rowsv, colsv));
-				else
-				    o.Data[r][c] = procc;
+		    for (int r = 0; r < rowsv; r++)
+			for (int c = 0; c < colsv; c++)
+			    if (is_proc)
+				o.Data[r][c] = (Color) (procv.apply4(r, c, rowsv, colsv));
+			    else
+				o.Data[r][c] = procc;
 
-			return o;
-		    } catch (Exception e) {
-			throw new IllegalArgumentException("Error in make-image: procedure did not return a color.");
-		    }
+		    return o;
 		}
 	    });
 	kawa.eval("(define make-image (case-lambda ((rows cols) ($make-image$ rows cols (color 0 0 0))) ((rows cols proc) ($make-image$ rows cols proc))))");
