@@ -101,6 +101,11 @@
     
     <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 755 ${deploy-dir}" />
     <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 664 ${deploy-dir}/*" />
+
+    <exec executable="git">
+      <arg value="tag" />
+      <arg value="${version}" />
+    </exec>
   </target>
   
   <!-- clean everything up -->
