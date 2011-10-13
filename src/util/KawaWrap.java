@@ -206,6 +206,12 @@ public class KawaWrap {
 			else
 				return "#<procedure " + name + ">";
 		}
+
+		else if (v instanceof java.awt.Color) {
+		    java.awt.Color c = (java.awt.Color) v;
+		    
+		    return "[color " + c.getRed() + " " + c.getGreen() + " " + c.getBlue() + "]";
+		}
 		
 		else if (v instanceof gnu.expr.ModuleMethod) {
 			gnu.expr.ModuleMethod m = (gnu.expr.ModuleMethod) v;

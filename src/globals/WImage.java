@@ -171,8 +171,6 @@ public class WImage extends Globals {
 	kawa.bind(new Procedure3("image-ref") {
 		public Object apply3(Object img, Object r, Object c) throws Throwable {
 		    if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in image-ref: " + img + " is not an image.");
-		    if (!(r instanceof IntNum)) throw new IllegalArgumentException("Error in image-ref: " + img + " is not an integer.");
-		    if (!(c instanceof IntNum)) throw new IllegalArgumentException("Error in image-ref: " + img + " is not an integer.");
 
 		    int rv, cv;
 
@@ -292,17 +290,16 @@ public class WImage extends Globals {
 		    if (!(img instanceof ImageShell)) throw new IllegalArgumentException("Error in write-image: " + img + " is not an image.");
 		    if (!(filename instanceof String)) throw new IllegalArgumentException("Error in write-image: " + filename + " is not a string.");
 
-		    ImageShell is = (ImageShell) img;
-		    BufferedImage image = new BufferedImage(is.Width, is.Height, BufferedImage.TYPE_INT_RGB);
+		    ImageShell i = (ImageShell) img;
+
+		    BufferedImage image = new BufferedImage(i.Width, i.Height, BufferedImage.TYPE_INT_RGB);
 		    WritableRaster raster = (WritableRaster) image.getData();
-		    for (int r = 0; r < is.Height; r++) {
-			for (int c = 0; c < is.Width; c++) {
-			    int[] a = new int[]{is.Data[r][c].getRed(),
-						is.Data[r][c].getGreen(),
-						is.Data[r][c].getBlue()};
-			    raster.setPixel(c, r, a);
-			}
-		    }
+		    for (int r = 0; r < i.Height; r++)
+			for (int c = 0; c < i.Width; c++)
+			    raster.setPixel(c, r, new int[]{i.Data[r][c].getRed(),
+							    i.Data[r][c].getGreen(),
+							    i.Data[r][c].getBlue()});
+		    image.setData(raster);
 		    
 		    File outputFile = new File((String) filename);
 		    ImageIO.write(image, FileAccess.extension(outputFile.getName()), outputFile);
@@ -320,14 +317,12 @@ public class WImage extends Globals {
 
 		    BufferedImage image = new BufferedImage(i.Width, i.Height, BufferedImage.TYPE_INT_RGB);
 		    WritableRaster raster = (WritableRaster) image.getData();
-		    for (int r = 0; r < i.Height; r++) {
-			for (int c = 0; c < i.Width; c++) {
-			    int[] a = new int[]{i.Data[r][c].getRed(),
-						i.Data[r][c].getGreen(),
-						i.Data[r][c].getBlue()};
-			    raster.setPixel(c, r, a);
-			}
-		    }
+		    for (int r = 0; r < i.Height; r++)
+			for (int c = 0; c < i.Width; c++)
+			    raster.setPixel(c, r, new int[]{i.Data[r][c].getRed(),
+							    i.Data[r][c].getGreen(),
+							    i.Data[r][c].getBlue()});
+		    image.setData(raster);
 				
 		    JFrame treeFrame = new JFrame("draw-image");
 		    treeFrame.setLayout(new BorderLayout());
@@ -387,9 +382,9 @@ public class WImage extends Globals {
 		    if (is_proc) procv = (ModuleMethod) proc;
 		    else procc = (Color) proc;
 
-		    ImageShell o = new ImageShell(rowsv, colsv);
-
 		    try {
+			ImageShell o = new ImageShell(colsv, rowsv);
+
 			for (int r = 0; r < rowsv; r++)
 			    for (int c = 0; c < colsv; c++)
 				if (is_proc)
