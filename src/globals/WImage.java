@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.image.*;
 import java.io.File;
 
