@@ -1,9 +1,10 @@
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
+import java.util.jar.Attributes;
 import java.util.prefs.*;
 
 import javax.swing.*;
@@ -75,8 +76,10 @@ public class WombatLauncher extends JFrame {
 					else
 						update();
 				} catch (MalformedURLException e) {
+					e.printStackTrace();
 					JOptionPane.showMessageDialog(me, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e) {
+					e.printStackTrace();
 					JOptionPane.showMessageDialog(me, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
 				}
 
@@ -99,17 +102,27 @@ public class WombatLauncher extends JFrame {
 			log("");
 			log("Launching Wombat...");
 			
-			JarFileLoader cl = new JarFileLoader();
+			JarClassLoader cl = new JarClassLoader(new URL("file://" + prefs.get("install-directory", "")));
+			
 			for (Version v : parseVersions(prefs.get("versions", "")).values())
 				cl.addFile(new File(prefs.get("install-directory", ""), v.File).getAbsolutePath().replace('\\', '/'));
-
-			Class<?> cls = Class.forName("wombat.Wombat", true, cl);
-			cls.newInstance();
+			
+			cl.invokeClass("wombat.Wombat", new String[]{});
+			
+			
+//			URLClassLoader cl = new URLClassLoader(new URL[]{new URL("file://" + prefs.get("install-directory", ""))});
+//
+//			Class<?> cls = Class.forName("wombat.Wombat", true, cl);
+//			
+//			System.out.println(">>> " + cls.getPackage() + ", " + cls.getName());
+//			
+//			cls.newInstance();
 			
 //			setVisible(false);
 //			dispose();
 			
 		} catch(Exception e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -302,16 +315,32 @@ class Version implements Comparable<Version> {
 }
 
 /**
- * Make it easier to load JAR files into a class loader.
+ * A class loader for loading jar files, both local and remote.
  */
-class JarFileLoader extends URLClassLoader {
-	/**
-	 * Create an empty JAR class loader.
-	 */
-	public JarFileLoader() {
-		super(new URL[] {});
-	}
-	
+class JarClassLoader extends URLClassLoader {
+    private URL url;
+
+    /**
+     * Creates a new JarClassLoader for the specified url.
+     *
+     * @param url the url of the jar file
+     */
+    public JarClassLoader(URL url) {
+		super(new URL[] { url });
+		this.url = url;
+    }
+
+    /**
+     * Returns the name of the jar file main class, or null if
+     * no "Main-Class" manifest attributes was defined.
+     */
+    public String getMainClassName() throws IOException {
+		URL u = new URL("jar", "", url + "!/");
+		JarURLConnection uc = (JarURLConnection)u.openConnection();
+		Attributes attr = uc.getMainAttributes();
+		return attr != null ? attr.getValue(Attributes.Name.MAIN_CLASS) : null;
+    }
+    
 	/**
 	 * Add a JAR file to the class loader.
 	 * @param path The path of the JAR to load. 
@@ -320,4 +349,37 @@ class JarFileLoader extends URLClassLoader {
 		String urlPath = "jar:file://" + path + "!/";
 		addURL(new URL(urlPath));
 	}
+
+    /**
+     * Invokes the application in this jar file given the name of the
+     * main class and an array of arguments. The class must define a
+     * static method "main" which takes an array of String arguemtns
+     * and is of return type "void".
+     *
+     * @param name the name of the main class
+     * @param args the arguments for the application
+     * @exception ClassNotFoundException if the specified class could not
+     *            be found
+     * @exception NoSuchMethodException if the specified class does not
+     *            contain a "main" method
+     * @exception InvocationTargetException if the application raised an
+     *            exception
+     */
+    public void invokeClass(String name, String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException
+    {
+		Class<?> c = loadClass(name);
+		Method m = c.getMethod("main", new Class[] { args.getClass() });
+		m.setAccessible(true);
+		int mods = m.getModifiers();
+		if (m.getReturnType() != void.class || !Modifier.isStatic(mods) ||
+		    !Modifier.isPublic(mods)) {
+		    throw new NoSuchMethodException("main");
+		}
+		try {
+		    m.invoke(null, new Object[] { args });
+		} catch (IllegalAccessException e) {
+		    // This should not happen, as we have disabled access checks
+		}
+    }
+
 }

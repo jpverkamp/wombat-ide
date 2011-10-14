@@ -7,14 +7,13 @@ import gui.MainFrame;
  */
 public class Wombat {
 	public static final String VERSION = "{VERSION}";
-	
-    public static void main(String[] argv) {
-    	System.setSecurityManager(null);
-    	new Wombat();
-    }
 
-    public Wombat() {
-    	MainFrame main = new MainFrame();
-        main.setVisible(true);
-    }
+	public static void main(String[] argv) {
+		new Wombat();
+	}
+
+	public Wombat() {
+		MainFrame main = new MainFrame();
+		main.setVisible(true);
+	}
 }
