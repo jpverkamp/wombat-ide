@@ -35,9 +35,6 @@ public class WombatLauncher extends JFrame {
 	 * Actually do the launch.
 	 */
 	WombatLauncher() {
-		// Main.
-		final WombatLauncher me = this;
-		
 		// Build the preference manager.
 		prefs = Preferences.userRoot().node("wombat-launcher");
 		
@@ -60,7 +57,7 @@ public class WombatLauncher extends JFrame {
 		launchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				
+				launch();
 			}
 		});
 		buttonPanel.add(launchButton, BorderLayout.WEST);
@@ -71,16 +68,16 @@ public class WombatLauncher extends JFrame {
 			public void run() {
 				// Try to update / install the code.
 				try {
+					
 					if (!prefs.getBoolean("installed", false))
 						install();
 					else
 						update();
+					
 				} catch (MalformedURLException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(me, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
+					explode(e);
 				} catch (IOException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(me, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
+					explode(e);
 				}
 
 				// If we get this far and we never show'ed the dialog, just run directly.
@@ -102,29 +99,38 @@ public class WombatLauncher extends JFrame {
 			log("");
 			log("Launching Wombat...");
 			
-			JarClassLoader cl = new JarClassLoader(new URL("file://" + prefs.get("install-directory", "")));
-			
+			// Get all of the JARs taht we might need.
+			List<URL> urls = new ArrayList<URL>();
+			urls.add(new File(prefs.get("install-directory", "")).toURI().toURL());
 			for (Version v : parseVersions(prefs.get("versions", "")).values())
-				cl.addFile(new File(prefs.get("install-directory", ""), v.File).getAbsolutePath().replace('\\', '/'));
+				urls.add(new File(prefs.get("install-directory", ""), v.File).toURI().toURL());
 			
-			cl.invokeClass("wombat.Wombat", new String[]{});
+			// Build a new class loader.
+			ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();		
+			URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[]{}), currentThreadClassLoader);
+			Thread.currentThread().setContextClassLoader(cl);
+
+			// Load Wombat.
+			Class<?> cls = Class.forName("wombat.Wombat", true, cl);
+			cls.newInstance();
 			
-			
-//			URLClassLoader cl = new URLClassLoader(new URL[]{new URL("file://" + prefs.get("install-directory", ""))});
-//
-//			Class<?> cls = Class.forName("wombat.Wombat", true, cl);
-//			
-//			System.out.println(">>> " + cls.getPackage() + ", " + cls.getName());
-//			
-//			cls.newInstance();
-			
-//			setVisible(false);
-//			dispose();
+			setVisible(false);
+			dispose();
 			
 		} catch(Exception e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
+			explode(e);
 		}
+	}
+	
+	/**
+	 * Blow up. Mightily.
+	 * @param e The exception that caused the whole mess.
+	 */
+	void explode(Exception e) {
+		e.printStackTrace();
+		JOptionPane.showMessageDialog(this, "Error:\n" + e, "Unable to launch Wombat", JOptionPane.ERROR_MESSAGE);
+		setVisible(false);
+		dispose();
 	}
 
 	/**
@@ -140,11 +146,11 @@ public class WombatLauncher extends JFrame {
 		chooser.setAcceptAllFileFilterUsed(false);
 
 		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-			log("No installation directory chosen.");
+			explode(new Exception("No installation directory chosen."));
 			return;
 		}
 
-		File dir = chooser.getCurrentDirectory();
+		File dir = chooser.getSelectedFile();
 
 		log("New installation to: " + dir.getAbsolutePath());
 		prefs.put("install-directory", dir.getAbsolutePath());
