@@ -1,123 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="wombat-ide" default="dist">
-  <description>
+	<description>
     Wombat aims to be a simple cross-platform IDE for writing Scheme programs in a classroom environment.
   </description>
-  
-  <property name="src-dir" location="src" />
-  <property name="build-dir" location="bin" />
-  <property name="dist-dir" location="dist" />
-  <property name="lib-dir" location="lib" />
-  <property name="jnlp-dir" location="jnlp" />
-  
-  <property name="deploy-user" value="c211" />
-  <property name="deploy-server" value="tank.cs.indiana.edu" />
-  <property name="deploy-dir" value="~/cgi/wombat" />
-  
-  <property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
-  
-  <path id="classpath">
-    <fileset dir="${lib-dir}">
-      <include name="*.jar"/>
-    </fileset>
-  </path>
-  
-  <property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
-  
-  <!-- read the current version -->
-  <target name="version" description="calculate current version">
-    <tstamp>
-      <format property="version" pattern="1.D.k" />
-    </tstamp>
-    <echo>${version}</echo>
-    <property name="jar-name" value="Wombat-${version}.jar" />
-  </target>
-  
-  <!-- compile java files to class files -->
-  <target name="compile" depends="version" description="compile the source ">
-    <delete dir="${build-dir}" />
-    <mkdir dir="${build-dir}" />
-    
-    <copy file="${src-dir}/wombat/Wombat.java" tofile="${src-dir}/wombat/Wombat.java.bak" />
-    <replace file="${src-dir}/wombat/Wombat.java" token="{REVISION}" value="${version}" />
 
-    <copy todir="${build-dir}">
-      <fileset dir="${src-dir}" />
-    </copy>
-    <javac srcdir="${src-dir}" destdir="${build-dir}" classpathref="classpath" />
-    
-    <move file="${src-dir}/wombat/Wombat.java.bak" tofile="${src-dir}/wombat/Wombat.java" />
-  </target>
+	<property name="src-dir" location="src" />
+	<property name="build-dir" location="bin" />
+	<property name="dist-dir" location="dist" />
+	<property name="lib-dir" location="lib" />
+	<property name="jnlp-dir" location="jnlp" />
 
-  <!-- create a jar containing just the wombat code --> 
-  <target name="dist" depends="compile,version" description="generate the distribution">
-    <delete dir="${dist-dir}" />
-    <mkdir dir="${dist-dir}"/>
-    
-    <copy todir="${dist-dir}">
-      <fileset dir="${lib-dir}" />
-    </copy>
+	<property name="deploy-user" value="c211" />
+	<property name="deploy-server" value="tank.cs.indiana.edu" />
+	<property name="deploy-dir" value="~/cgi/wombat" />
 
-    <jar jarfile="${dist-dir}/${jar-name}" basedir="${build-dir}">
-      <manifest>
-	<attribute name="Main-Class" value="wombat.Wombat" />
-	<attribute name="Class-Path" value="${libs}" />
-      </manifest>
-    </jar>
-  </target>
-  
-  <!-- sign all jars in the distribution directory -->
-  <!-- TODO: make this work -->
-  <target name="sign" depends="dist" description="sign the jars">
-    <signjar alias="myself" keystore="keystore" storepass="password" lazy="true">
-      <path>
-	<fileset dir="${dist-dir}" includes="*.jar" />
-      </path>
-    </signjar>
-  </target>
-  
-  <!-- deploy to webstart -->
-  <target name="deploy" depends="dist,sign,version" description="deploy to webstart">
-    <tstamp>
-      <format property="date" pattern="d MMMM yyyy" />
-    </tstamp>
-    
-    <copy todir="${dist-dir}">
-      <fileset dir="${jnlp-dir}" />
-    </copy>
-    
-    <replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
-    <replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{REVISION}" value="${version}" />
-    
-    <input message="Password:" addproperty="scp-passphrase">
-      <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
-    </input>
-    
-    <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="rm -f ${deploy-dir}/Wombat-*.jar" failonerror="false" />
-    
-    <scp todir="${deploy-user}@${deploy-server}:${deploy-dir}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
-      <fileset dir="${dist-dir}" />
-    </scp>
-    
-    <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 755 ${deploy-dir}" />
-    <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 664 ${deploy-dir}/*" />
+	<property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
 
-    <exec executable="git">
-      <arg value="tag" />
-      <arg value="${version}" />
-    </exec>
-  </target>
-  
-  <!-- clean everything up -->
-  <target name="clean" description="remove all of the extra files / directories">
-    <delete dir="${build-dir}" />
-    <delete dir="${dist-dir}" />
-  </target>
-  
-  <!-- build a distribution and run it -->
-  <target name="run" depends="dist,version" description="build and run">
-    <java dir="${dist-dir}" jar="${dist-dir}/${jar-name}" fork="true" failonerror="true">
-      <jvmarg value="-Xss64m"/>
-    </java>
-  </target>
+	<path id="classpath">
+		<fileset dir="${lib-dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+
+	<property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
+
+	<!-- read the current version -->
+	<target name="version" description="calculate current version">
+		<tstamp>
+			<format property="version" pattern="1.D.k" />
+		</tstamp>
+		<echo>${version}</echo>
+		<property name="jar-name" value="Wombat-${version}.jar" />
+	</target>
+
+	<!-- compile java files to class files -->
+	<target name="compile" depends="version" description="compile the source ">
+		<delete dir="${build-dir}" />
+		<mkdir dir="${build-dir}" />
+
+		<copy file="${src-dir}/wombat/Wombat.java" tofile="${src-dir}/wombat/Wombat.java.bak" />
+		<replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${version}" />
+
+		<copy todir="${build-dir}">
+			<fileset dir="${src-dir}" />
+		</copy>
+		<javac srcdir="${src-dir}" destdir="${build-dir}" classpathref="classpath" />
+
+		<move file="${src-dir}/wombat/Wombat.java.bak" tofile="${src-dir}/wombat/Wombat.java" />
+	</target>
+
+	<!-- create a jar containing just the wombat code -->
+	<target name="dist" depends="compile,version" description="generate the distribution">
+		<delete dir="${dist-dir}" />
+		<mkdir dir="${dist-dir}" />
+
+		<copy todir="${dist-dir}">
+			<fileset dir="${lib-dir}" />
+		</copy>
+
+		<jar jarfile="${dist-dir}/${jar-name}" basedir="${build-dir}">
+			<manifest>
+				<attribute name="Main-Class" value="wombat.Wombat" />
+				<attribute name="Class-Path" value="${libs}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- sign all jars in the distribution directory -->
+	<!-- TODO: make this work -->
+	<target name="sign" depends="dist" description="sign the jars">
+		<signjar alias="myself" keystore="keystore" storepass="password" lazy="true">
+			<path>
+				<fileset dir="${dist-dir}" includes="*.jar" />
+			</path>
+		</signjar>
+	</target>
+
+	<!-- deploy to webstart -->
+	<target name="deploy" depends="dist,sign,version" description="deploy to webstart">
+		<tstamp>
+			<format property="date" pattern="d MMMM yyyy" />
+		</tstamp>
+
+		<copy todir="${dist-dir}">
+			<fileset dir="${jnlp-dir}" />
+		</copy>
+
+		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
+		<replace dir="${dist-dir}" includes="*.html *.jnlp *.txt" token="{VERSION}" value="${version}" />
+
+		<input message="Password:" addproperty="scp-passphrase">
+			<handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+		</input>
+
+		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="rm -f ${deploy-dir}/Wombat-*.jar" failonerror="false" />
+
+		<scp todir="${deploy-user}@${deploy-server}:${deploy-dir}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
+			<fileset dir="${dist-dir}" />
+		</scp>
+
+		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 755 ${deploy-dir}" />
+		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 664 ${deploy-dir}/*" />
+
+		<exec executable="git">
+			<arg value="tag" />
+			<arg value="${version}" />
+		</exec>
+	</target>
+
+	<!-- clean everything up -->
+	<target name="clean" description="remove all of the extra files / directories">
+		<delete dir="${build-dir}" />
+		<delete dir="${dist-dir}" />
+	</target>
+
+	<!-- build a distribution and run it -->
+	<target name="run" depends="dist,version" description="build and run">
+		<java dir="${dist-dir}" jar="${dist-dir}/${jar-name}" fork="true" failonerror="true">
+			<jvmarg value="-Xss64m" />
+		</java>
+	</target>
 </project>
