@@ -16,6 +16,7 @@ public class WDefine extends Globals {
 	@Override
 	public void addMethods(final KawaWrap kawa) throws Throwable {
 		kawa.eval("(define (void) (values))");
+		kawa.eval("(define (:t x) (*:getClass x))");
 		
 		kawa.eval("(set! $define$ define)");
     	kawa.eval(

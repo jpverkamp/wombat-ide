@@ -27,35 +27,6 @@ public class WImage extends Globals {
      * @throws Throwable If anything breaks while adding them.
      */
     public void addMethods(final KawaWrap kawa) throws Throwable {
-	class ImageShell {
-	    int Height;
-	    int Width;
-	    Color[][] Data;
-
-	    public ImageShell(int w, int h) {
-		Height = h;
-		Width = w;
-		Data = new Color[Height][Width];
-	    }
-
-	    public ImageShell(RenderedImage img) {
-		Height = img.getHeight();
-		Width = img.getWidth();
-
-		Data = new Color[Height][Width];
-
-		Raster raster = img.getData();
-		for (int r = 0; r < Height; r++)
-		    for (int c = 0; c < Width; c++)
-			Data[r][c] = new Color(raster.getSample(c, r, 0),
-					       raster.getSample(c, r, 1),
-					       raster.getSample(c, r, 2));
-	    }
-	    
-	    public String toString() {
-		return "[image " + Height + " " + Width + "]";
-	    }
-	}
 		
 	/* ----- ----- ----- ----- ----- 
 	 *             color
@@ -405,5 +376,36 @@ public class WImage extends Globals {
 	kawa.eval("(define magenta (color 255 0 255))");
 	kawa.eval("(define orange (color 255 127 0))");
 	kawa.eval("(define pink (color 188 143 143))");
+    }
+}
+
+
+class ImageShell {
+    int Height;
+    int Width;
+    Color[][] Data;
+
+    public ImageShell(int w, int h) {
+	Height = h;
+	Width = w;
+	Data = new Color[Height][Width];
+    }
+
+    public ImageShell(RenderedImage img) {
+	Height = img.getHeight();
+	Width = img.getWidth();
+
+	Data = new Color[Height][Width];
+
+	Raster raster = img.getData();
+	for (int r = 0; r < Height; r++)
+	    for (int c = 0; c < Width; c++)
+		Data[r][c] = new Color(raster.getSample(c, r, 0),
+				       raster.getSample(c, r, 1),
+				       raster.getSample(c, r, 2));
+    }
+    
+    public String toString() {
+	return "[image " + Height + " " + Width + "]";
     }
 }

@@ -1,6 +1,7 @@
 package util;
 
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 
 import util.errors.ErrorManager;
 import globals.*;
@@ -16,13 +17,44 @@ import kawa.standard.Scheme;
 public class KawaWrap {
 	Scheme kawa;
 	
-	Pattern reClass = Pattern.compile("(gnu|java)\\.[^\\s]+\\.([^\\.\\s]+)");
-	Pattern reRemoveSource = Pattern.compile("to '[^']+' ");
-
+	public Map<String, String> ErrorTypeRenameMap;
+	
 	/**
 	 * Connect to Kawa.
 	 */
 	public KawaWrap() {
+		ErrorTypeRenameMap = new HashMap<String, String>();
+		
+		ErrorTypeRenameMap.put("gnu.lists.LList", "list");
+		ErrorTypeRenameMap.put("gnu.lists.Pair", "list");
+		ErrorTypeRenameMap.put("gnu.lists.ImmutablePair", "list");
+		ErrorTypeRenameMap.put("gnu.lists.PairWithPosition", "list");
+		
+		ErrorTypeRenameMap.put("gnu.lists.SimpleVector", "vector");
+		ErrorTypeRenameMap.put("gnu.lists.FVector", "vector");
+		
+		ErrorTypeRenameMap.put("gnu.lists.FString", "string");
+		ErrorTypeRenameMap.put("java.lang.String", "string");
+		
+		ErrorTypeRenameMap.put("gnu.math.IntNum", "integer");
+		ErrorTypeRenameMap.put("java.lang.Integer", "integer");
+		ErrorTypeRenameMap.put("java.lang.Long", "integer");
+		
+		ErrorTypeRenameMap.put("gnu.math.IntFraction", "rational-number");
+        ErrorTypeRenameMap.put("gnu.math.CComplex", "complex-number");
+		ErrorTypeRenameMap.put("gnu.math.DComplex", "complex-number");
+		ErrorTypeRenameMap.put("gnu.math.DFloNum", "real-number");
+		
+		ErrorTypeRenameMap.put("gnu.expr.ModuleMethod", "procedure");
+		
+		ErrorTypeRenameMap.put("java.lang.Boolean", "boolean");
+
+		ErrorTypeRenameMap.put("globals.ImageShell", "image");
+		ErrorTypeRenameMap.put("java.awt.Color", "color");
+		ErrorTypeRenameMap.put("util.Tree", "tree");
+		
+		// ErrorTypeRenameMap.put("", "");
+		
 		reset();
 	}
 	
@@ -119,11 +151,9 @@ public class KawaWrap {
 		
 		err = err.replace(';', ',');
 		err = err.replace("<string>", "<repl>");
-		err = err.replace("FString", "String");
 		
-		err = reClass.matcher(err).replaceAll("$2");
-		err = reRemoveSource.matcher(err).replaceAll("");
-		
+		for (String key : ErrorTypeRenameMap.keySet())
+			err = err.replace(key, ErrorTypeRenameMap.get(key));
 		
 		return err;
 	}
