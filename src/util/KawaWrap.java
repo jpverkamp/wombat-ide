@@ -25,6 +25,8 @@ public class KawaWrap {
 	public KawaWrap() {
 		ErrorTypeRenameMap = new HashMap<String, String>();
 		
+		ErrorTypeRenameMap.put("(())", "(empty-list)");
+		
 		ErrorTypeRenameMap.put("gnu.lists.LList", "list");
 		ErrorTypeRenameMap.put("gnu.lists.Pair", "list");
 		ErrorTypeRenameMap.put("gnu.lists.ImmutablePair", "list");
@@ -111,6 +113,7 @@ public class KawaWrap {
 	 * @return The result.
 	 */
 	public String eval(String cmd) {
+		Throwable exc = null;
 		String err = null;
 		
 		try {
@@ -123,31 +126,47 @@ public class KawaWrap {
 				return formatObject(result);
 		
 		} catch (StackOverflowError ex) {
+			exc = ex;
 			err = "Possible infinite loop detected.";
 		
 		} catch (UnboundLocationException ex) {
+			exc = ex;
 			err = "Error: " + ex.getMessage().replace("location", "variable");
 		
 		} catch (WrongArguments ex) {
+			exc = ex;
 			err = "Error: " + ex.getMessage();
 		
 		} catch (IllegalArgumentException ex) {
+			exc = ex;
 			err = ex.getMessage();
 		
 		} catch (NamedException ex) {
+			exc = ex;
 			err = ex.toString();
 		
 		} catch (WrongType ex) {
-			err = "Error: " + ex.toString();
+			exc = ex;
+			
+			if (("car".equals(ex.procname) || "cdr".equals(ex.procname)) && 
+					"()".equals(ex.argValue.toString()))
+				err = "Error in " + ex.procname + ": cannot take the " + ex.procname + " of an empty list.";
+			else
+				err = "Error: " + ex.toString();
 
 		} catch (RuntimeException ex) {
+			exc = ex;
 			err = "Error: " + ex.getMessage();
 		
 		} catch (Throwable ex) {
+			exc = ex;
 			ex.printStackTrace();
 			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			err = "Error: " + ex.getMessage();
 		}
+		
+		System.out.println("Caught:");
+		System.out.println(exc.getClass());
 		
 		err = err.replace(';', ',');
 		err = err.replace("<string>", "<repl>");
