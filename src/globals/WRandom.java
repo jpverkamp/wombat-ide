@@ -23,16 +23,17 @@ public class WRandom extends Globals {
     	kawa.bind(new Procedure1("random") {
 			@Override
 			public Object apply1(Object max) throws Throwable {
-				if (max instanceof IntNum) {
-					IntNum i = (IntNum) max;
-					if (i.isNegative())
-						throw new Exception("random expected a positive integer, got " + KawaWrap.formatObject(max));
+				long maxv = 0;
+				if (max instanceof Integer) maxv = new Long("" + (Integer) max);
+				else if (max instanceof Long) maxv = (Long) max;
+				else if (max instanceof IntNum) {
+					if (((IntNum) max).inLongRange())
+						maxv = ((IntNum) max).longValue();
+					else {
+						IntNum i = (IntNum) max;
+						if (i.isNegative())
+							throw new IllegalArgumentException("random expected a positive integer, got " + KawaWrap.formatObject(max));
 						
-					
-					if (i.inIntRange())
-						return new IntNum(random.nextInt(((IntNum) max).ival));
-					else
-					{
 						BigInteger bi = i.asBigInteger();
 						BigInteger r;
 						
@@ -41,11 +42,12 @@ public class WRandom extends Globals {
 						} while (r.compareTo(bi) >= 0);
 						
 						return IntNum.asIntNumOrNull(r);
-						
 					}
-						
-				} else
-					throw new Exception("random expected an integer, got " + KawaWrap.formatObject(max));
+				} else {
+					throw new IllegalArgumentException("random expected an integer, got " + KawaWrap.formatObject(max));
+				}
+				
+				return (Math.abs(random.nextLong()) % maxv); 
 			}
         });
 	}
