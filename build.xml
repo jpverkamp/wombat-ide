@@ -71,7 +71,7 @@
 	<target name="sign" depends="dist" description="sign the jars">
 		<signjar alias="myself" keystore="keystore" storepass="password" lazy="true">
 			<path>
-				<fileset dir="${dist-dir}" includes="*.jar" />
+				<fileset dir="${dist-dir}" includes="${jar-name} ${libs}" />
 			</path>
 		</signjar>
 	</target>
