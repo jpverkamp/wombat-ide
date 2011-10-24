@@ -17,8 +17,8 @@ public class WLists extends Globals {
 "    [else (cons (p (car ls)) (filter p (cdr ls)))]))");
 
 	kawa.eval("(define (id x) x)");
-	kawa.eval("(define (any p ls) (and (not (null? ls)) (or (p (car ls)) (any? (cdr ls)))))");
-	kawa.eval("(define (all p ls) (or (null? ls) (and (p (car ls)) (all? (cdr ls)))))");
+	kawa.eval("(define (any p ls) (and (not (null? ls)) (or (p (car ls)) (any p (cdr ls)))))");
+	kawa.eval("(define (all p ls) (or (null? ls) (and (p (car ls)) (all p (cdr ls)))))");
 
 	kawa.eval(
 "(define (fold-left p z . lol)" + 
