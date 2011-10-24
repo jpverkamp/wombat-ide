@@ -71,8 +71,11 @@ public class KawaWrap {
 		kawa = new Scheme();
 
 		// Load globals.
-		for (Globals g : new Globals[] { new WDefine(), new WRandom(),
-				new WMath(), new WTree(), new WImage(), }) {
+		for (Globals g : new Globals[] { 
+			new WDefine(), new WRandom(),
+			new WMath(), new WTree(), new WImage(), 
+			new WLists()
+		                }) {
 			try {
 				g.addMethods(this);
 			} catch (Throwable ex) {
