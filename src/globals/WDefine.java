@@ -15,6 +15,7 @@ public class WDefine extends Globals {
 	 */
 	@Override
 	public void addMethods(final KawaWrap kawa) throws Throwable {
+		kawa.eval("(define (cpu-time) (/ (* 1.0 (java.lang.System:currentTimeMillis)) 1000))");	    
 		kawa.eval("(define (void) (values))");
 		kawa.eval("(define (:t x) (*:getClass x))");
 		
