@@ -10,10 +10,11 @@ public class WLists extends Globals {
      */
     public void addMethods(final KawaWrap kawa) throws Throwable {
 	kawa.eval(
-"(define (filter p ls)" +
-"  (cond" + 
-"    [(null? ls) '()]" + 
-"    [else (cons (p (car ls)) (filter p (cdr ls)))]))");
+"(define (filter ? ls)" +
+" (cond" +
+"  [(null? ls) '()]" +
+"    [(? (car ls)) (cons (car ls) (filter ? (cdr ls)))]" +
+"    [else (filter ? (cdr ls))]))");
 
 	kawa.eval("(define (id x) x)");
 	kawa.eval("(define (any p ls) (and (not (null? ls)) (or (p (car ls)) (any p (cdr ls)))))");
