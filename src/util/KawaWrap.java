@@ -118,6 +118,7 @@ public class KawaWrap {
 	 * @return The result.
 	 */
 	public String eval(String cmd) {
+		Throwable o_ex = null;
 		String err = null;
 
 		try {
@@ -130,37 +131,51 @@ public class KawaWrap {
 				return formatObject(result);
 
 		} catch (StackOverflowError ex) {
+			o_ex = ex;
 			err = "Possible infinite loop detected.";
 
 		} catch (UnboundLocationException ex) {
+			o_ex = ex;
 			err = "Error: " + ex.getMessage().replace("location", "variable");
 
 		} catch (WrongArguments ex) {
+			o_ex = ex;
 			err = "Error: " + ex.getMessage();
 
 		} catch (IllegalArgumentException ex) {
+			o_ex = ex;
 			err = ex.getMessage();
 
 		} catch (NamedException ex) {
+			o_ex = ex;
 			err = ex.toString();
 
 		} catch (WrongType ex) {
+			o_ex = ex;
 			if (("car".equals(ex.procname) || "cdr".equals(ex.procname)) && 
 					"()".equals(ex.argValue.toString()))
 				err = "Error in " + ex.procname + ": cannot take the " + ex.procname + " of an empty list.";
 			else
 				err = "Error: " + ex.toString();
-
+		
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			o_ex = ex;
+			err = "Error: Array index out of bounds (" + ex.getMessage() + ")";
+		
 		} catch (RuntimeException ex) {
+			o_ex = ex;
 			err = "Error: " + ex.getMessage();
 
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			ErrorManager.logError("Unknown error handled ("
 					+ ex.getClass().getName() + "): " + ex.toString());
-			err = "Error: " + ex.getMessage();
+			err = "Error: " + ex.toString();
 		}
 
+		if (o_ex != null)
+			ErrorManager.logError("Error handled (" + o_ex.getClass().getName() + "): " + o_ex.toString());
+		
 		err = err.replace(';', ',');
 		err = err.replace("<string>", "<repl>");
 
