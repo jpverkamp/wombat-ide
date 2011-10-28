@@ -56,6 +56,10 @@ public class Updater extends Thread {
 		updateFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		updateFrame.setLayout(new BorderLayout());
 		
+		updateFrame.add(getSpacer(20, 20), BorderLayout.WEST);
+		updateFrame.add(getSpacer(20, 20), BorderLayout.EAST);
+		updateFrame.add(getSpacer(20, 20), BorderLayout.SOUTH);
+		
 		JPanel progressPanel = new JPanel();
 		progressPanel.setLayout(new GridLayout(4, 1));
 		progressPanel.add(new JLabel("Current file:"));
@@ -113,6 +117,18 @@ public class Updater extends Thread {
 		prefs.put("versions", sb.toString());
 		
 		return updated;
+	}
+	
+	/**
+	 * Space things out.
+	 * @param width Width to add.
+	 * @param height Height to add.
+	 * @return The spacer.
+	 */
+	private static JPanel getSpacer(int width, int height) {
+		JPanel spacer = new JPanel();
+		spacer.setSize(width, height);
+		return spacer;
 	}
 
 	/**
