@@ -214,10 +214,10 @@ public class MainFrame extends JFrame {
         	Thread t = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					ErrorManager.logError("Checking for update...");
+					ErrorManager.logError("Checking for updates...");
 					try {
 						boolean needsUpdate = Updater.needsUpdate();
-						ErrorManager.logError("Update necessary? " + needsUpdate);
+						ErrorManager.logError("Updates necessary? " + needsUpdate);
 						if (needsUpdate)
 							UpdateButton.setVisible(true);
 					} catch (MalformedURLException e) {
@@ -228,7 +228,7 @@ public class MainFrame extends JFrame {
         	t.setDaemon(false);
         	t.start();
         } else {
-        	ErrorManager.logError("Automatic update disabled.");
+        	ErrorManager.logError("Automatic updates disabled.");
         }
     }
 
