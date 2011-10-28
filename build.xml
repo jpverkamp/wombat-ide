@@ -68,10 +68,10 @@
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="deploy" depends="version,jar,sign" description="deploy to webstart">
+	<target name="deploy" depends="clean,version,jar,sign" description="deploy to webstart">
 		<tstamp><format property="date" pattern="d MMMM yyyy" /></tstamp>
 
-		<copy todir="${jar-dir}">
+		<copy todir="${jar-dir}" verbose="true">
 			<fileset dir="${jnlp-dir}" />
 		</copy>
 
