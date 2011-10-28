@@ -52,6 +52,9 @@ public class Updater extends Thread {
 		Map<String, Version> curVersions = Version.parseVersions(force ? "" : prefs.get("versions", ""));
 		Map<String, Version> newVersions = Version.parseVersions(download(new URL(UPDATE_SITE + VERSION_FILE)));
 		
+		currentProgress.setStringPainted(true);
+		overallProgress.setStringPainted(true);
+		
 		overallProgress.setMinimum(0);
 		overallProgress.setValue(0);
 		overallProgress.setMaximum(newVersions.size());

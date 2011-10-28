@@ -28,16 +28,20 @@ public class Launcher {
 		
 		// Verify that Wombat is installed.
 		if (!prefs.getBoolean("installed", false) || prefs.get("install-directory", null) == null) {
-			if (Installer.install())
+			if (Installer.install()) {
 				launch();
+				return;
+			}
 		}
 		
 		// Check that the installation directory exists.
 		File dir = new File(prefs.get("install-directory", null));
 		if (!dir.exists() || !dir.isDirectory()) {
 			log("Installation directory does not exist, need to reinstall.");
-			if (Installer.reinstall())
+			if (Installer.reinstall()) {
 				launch();
+				return;
+			}
 		}
 		
 		// Verify that all of the necessary files are present.
@@ -45,8 +49,10 @@ public class Launcher {
 		for (Version v : current_versions.values()) {
 			if (!new File(dir, v.File).exists()) {
 				log("Missing file, need to reinstall: " + v.File);
-				if (Installer.reinstall())
+				if (Installer.reinstall()) {
 					launch();
+					return;
+				}
 			}
 		}
 
