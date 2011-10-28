@@ -353,4 +353,11 @@ public class MainFrame extends JFrame {
     	
     	History.append("\n>>> Execution halted <<<<\n");
 	}
+
+	/**
+	 * Wombat has been updated.
+	 */
+	public void updated() {
+		// TODO: implement this
+	}
 }

@@ -26,7 +26,7 @@ import util.files.RecentDocumentManager;
  * Store options.
  */
 public final class Options {
-	static Preferences prefs = Preferences.userNodeForPackage(new Options().getClass());
+	static Preferences prefs = Preferences.userRoot().node("wombat");
 	static JMenu optionsMenu;
 			
 	// Used for the main display. 
