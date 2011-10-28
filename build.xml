@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="wombat-ide" default="dist">
+<project name="wombat-ide" default="jar">
 	<description>
     Wombat aims to be a simple cross-platform IDE for writing Scheme programs in a classroom environment.
   </description>
@@ -27,7 +27,7 @@
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="build" description="build the source ">
+	<target name="build" depends="version" description="build the source ">
 		<mkdir dir="${bin-dir}" />
 
 		<copy file="${src-dir}/wombat/Wombat.java" tofile="Wombat.java.bak" />
