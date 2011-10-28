@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.prefs.*;
 import java.util.*;
 
+import javax.swing.JOptionPane;
+
 /**
  * Launcher for Wombat, also deletes old versions.
  */
@@ -18,7 +20,8 @@ public class Launcher {
 		try {
 			launch();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Unable to launch Wombat.\nPlease try again in a few minutes.\n\n" + ex.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 	}
 	
