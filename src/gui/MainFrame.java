@@ -11,6 +11,7 @@ import javax.swing.text.BadLocationException;
 import wombat.DocumentManager;
 import wombat.Options;
 import wombat.Wombat;
+import wombat.launcher.Updater;
 import util.KawaWrap;
 import util.errors.ErrorListener;
 import util.errors.ErrorManager;
@@ -18,6 +19,8 @@ import util.errors.ErrorManager;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.*;
@@ -43,6 +46,7 @@ public class MainFrame extends JFrame {
     JToolBar ToolBar;
     JButton ToolBarRun;
     JButton ToolBarStop;
+    JButton UpdateButton;
     public static JLabel RowColumn;
     boolean Running = false;
 
@@ -178,6 +182,11 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Reset").getAction()})
         	ToolBar.add(new JButton(a));
         
+        ToolBar.addSeparator();
+        UpdateButton = new JButton(new actions.Update());
+        UpdateButton.setVisible(false);
+        ToolBar.add(UpdateButton);
+        
         /*
         ToolBar.addSeparator();
         ToolBar.add(new JButton(MenuManager.itemForName("Share").getAction()));
@@ -199,6 +208,23 @@ public class MainFrame extends JFrame {
 		RowColumn = new JLabel("row:column");
 		ToolBar.addSeparator();
         ToolBar.add(RowColumn);
+        
+        // Add a check for updating.
+        if (Wombat.AllowUpdate) {
+        	Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						if (Updater.needsUpdate())
+							UpdateButton.setVisible(true);
+					} catch (MalformedURLException e) {
+					} catch (IOException e) {
+					}
+				}
+        	});
+        	t.setDaemon(false);
+        	t.start();
+        }
     }
 
 	/**
@@ -355,9 +381,10 @@ public class MainFrame extends JFrame {
 	}
 
 	/**
-	 * Wombat has been updated.
+	 * Set if the update dialog should be visible or not.
+	 * @param b The new value.
 	 */
-	public void updated() {
-		// TODO: implement this
+	public void setUpdateVisible(boolean b) {
+		UpdateButton.setVisible(b);
 	}
 }

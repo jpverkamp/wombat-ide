@@ -27,6 +27,23 @@ public class Updater extends Thread {
 		return update(false);
 	}
 	
+	public static boolean needsUpdate() throws MalformedURLException, IOException {
+		Preferences prefs = Preferences.userRoot().node("wombat");
+		
+		Map<String, Version> curVersions = Version.parseVersions(prefs.get("versions", ""));
+		Map<String, Version> newVersions = Version.parseVersions(download(new URL(UPDATE_SITE + VERSION_FILE)));
+		
+		for (String name : newVersions.keySet()) {
+			if (!curVersions.containsKey(name)) {
+				return true;
+			} else if (curVersions.get(name).compareTo(newVersions.get(name)) < 0) {
+				return true;
+			} 
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Check for and potentially update Wombat.
 	 */

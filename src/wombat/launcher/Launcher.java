@@ -72,6 +72,7 @@ public class Launcher {
 
 		// Launch Wombat.
 		Class<?> cls = Class.forName("wombat.Wombat", true, cl);
+		try { cls.getField("AllowUpdate").setBoolean(null, true); } catch (Exception e) {}
 		cls.newInstance();
 	}
 
