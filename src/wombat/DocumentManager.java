@@ -4,6 +4,7 @@
  */
 package wombat;
 
+import gui.FindReplaceDialog;
 import gui.MainFrame;
 import gui.SchemeTextArea;
 
@@ -392,6 +393,16 @@ public final class DocumentManager implements FocusListener {
         } catch (CannotRedoException e) {
         	return false;
         }
+	}
+	
+	/**
+	 * Show the find/replace dialog for the current document.
+	 */
+	public static void FindReplace() {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+		SchemeTextArea doc = me.activeDocument;
+		
+		new FindReplaceDialog(me.Main, false, doc.code).setVisible(true);
 	}
 
     /**

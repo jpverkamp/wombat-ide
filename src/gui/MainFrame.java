@@ -171,7 +171,8 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Copy").getAction(),
         		MenuManager.itemForName("Paste").getAction(),
         		MenuManager.itemForName("Undo").getAction(),
-        		MenuManager.itemForName("Redo").getAction()})
+        		MenuManager.itemForName("Redo").getAction(),
+        		MenuManager.itemForName("Find/Replace").getAction()})
         	ToolBar.add(new JButton(a));
         	
         ToolBar.addSeparator();
