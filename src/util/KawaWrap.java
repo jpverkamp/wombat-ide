@@ -35,8 +35,9 @@ public class KawaWrap {
 		ErrorTypeRenameMap.put("gnu.lists.SimpleVector", "vector");
 		ErrorTypeRenameMap.put("gnu.lists.FVector", "vector");
 
+		ErrorTypeRenameMap.put("java.lang.String", "immutable-string");
 		ErrorTypeRenameMap.put("gnu.lists.FString", "string");
-		ErrorTypeRenameMap.put("java.lang.String", "string");
+		ErrorTypeRenameMap.put("gnu.lists.CharSeq", "string");
 
 		ErrorTypeRenameMap.put("gnu.math.IntNum", "integer");
 		ErrorTypeRenameMap.put("java.lang.Integer", "integer");
@@ -54,6 +55,8 @@ public class KawaWrap {
 		ErrorTypeRenameMap.put("globals.ImageShell", "image");
 		ErrorTypeRenameMap.put("java.awt.Color", "color");
 		ErrorTypeRenameMap.put("util.Tree", "tree");
+		
+		ErrorTypeRenameMap.put("cannot be cast to", "is not compatible with");
 
 		// ErrorTypeRenameMap.put("", "");
 
@@ -160,7 +163,15 @@ public class KawaWrap {
 		} catch (ArrayIndexOutOfBoundsException ex) {
 			o_ex = ex;
 			err = "Error: Array index out of bounds (" + ex.getMessage() + ")";
-		
+			
+		} catch (ClassCastException ex) {
+			o_ex = ex;
+			
+			if ("java.lang.ClassCastException: gnu.expr.ModuleMethod cannot be cast to gnu.bytecode.Type".equals(ex.toString()))
+				err = "Error: unbound variable (name unknown)\nThis is most likely due to a missing ? in a function definition.";
+			else
+				err = ex.toString();
+			
 		} catch (RuntimeException ex) {
 			o_ex = ex;
 			err = "Error: " + ex.getMessage();
@@ -171,7 +182,7 @@ public class KawaWrap {
 					+ ex.getClass().getName() + "): " + ex.toString());
 			err = "Error: " + ex.toString();
 		}
-
+		
 		if (o_ex != null)
 			ErrorManager.logError("Error handled (" + o_ex.getClass().getName() + "): " + o_ex.toString());
 		
@@ -180,6 +191,9 @@ public class KawaWrap {
 
 		for (String key : ErrorTypeRenameMap.keySet())
 			err = err.replace(key, ErrorTypeRenameMap.get(key));
+		
+		if ("Error: list is not compatible with list".equals(err))
+			err += "\nThis is most likely a cadr/cddr without a null? cdr check.";
 
 		return err;
 	}
