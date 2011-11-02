@@ -134,6 +134,18 @@ public class SchemeTextArea extends JPanel {
     public void save() throws FileNotFoundException, IOException {
     	if (myFile == null) throw new FileNotFoundException("No file set");
     	
+    	// Remove extra whitespace at the end of the file.
+    	String text = getText();
+    	if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+	    	int pos = code.getCaretPosition();
+	    	String newText = getText().replaceAll("\\s+$", "");
+	    	setText(newText);
+	    	if (pos > newText.length())
+	    		code.setCaretPosition(newText.length());
+	    	else
+	    		code.setCaretPosition(pos);
+    	}
+    	
     	Writer out = new OutputStreamWriter(new FileOutputStream(myFile));
         out.write(getText());
         out.flush();
