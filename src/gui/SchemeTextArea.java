@@ -93,6 +93,9 @@ public class SchemeTextArea extends JPanel {
         // Listen for undo and redo events
         doc.addUndoableEditListener(new UndoableEditListener() {
             public void undoableEditHappened(UndoableEditEvent evt) {
+            	if ("style change".equals(evt.getEdit().getPresentationName()))
+            		return;
+            	
                 Undo.addEdit(evt.getEdit());
             }
         });
