@@ -19,6 +19,9 @@ public class KawaWrap {
 	Scheme kawa;
 
 	Map<String, String> ErrorTypeRenameMap;
+	
+	long kawaStart = 0;
+	long cpuTimer = 0;
 
 	/**
 	 * Connect to Kawa.
@@ -86,6 +89,10 @@ public class KawaWrap {
 						+ g.getClass().getName() + ": " + ex.getMessage());
 			}
 		}
+		
+		// Reset timers.
+		kawaStart = System.currentTimeMillis();
+		cpuTimer = 0;
 	}
 	
 	public void unbind(String name) {
@@ -134,7 +141,9 @@ public class KawaWrap {
 		String err = null;
 
 		try {
+			long startTime = System.currentTimeMillis();
 			Object result = Scheme.eval(cmd, kawa.getEnvironment());
+			cpuTimer += (System.currentTimeMillis() - startTime);
 
 			// Return the final result.
 			if (result == null)
@@ -329,5 +338,21 @@ public class KawaWrap {
 			return v.toString();
 		}
 
+	}
+	
+	/**
+	 * Get the time since Kawa started.
+	 * @return Milliseconds total.
+	 */
+	public double realTime() {
+		return ((double) (System.currentTimeMillis() - kawaStart)) / 1000.0;
+	}
+
+	/**
+	 * Get the time spent evaluating functions.
+	 * @return Milliseconds spent evaluating.
+	 */
+	public double cpuTime() {
+		return ((double) cpuTimer) / 1000.0;
 	}
 }

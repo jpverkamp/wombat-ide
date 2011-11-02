@@ -18,7 +18,10 @@ public class WDefine extends Globals {
 		kawa.unbind("member?");
 		kawa.unbind("integer");
 		
-		kawa.eval("(define (cpu-time) (/ (* 1.0 (java.lang.System:currentTimeMillis)) 1000))");	    
+		kawa.bind(new Procedure0("real-time") { public Object apply0() throws Throwable { return kawa.realTime(); }});
+		kawa.bind(new Procedure0("cpu-time") { public Object apply0() throws Throwable { return kawa.cpuTime(); }});
+		
+		
 		kawa.eval("(define (void) (values))");
 		kawa.eval("(define (:t x) (*:getClass x))");
 		
