@@ -46,7 +46,7 @@ public class Tree {
 	 */
 	public String toString() {
 		if (Value == null) return "[empty-tree]";
-		else if (Left.Value == null && Right.Value == null) return "[leaf " + Value + "]";
+		else if (isLeaf()) return "[leaf " + Value + "]";
 		else return "[tree " + Value + " " + Left + " " + Right + "]";
 	}
 	
@@ -78,7 +78,7 @@ public class Tree {
 	 * @return True if a leaf.
 	 */
 	public boolean isLeaf() {
-		return Left == null && Right == null;
+		return (Left.Value == null && Right.Value == null);
 	}
 	
 	/**
