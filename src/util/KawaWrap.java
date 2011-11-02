@@ -8,6 +8,7 @@ import globals.*;
 
 import gnu.kawa.lispexpr.ReadTable;
 import gnu.mapping.*;
+import gnu.math.RatNum;
 import kawa.lang.NamedException;
 import kawa.standard.Scheme;
 
@@ -129,6 +130,12 @@ public class KawaWrap {
 			// Return the final result.
 			if (result == null)
 				return null;
+			
+			// Sanity check for division by zero.
+			else if (result instanceof RatNum && ((RatNum) result).denominator().isZero())
+				throw new ArithmeticException("Division by zero.");
+			
+			// Otherwise return the answer.
 			else
 				return formatObject(result);
 
