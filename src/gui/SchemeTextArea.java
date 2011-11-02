@@ -11,6 +11,7 @@ import wombat.Options;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Text area specialized for Scheme (Woo!)
@@ -24,6 +25,8 @@ public class SchemeTextArea extends JPanel {
     public static String NL = "\n"; //System.getProperty("line.separator");
     public int SavedHash;
     public UndoManager Undo = new UndoManager();
+    
+    public static final Pattern WhitespaceEOL = Pattern.compile("[ \\t]+\\n");
     
     /**
      * Create a new Scheme text area.
@@ -134,17 +137,31 @@ public class SchemeTextArea extends JPanel {
     public void save() throws FileNotFoundException, IOException {
     	if (myFile == null) throw new FileNotFoundException("No file set");
     	
-    	// Remove extra whitespace at the end of the file.
     	String text = getText();
-    	if (Character.isWhitespace(text.charAt(text.length() - 1))) {
-	    	int pos = code.getCaretPosition();
-	    	String newText = getText().replaceAll("\\s+$", "");
-	    	setText(newText);
-	    	if (pos > newText.length())
-	    		code.setCaretPosition(newText.length());
+    	
+    	// Remove extra whitespace at the ends of lines.
+    	if (WhitespaceEOL.matcher(text).find()) {
+    		int pos = code.getCaretPosition();
+    		setText(WhitespaceEOL.matcher(text).replaceAll("\n"));
+    		if (pos > text.length())
+	    		code.setCaretPosition(text.length());
 	    	else
 	    		code.setCaretPosition(pos);
     	}
+    	
+    	// Remove extra whitespace at the end of the file.
+    	if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+	    	int pos = code.getCaretPosition();
+	    	text = getText().replaceAll("\\s+$", "");
+	    	setText(text);
+	    	if (pos > text.length())
+	    		code.setCaretPosition(text.length());
+	    	else
+	    		code.setCaretPosition(pos);
+    	}
+    	
+    	// Remove extra whitespace from the end of lines.
+    	
     	
     	Writer out = new OutputStreamWriter(new FileOutputStream(myFile));
         out.write(getText());
