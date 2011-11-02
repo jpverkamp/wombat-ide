@@ -39,7 +39,7 @@ public class WTree extends Globals {
 		
 		kawa.bind(new Procedure1("leaf?") {
 			public Object apply1(Object tr) {
-				return ((tr instanceof Tree) && ((Tree) tr).Left == null && ((Tree) tr).Right == null);
+				return ((tr instanceof Tree) && ((Tree) tr).isLeaf());
 			}
 		});
 		
@@ -51,7 +51,7 @@ public class WTree extends Globals {
 		
 		kawa.bind(new Procedure1("empty-tree?") {
 			public Object apply1(Object tr) {
-				return ((tr instanceof Tree) && ((Tree) tr).Value == null);
+				return ((tr instanceof Tree) && ((Tree) tr).isEmpty());
 			}
 		});
 		

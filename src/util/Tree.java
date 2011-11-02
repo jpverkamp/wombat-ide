@@ -65,6 +65,32 @@ public class Tree {
 		draw(g, width / 2, height / (h + 1), width / (w + 1), width - width / (w + 1),  height / (h + 1));
 	}
 	
+	/**
+	 * Check if this tree is empty.
+	 * @return True if empty.
+	 */
+	public boolean isEmpty() {
+		return Value == null;
+	}
+	
+	/**
+	 * Check if this tree is a leaf.
+	 * @return True if a leaf.
+	 */
+	public boolean isLeaf() {
+		return Left == null && Right == null;
+	}
+	
+	/**
+	 * Draw this node.
+	 * 
+	 * @param g The graphics object to draw the tree with.
+	 * @param x The x location to center the node on.
+	 * @param y The y location to center the node on.
+	 * @param left The left side of that sub tree.
+	 * @param right The right side of that sub tree.
+	 * @param skip The amount to skip vertically per branch.
+	 */
 	private void draw(Graphics2D g, int x, int y, int left, int right, int skip) {
 		if (Value == null) return;
 		
@@ -96,9 +122,9 @@ public class Tree {
 		int w = fm.stringWidth(s);
 		
 		g.setColor(Color.WHITE);
-		g.fillRect(x - w / 2 - 5, y - 10, w + 10, 20);
+		g.fillOval(x - w / 2 - 10, y - 15, w + 20, 30);
 		g.setColor(Color.BLACK);
-		g.drawRect(x - w / 2 - 5, y - 10, w + 10, 20);
+		g.drawOval(x - w / 2 - 10, y - 15, w + 20, 30);
 		
 		g.drawString(Value.toString(), x - fm.stringWidth(s) / 2, y + fm.getAscent() / 2);
 	}
