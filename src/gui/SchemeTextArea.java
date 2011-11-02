@@ -313,7 +313,7 @@ public class SchemeTextArea extends JPanel {
         // Or remove it, if we need to.
         else if (indentNow > indentTo) {
             setText(text.substring(0, insertAt) + text.substring(insertAt + (indentNow - indentTo)));
-            code.setCaretPosition(pos - (indentNow - indentTo));
+        	code.setCaretPosition(Math.min(text.length(), Math.max(0, pos - (indentNow - indentTo))));
         }
     }
 
@@ -321,13 +321,16 @@ public class SchemeTextArea extends JPanel {
      * Format the document.
      */
     public void format() {
+    	code.setCaretPosition(0);
+        tab();
+    	
         int next = -1;
         int eof = getText().indexOf("#!eof");
         if (eof == -1) eof = getText().length();
         
         while (true) {
-            next = getText().indexOf(NL, next + 1) + NL.length();
-
+        	next = getText().indexOf(NL, next + 1) + NL.length();
+        	
             if (next > 0 && next < eof) {
                 try {
                     code.setCaretPosition(next);
@@ -335,8 +338,9 @@ public class SchemeTextArea extends JPanel {
                 } catch (IllegalArgumentException iae) {
                     // Means there's extra lines. Just ignore it.
                 }
-            } else
+            } else {
                 break;
+            }
         }
     }
 
