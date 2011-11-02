@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import wombat.launcher.Updater;
 
@@ -28,18 +29,18 @@ public class Update extends AbstractAction {
 	public void actionPerformed(ActionEvent arg0) {
 		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 				null, 
-				"There is an update available, do you want to install it?", 
+				"There is an update available, do you want to install it?\nThe update will run in the background.", 
 				"Update Wombat?", 
 				JOptionPane.YES_NO_OPTION)) {
-			try {
-				if (Updater.update()) {
-					JOptionPane.showMessageDialog(null, "Wombat has been updated.\nThe updates will take place the next time you restart Wombat.", "Update Wombat", JOptionPane.OK_OPTION);
-				} else {
-					throw new Exception("Unknown error occurred.");
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						Updater.updateAndReport();
+					} catch (Exception e) {
+						JOptionPane.showMessageDialog(null, "Unable to update Wombat:\n" + e.getMessage(), "Error", JOptionPane.OK_OPTION);
+					}
 				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, "Unable to update Wombat:\n" + e.getMessage(), "Error", JOptionPane.OK_OPTION);
-			}
+			});
 			
 			for (Frame frame : JFrame.getFrames())
 				if (frame instanceof MainFrame)

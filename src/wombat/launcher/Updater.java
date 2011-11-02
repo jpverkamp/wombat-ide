@@ -5,7 +5,8 @@ import java.awt.GridLayout;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.prefs.*;
+import java.util.prefs.Preferences;
+
 import javax.swing.*;
 
 /**
@@ -17,41 +18,15 @@ public class Updater extends Thread {
 	public static final String UPDATE_SITE = "http://www.cs.indiana.edu/cgi-pub/c211/wombat/";
 	public static final String VERSION_FILE = "version.txt"; 
 
+	static boolean suppressGUI = false;
+	static final JFrame updateFrame = new JFrame("Downloading files...");
 	static final JProgressBar currentProgress = new JProgressBar();
 	static final JProgressBar overallProgress = new JProgressBar();
 	
-	/**
-	 * Update Wombat.
-	 */
-	public static boolean update() throws MalformedURLException, IOException {
-		return update(false);
-	}
+	static Updater lock = new Updater();
 	
-	public static boolean needsUpdate() throws MalformedURLException, IOException {
-		Preferences prefs = Preferences.userRoot().node("wombat");
-		
-		Map<String, Version> curVersions = Version.parseVersions(prefs.get("versions", ""));
-		Map<String, Version> newVersions = Version.parseVersions(download(new URL(UPDATE_SITE + VERSION_FILE)));
-		
-		for (String name : newVersions.keySet()) {
-			if (!curVersions.containsKey(name)) {
-				return true;
-			} else if (curVersions.get(name).compareTo(newVersions.get(name)) < 0) {
-				return true;
-			} 
-		}
-		
-		return false;
-	}
-	
-	/**
-	 * Check for and potentially update Wombat.
-	 */
-	public static boolean update(boolean force) throws MalformedURLException, IOException {
-		boolean updated = false;
-		
+	static {
 		// Build the frame that will show update progress.
-		JFrame updateFrame = new JFrame("Downloading files...");
 		updateFrame.setSize(400, 200);
 		updateFrame.setLocationByPlatform(true);
 		updateFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -69,19 +44,105 @@ public class Updater extends Thread {
 		progressPanel.add(new JLabel("Overall:"));
 		progressPanel.add(overallProgress);
 		updateFrame.add(progressPanel, BorderLayout.CENTER);
-		
-		updateFrame.setVisible(true);
 
 		currentProgress.setStringPainted(true);
 		overallProgress.setStringPainted(true);
+	}
+	
+	/**
+	 * Check if Wombat needs to be updated.
+	 * @return If it needs an update.
+	 */
+	public static boolean needsUpdate() throws MalformedURLException, IOException {
+		suppressGUI = false;
 		
+		Map<String, Version> curVersions = Version.parseVersions();
+		Map<String, Version> newVersions = Version.parseVersions(download(new URL(UPDATE_SITE + VERSION_FILE)));
+		
+		for (String name : newVersions.keySet()) {
+			if (!curVersions.containsKey(name)) {
+				System.out.println("Need to update '" + name + "', it doesn't exist.");
+				return true;
+			} else if (curVersions.get(name).compareTo(newVersions.get(name)) < 0) {
+				System.out.println("Need to update '" + name + "' from version " + curVersions.get(name).Version + " to " + newVersions.get(name).Version);
+				return true;
+			} else {
+				System.out.println("'" + name + "' is up to date. (" + curVersions.get(name).Version + " vs " + newVersions.get(name).Version + ")");
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Update Wombat and then launch.
+	 * @param force To force the update.
+	 */
+	public static void updateAndLaunch(boolean force) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+		suppressGUI = false;
+		
+		try {
+			update(force);
+			synchronized (lock) {
+				lock.wait();
+			}
+		} catch(InterruptedException ex) {
+		} catch(IllegalMonitorStateException ex) {
+		} finally {
+			Launcher.launch();
+		}
+	}
+	
+	/**
+	 * Update Wombat and display a message when finished.
+	 */
+	public static void updateAndReport() {
+		suppressGUI = true;
+		
+		try {
+			update(false);
+			synchronized (lock) {
+				lock.wait();
+			}
+		} catch(InterruptedException ex) {
+		} catch(IllegalMonitorStateException ex) {
+		} catch (MalformedURLException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(
+					null, 
+					"Wombat could not be updated.\nError: " + ex.getMessage(), 
+					"Wombat Update",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+			
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(
+					null, 
+					"Wombat could not be updated.\nError: " + ex.getMessage(), 
+					"Wombat Update",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+			
+		} finally {
+			JOptionPane.showMessageDialog(
+					null, 
+					"Wombat has been updated.\nThe updates will take place the next time you restart Wombat.", 
+					"Wombat Update",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
+	/**
+	 * Check for and potentially update Wombat.
+	 */
+	public static void update(boolean force) throws MalformedURLException, IOException {
+		updateFrame.setVisible(!suppressGUI);
 		currentProgress.setIndeterminate(true);
 		
-		// Load preferences (for current versions).
-		Preferences prefs = Preferences.userRoot().node("wombat");
-
-		Map<String, Version> curVersions = Version.parseVersions(force ? "" : prefs.get("versions", ""));
-		Map<String, Version> newVersions = Version.parseVersions(download(new URL(UPDATE_SITE + VERSION_FILE)));
+		// Load version information.
+		final Map<String, Version> curVersions = force ? Version.parseVersions("") : Version.parseVersions();
+		final Map<String, Version> newVersions = Version.parseVersions(download(new URL(UPDATE_SITE + VERSION_FILE)));
 		
 		// Set up the progress bars.
 		currentProgress.setString("Downloading version information...");		
@@ -103,11 +164,13 @@ public class Updater extends Thread {
 				continue;
 			}
 			
-			// Something updated.
-			updated = true;
-			
 			// Download the new file.
-			download(newVersions.get(name).Name, new URL(UPDATE_SITE + newVersions.get(name).File), new File(prefs.get("install-directory", ""),newVersions.get(name).File));
+			download(
+				newVersions.get(name).Name, 
+				new URL(UPDATE_SITE + newVersions.get(name).File), 
+				new File(".", newVersions.get(name).File)
+			);
+
 			
 			// Remove the old file.
 			if (curVersions.containsKey(name))
@@ -124,7 +187,7 @@ public class Updater extends Thread {
 		// Done updating, so hide the update frame.
 		updateFrame.setVisible(false);
 
-		// Save the current versions back into the preferences.
+		// Get the new version string.
 		StringBuilder sb = new StringBuilder();
 		for (Version v : curVersions.values()) {
 			sb.append(v.Name);
@@ -134,11 +197,16 @@ public class Updater extends Thread {
 			sb.append(v.File);
 			sb.append('\n');
 		}
-		prefs.put("versions", sb.toString());
 		
-		// Return if we succesfully updating anything.
-		// False could mean failure or no update needed, call needsUpdate for that.
-		return updated;
+		// Dump it to a version file.
+		File f = new File(".", "version.txt");
+		FileWriter fw = new FileWriter(f);
+		fw.write(sb.toString());
+		fw.flush();
+		fw.close();
+		
+		// Notify any waiting threads when we finish.
+		lock.notifyAll();
 	}
 	
 	/**
@@ -158,8 +226,8 @@ public class Updater extends Thread {
 	 * @param filename The file to remove.
 	 */
 	static void remove(String filename) {
-		File f = new File(filename);
-		f.delete();
+		Preferences prefs = Preferences.userRoot().node("wombat");
+		prefs.put("old-versions", prefs.get("old-versions", "") + ";" + filename);
 	}
 
 	/**
@@ -185,11 +253,15 @@ public class Updater extends Thread {
 		BufferedInputStream in = new BufferedInputStream(from.openStream());
 
 		int count;
-		byte data[] = new byte[10240];
-		while ((count = in.read(data, 0, 10240)) > 0) {
+		byte data[] = new byte[1024];
+		while ((count = in.read(data, 0, 1024)) > 0) {
+			out.append(new String(data, 0, count));
+			
 			if (length != -1)
 				currentProgress.setValue(currentProgress.getValue() + count);
-			out.append(new String(data, 0, count));
+			
+			System.out.println("repainting");
+			updateFrame.repaint();
 		}
 		if (length != -1)
 			currentProgress.setValue(currentProgress.getMaximum());
@@ -213,8 +285,7 @@ public class Updater extends Thread {
 		
 		int overallMax = overallProgress.getMaximum();
 		int overallNow = overallProgress.getValue();
-		
-		
+
 		currentProgress.setString(name);
 		currentProgress.setIndeterminate(false);
 		currentProgress.setMinimum(0);

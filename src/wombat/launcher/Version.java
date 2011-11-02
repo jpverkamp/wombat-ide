@@ -1,6 +1,7 @@
 package wombat.launcher;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * Represents version information.
@@ -28,7 +29,7 @@ class Version implements Comparable<Version> {
 
 		parts = new ArrayList<Integer>();
 
-		for (String s : version.split(".")) {
+		for (String s : version.split("\\.")) {
 			try {
 				parts.add(Integer.parseInt(s));
 			} catch (NumberFormatException e) {
@@ -76,5 +77,31 @@ class Version implements Comparable<Version> {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Load versions from the file version.txt in the run directory.
+	 * @return
+	 */
+	public static Map<String, Version> parseVersions() {
+		File versionFile = new File(".", "version.txt");
+		if (!versionFile.exists())
+			return parseVersions("");
+		
+		try {
+			StringBuilder sb = new StringBuilder();
+			FileInputStream fis = new FileInputStream(versionFile);
+			
+			int count;
+			byte[] buffer = new byte[1024];
+			while ((count = fis.read(buffer)) != -1)
+				sb.append(new String(buffer, 0, count));
+			
+			fis.close();
+			
+			return parseVersions(sb.toString());
+		} catch(Exception e) {
+			return parseVersions("");
+		}
 	}
 }
