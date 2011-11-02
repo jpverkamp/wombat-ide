@@ -87,6 +87,15 @@ public class KawaWrap {
 			}
 		}
 	}
+	
+	public void unbind(String name) {
+		try {
+			kawa.define(name, false);
+			kawa.getEnvironment().getLocation(name, true).undefine();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Bind a new function from the Java end of things.
