@@ -78,7 +78,7 @@ public class Tree {
 	 * @return True if a leaf.
 	 */
 	public boolean isLeaf() {
-		return (Left.Value == null && Right.Value == null);
+		return !isEmpty() && (Left.Value == null && Right.Value == null);
 	}
 	
 	/**
