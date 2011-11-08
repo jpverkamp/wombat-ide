@@ -137,6 +137,12 @@ public class Updater extends Thread {
 	 * Check for and potentially update Wombat.
 	 */
 	public static void update(boolean force) throws MalformedURLException, IOException {
+		String path = ".";
+		try {
+			path = new File(Version.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsolutePath();
+		} catch (URISyntaxException e1) {
+		}
+		
 		updateFrame.setVisible(!suppressGUI);
 		currentProgress.setIndeterminate(true);
 		
@@ -168,7 +174,7 @@ public class Updater extends Thread {
 			download(
 				newVersions.get(name).Name, 
 				new URL(UPDATE_SITE + newVersions.get(name).File), 
-				new File(".", newVersions.get(name).File)
+				new File(path, newVersions.get(name).File)
 			);
 
 			
@@ -199,7 +205,7 @@ public class Updater extends Thread {
 		}
 		
 		// Dump it to a version file.
-		File f = new File(".", "version.txt");
+		File f = new File(path, "version.txt");
 		FileWriter fw = new FileWriter(f);
 		fw.write(sb.toString());
 		fw.flush();

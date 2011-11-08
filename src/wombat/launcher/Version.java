@@ -2,6 +2,7 @@ package wombat.launcher;
 
 import java.util.*;
 import java.io.*;
+import java.net.URISyntaxException;
 
 /**
  * Represents version information.
@@ -84,7 +85,13 @@ class Version implements Comparable<Version> {
 	 * @return
 	 */
 	public static Map<String, Version> parseVersions() {
-		File versionFile = new File(".", "version.txt");
+		String path = ".";
+		try {
+			path = new File(Version.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsolutePath();
+		} catch (URISyntaxException e1) {
+		}
+		
+		File versionFile = new File(path, "version.txt");
 		if (!versionFile.exists())
 			return parseVersions("");
 		

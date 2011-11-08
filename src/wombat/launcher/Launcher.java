@@ -48,6 +48,12 @@ public class Launcher {
 	}
 	
 	public static void launch() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+		String path = ".";
+		try {
+			path = new File(Version.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsolutePath();
+		} catch (URISyntaxException e1) {
+		}
+		
 		// Get local version information (will return an empty map if the installation is missing or corrupted).
 		Map<String, Version> current_versions = Version.parseVersions();
 		
@@ -66,7 +72,7 @@ public class Launcher {
 
 		// Verify that all of the necessary files are present.
 		for (Version v : current_versions.values()) {
-			if (!new File(".", v.File).exists()) {
+			if (!new File(path, v.File).exists()) {
 				log("Missing file, need to reinstall: " + v.File);
 				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 						null,
@@ -84,9 +90,9 @@ public class Launcher {
 		
 		// Get all of the JARs that we might need.
 		List<URL> urls = new ArrayList<URL>();
-		urls.add(new File(".").toURI().toURL());
+		urls.add(new File(path).toURI().toURL());
 		for (Version v : current_versions.values())
-			urls.add(new File(".", v.File).toURI().toURL());
+			urls.add(new File(path, v.File).toURI().toURL());
 
 		// Build a new class loader.
 		ClassLoader currentThreadClassLoader = Thread.currentThread().getContextClassLoader();
