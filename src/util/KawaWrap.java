@@ -167,7 +167,12 @@ public class KawaWrap {
 
 		} catch (WrongArguments ex) {
 			o_ex = ex;
-			err = "Error: " + ex.getMessage();
+			
+			if (ex.getMessage() != null) {
+				err = "Error: " + ex.getMessage();
+			} else {
+				err = "Error: Unable to apply function.\nThis may have been caused by an extra set of paranthesis.";
+			}
 
 		} catch (IllegalArgumentException ex) {
 			o_ex = ex;
@@ -189,22 +194,17 @@ public class KawaWrap {
 			o_ex = ex;
 			err = "Error: Array index out of bounds (" + ex.getMessage() + ")";
 			
-		} catch (ClassCastException ex) {
+		} catch (RuntimeException ex) {
 			o_ex = ex;
 			
 			if ("java.lang.ClassCastException: gnu.expr.ModuleMethod cannot be cast to gnu.bytecode.Type".equals(ex.toString()))
 				err = "Error: unbound variable (name unknown)\nThis is most likely due to a missing ? in a function definition.";
 			else
-				err = ex.toString();
-			
-		} catch (RuntimeException ex) {
-			o_ex = ex;
-			err = "Error: " + ex.getMessage();
+				err = "Error: " + ex.getMessage();
 
 		} catch (Throwable ex) {
 			ex.printStackTrace();
-			ErrorManager.logError("Unknown error handled ("
-					+ ex.getClass().getName() + "): " + ex.toString());
+			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
 			err = "Error: " + ex.toString();
 		}
 		
@@ -219,6 +219,9 @@ public class KawaWrap {
 		
 		if ("Error: list is not compatible with list".equals(err))
 			err += "\nThis is most likely a cadr/cddr without a null? cdr check.";
+				
+		if ("Error: null".equals(err))
+			err += "\nThis is an unknown error. Please report it to the developers.";
 
 		return err;
 	}
