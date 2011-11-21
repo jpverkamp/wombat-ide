@@ -152,7 +152,7 @@ public class WImage extends Globals {
 		    if (c instanceof IntNum) cv = ((IntNum) c).ival;
 		    else if (c instanceof Integer) cv = (Integer) c;
 		    else if (c instanceof Long) cv = ((Long) c).intValue();
-		    else throw new IllegalArgumentException("Error in image-ref: column index " + r + " is not an integer.");
+		    else throw new IllegalArgumentException("Error in image-ref: column index " + c + " is not an integer.");
 
 		    return ((ImageShell) img).Data[rv][cv];
 		}
