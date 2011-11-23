@@ -19,7 +19,7 @@ public class KawaWrap {
 	Scheme kawa;
 
 	Map<String, String> ErrorTypeRenameMap;
-	
+
 	long kawaStart = 0;
 	long cpuTimer = 0;
 
@@ -64,7 +64,7 @@ public class KawaWrap {
 		ErrorTypeRenameMap.put("util.Tree", "tree");
 
 		ErrorTypeRenameMap.put("gnu.mapping.Values", "#<void>");
-		
+
 		ErrorTypeRenameMap.put("cannot be cast to", "is not compatible with");
 
 		// ErrorTypeRenameMap.put("", "");
@@ -82,11 +82,8 @@ public class KawaWrap {
 		kawa = new Scheme();
 
 		// Load globals.
-		for (Globals g : new Globals[] { 
-			new WDefine(), new WRandom(),
-			new WMath(), new WTree(), new WImage(), 
-			new WLists()
-		                }) {
+		for (Globals g : new Globals[] { new WDefine(), new WRandom(),
+				new WMath(), new WTree(), new WImage(), new WLists() }) {
 			try {
 				g.addMethods(this);
 			} catch (Throwable ex) {
@@ -94,7 +91,7 @@ public class KawaWrap {
 						+ g.getClass().getName() + ": " + ex.getMessage());
 			}
 		}
-		
+
 		// Reset timers.
 		kawaStart = System.currentTimeMillis();
 		cpuTimer = 0;
@@ -104,7 +101,7 @@ public class KawaWrap {
 		try {
 			kawa.define(name, false);
 			kawa.getEnvironment().getLocation(name, true).undefine();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -153,11 +150,12 @@ public class KawaWrap {
 			// Return the final result.
 			if (result == null)
 				return null;
-			
+
 			// Sanity check for division by zero.
-			else if (result instanceof RatNum && ((RatNum) result).denominator().isZero())
+			else if (result instanceof RatNum
+					&& ((RatNum) result).denominator().isZero())
 				throw new ArithmeticException("Division by zero.");
-			
+
 			// Otherwise return the answer.
 			else
 				return formatObject(result);
@@ -172,7 +170,7 @@ public class KawaWrap {
 
 		} catch (WrongArguments ex) {
 			o_ex = ex;
-			
+
 			if (ex.getMessage() != null) {
 				err = "Error: " + ex.getMessage();
 			} else {
@@ -189,46 +187,50 @@ public class KawaWrap {
 
 		} catch (WrongType ex) {
 			o_ex = ex;
-			if (("car".equals(ex.procname) || "cdr".equals(ex.procname)) && 
-					"()".equals(ex.argValue.toString()))
-				err = "Error in " + ex.procname + ": cannot take the " + ex.procname + " of an empty list.";
+			if (("car".equals(ex.procname) || "cdr".equals(ex.procname))
+					&& "()".equals(ex.argValue.toString()))
+				err = "Error in " + ex.procname + ": cannot take the "
+						+ ex.procname + " of an empty list.";
 			else
 				err = "Error: " + ex.toString();
 
 		} catch (NegativeArraySizeException ex) {
-		    o_ex = ex;
-		    err = "Error: Attempted to create array with negative size.";
-		
+			o_ex = ex;
+			err = "Error: Attempted to create array with negative size.";
+
 		} catch (ArrayIndexOutOfBoundsException ex) {
 			o_ex = ex;
 			err = "Error: Array index out of bounds (" + ex.getMessage() + ")";
-			
+
 		} catch (RuntimeException ex) {
 			o_ex = ex;
-			
-			if ("java.lang.ClassCastException: gnu.expr.ModuleMethod cannot be cast to gnu.bytecode.Type".equals(ex.toString()))
+
+			if ("java.lang.ClassCastException: gnu.expr.ModuleMethod cannot be cast to gnu.bytecode.Type"
+					.equals(ex.toString()))
 				err = "Error: unbound variable (name unknown)\nThis is most likely due to a missing ? in a function definition.";
 			else
 				err = "Error: " + ex.getMessage();
 
 		} catch (Throwable ex) {
 			ex.printStackTrace();
-			ErrorManager.logError("Unknown error handled (" + ex.getClass().getName() + "): " + ex.toString());
+			ErrorManager.logError("Unknown error handled ("
+					+ ex.getClass().getName() + "): " + ex.toString());
 			err = "Error: " + ex.toString();
 		}
-		
+
 		if (o_ex != null)
-			ErrorManager.logError("Error handled (" + o_ex.getClass().getName() + "): " + o_ex.toString());
-		
+			ErrorManager.logError("Error handled (" + o_ex.getClass().getName()
+					+ "): " + o_ex.toString());
+
 		err = err.replace(';', ',');
 		err = err.replace("<string>", "<repl>");
 
 		for (String key : ErrorTypeRenameMap.keySet())
 			err = err.replace(key, ErrorTypeRenameMap.get(key));
-		
+
 		if ("Error: list is not compatible with list".equals(err))
 			err += "\nThis is most likely a cadr/cddr without a null? cdr check.";
-				
+
 		if ("Error: null".equals(err))
 			err += "\nThis is an unknown error. Please report it to the developers.";
 
@@ -238,21 +240,24 @@ public class KawaWrap {
 	/**
 	 * Format an object using Scheme rules.
 	 * 
-	 * @param v The object to format.
+	 * @param v
+	 *            The object to format.
 	 * @return
 	 */
 	public static String formatObject(Object v) {
-	    return formatObject(v, false);
+		return formatObject(v, false);
 	}
 
-    /**
-     * Format an object using the Scheme rule (possible in a recursive case).
-     *
-     * @param v The object to format
-     * @param reced If this is a recursive call.
-     *
-     */
-    public static String formatObject(Object v, boolean reced) {
+	/**
+	 * Format an object using the Scheme rule (possible in a recursive case).
+	 * 
+	 * @param v
+	 *            The object to format
+	 * @param reced
+	 *            If this is a recursive call.
+	 * 
+	 */
+	public static String formatObject(Object v, boolean reced) {
 		if (v == null)
 			return "";
 
@@ -267,17 +272,17 @@ public class KawaWrap {
 
 		else if (v instanceof gnu.mapping.Values) {
 			gnu.mapping.Values val = (gnu.mapping.Values) v;
-
-			if (val.objects.length == 0) {
-			    if (reced)
-				return "#<void>";
-			    else
-				return "";
+			
+			if (val.getValues().length == 0) {
+				if (reced)
+					return "#<void>";
+				else
+					return "";
 			}
 
 			StringBuilder sb = new StringBuilder();
 			for (Object obj : val.objects) {
-			    String temp = formatObject(obj, true);
+				String temp = formatObject(obj, true);
 				if (temp != null && !temp.isEmpty()) {
 					sb.append(temp);
 					sb.append(", ");
@@ -296,13 +301,13 @@ public class KawaWrap {
 
 			if (p.getCdr() instanceof gnu.lists.LList) {
 				if (((gnu.lists.LList) p.getCdr()).isEmpty())
-				    return "(" + formatObject(p.getCar(), true) + ")";
+					return "(" + formatObject(p.getCar(), true) + ")";
 				else
-				    return "(" + formatObject(p.getCar(), true) + " "
-					+ formatObject(p.getCdr(), true).substring(1);
+					return "(" + formatObject(p.getCar(), true) + " "
+							+ formatObject(p.getCdr(), true).substring(1);
 			} else
-			    return "(" + formatObject(p.getCar(), true) + " . "
-				+ formatObject(p.getCdr(), true) + ")";
+				return "(" + formatObject(p.getCar(), true) + " . "
+						+ formatObject(p.getCdr(), true) + ")";
 		}
 
 		else if (v instanceof kawa.lang.Quote)
@@ -316,7 +321,7 @@ public class KawaWrap {
 			StringBuilder sb = new StringBuilder();
 			sb.append("#(");
 			for (Object o : vec) {
-			    sb.append(formatObject(o, true));
+				sb.append(formatObject(o, true));
 				sb.append(" ");
 			}
 			sb.delete(sb.length() - 1, sb.length());
@@ -368,9 +373,10 @@ public class KawaWrap {
 		}
 
 	}
-	
+
 	/**
 	 * Get the time since Kawa started.
+	 * 
 	 * @return Milliseconds total.
 	 */
 	public double realTime() {
@@ -379,6 +385,7 @@ public class KawaWrap {
 
 	/**
 	 * Get the time spent evaluating functions.
+	 * 
 	 * @return Milliseconds spent evaluating.
 	 */
 	public double cpuTime() {
