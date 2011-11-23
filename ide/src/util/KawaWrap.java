@@ -189,6 +189,10 @@ public class KawaWrap {
 				err = "Error in " + ex.procname + ": cannot take the " + ex.procname + " of an empty list.";
 			else
 				err = "Error: " + ex.toString();
+
+		} catch (NegativeArraySizeException ex) {
+		    o_ex = ex;
+		    err = "Error: Attempted to create array with negative size.";
 		
 		} catch (ArrayIndexOutOfBoundsException ex) {
 			o_ex = ex;
