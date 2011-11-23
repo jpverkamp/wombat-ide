@@ -238,11 +238,21 @@ public class KawaWrap {
 	/**
 	 * Format an object using Scheme rules.
 	 * 
-	 * @param v
-	 *            The object to format.
+	 * @param v The object to format.
 	 * @return
 	 */
 	public static String formatObject(Object v) {
+	    return formatObject(v, false);
+	}
+
+    /**
+     * Format an object using the Scheme rule (possible in a recursive case).
+     *
+     * @param v The object to format
+     * @param reced If this is a recursive call.
+     *
+     */
+    public static String formatObject(Object v, boolean reced) {
 		if (v == null)
 			return "";
 
@@ -258,9 +268,16 @@ public class KawaWrap {
 		else if (v instanceof gnu.mapping.Values) {
 			gnu.mapping.Values val = (gnu.mapping.Values) v;
 
+			if (val.objects.length == 0) {
+			    if (reced)
+				return "#<void>";
+			    else
+				return "";
+			}
+
 			StringBuilder sb = new StringBuilder();
 			for (Object obj : val.objects) {
-				String temp = formatObject(obj);
+			    String temp = formatObject(obj, true);
 				if (temp != null && !temp.isEmpty()) {
 					sb.append(temp);
 					sb.append(", ");
@@ -279,13 +296,13 @@ public class KawaWrap {
 
 			if (p.getCdr() instanceof gnu.lists.LList) {
 				if (((gnu.lists.LList) p.getCdr()).isEmpty())
-					return "(" + formatObject(p.getCar()) + ")";
+				    return "(" + formatObject(p.getCar(), true) + ")";
 				else
-					return "(" + formatObject(p.getCar()) + " "
-							+ formatObject(p.getCdr()).substring(1);
+				    return "(" + formatObject(p.getCar(), true) + " "
+					+ formatObject(p.getCdr(), true).substring(1);
 			} else
-				return "(" + formatObject(p.getCar()) + " . "
-						+ formatObject(p.getCdr()) + ")";
+			    return "(" + formatObject(p.getCar(), true) + " . "
+				+ formatObject(p.getCdr(), true) + ")";
 		}
 
 		else if (v instanceof kawa.lang.Quote)
@@ -299,7 +316,7 @@ public class KawaWrap {
 			StringBuilder sb = new StringBuilder();
 			sb.append("#(");
 			for (Object o : vec) {
-				sb.append(formatObject(o));
+			    sb.append(formatObject(o, true));
 				sb.append(" ");
 			}
 			sb.delete(sb.length() - 1, sb.length());
