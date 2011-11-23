@@ -9,6 +9,8 @@ public class WLists extends Globals {
      * @param kawa The interpreter to add them to.
      */
     public void addMethods(final KawaWrap kawa) throws Throwable {
+	kawa.eval("(define (atom? x) (not (pair? x)))");
+
 	kawa.eval(
 "(define (filter ? ls)" +
 " (cond" +
