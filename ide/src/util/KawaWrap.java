@@ -43,6 +43,9 @@ public class KawaWrap {
 		ErrorTypeRenameMap.put("gnu.lists.FString", "string");
 		ErrorTypeRenameMap.put("gnu.lists.CharSeq", "string");
 
+		ErrorTypeRenameMap.put("java.lang.Number", "number");
+		ErrorTypeRenameMap.put("gnu.math.Numeric", "number");
+
 		ErrorTypeRenameMap.put("gnu.math.IntNum", "integer");
 		ErrorTypeRenameMap.put("java.lang.Integer", "integer");
 		ErrorTypeRenameMap.put("java.lang.Long", "integer");
@@ -59,6 +62,8 @@ public class KawaWrap {
 		ErrorTypeRenameMap.put("globals.ImageShell", "image");
 		ErrorTypeRenameMap.put("java.awt.Color", "color");
 		ErrorTypeRenameMap.put("util.Tree", "tree");
+
+		ErrorTypeRenameMap.put("gnu.mapping.Values", "#<void>");
 		
 		ErrorTypeRenameMap.put("cannot be cast to", "is not compatible with");
 
