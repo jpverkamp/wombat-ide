@@ -327,7 +327,11 @@ public class KawaWrap {
 			sb.delete(sb.length() - 1, sb.length());
 			sb.append(")");
 
-			return sb.toString();
+			String result = sb.toString();
+			if ("#)".equals(result))
+			    return "#()";
+			else
+			    return result;
 		}
 
 		else if (v instanceof gnu.mapping.Procedure) {

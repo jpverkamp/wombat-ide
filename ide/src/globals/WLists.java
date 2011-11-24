@@ -10,6 +10,11 @@ public class WLists extends Globals {
      */
     public void addMethods(final KawaWrap kawa) throws Throwable {
 	kawa.eval("(define (atom? x) (not (pair? x)))");
+	kawa.eval(
+"(define make-list " +
+"  (case-lambda " +
+"    [(n) (map (lambda (_) 0) (iota n))] " +
+"    [(n i) (map (lambda (_) i) (iota n))]))");
 
 	kawa.eval(
 "(define (filter ? ls)" +
