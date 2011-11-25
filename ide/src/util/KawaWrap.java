@@ -198,9 +198,16 @@ public class KawaWrap {
 			o_ex = ex;
 			err = "Error: Attempted to create array with negative size.";
 
-		} catch (ArrayIndexOutOfBoundsException ex) {
+		} /* catch (ArrayIndexOutOfBoundsException ex) {
 			o_ex = ex;
-			err = "Error: Array index out of bounds (" + ex.getMessage() + ")";
+			err = "Error: Index out of bounds (" + ex.getMessage() + ")";
+
+			} */ catch (IndexOutOfBoundsException ex) {
+		    o_ex = ex;
+		    if (ex.getMessage() == null)
+			err = "Error: Index out of bounds (unable to determine index)";
+		    else
+			err = "Error: Index out of bounds (" + ex.getMessage() + ")";
 
 		} catch (RuntimeException ex) {
 			o_ex = ex;
