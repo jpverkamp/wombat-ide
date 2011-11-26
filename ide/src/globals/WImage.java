@@ -1,5 +1,7 @@
 package globals;
 
+import java.util.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FileDialog;
@@ -30,6 +32,7 @@ public class WImage extends Globals {
 		
 	/* ----- ----- ----- ----- ----- 
 	 *             color
+
 	 * ----- ----- ----- ----- ----- */
 		
 	// Create a new color.
@@ -198,12 +201,12 @@ public class WImage extends Globals {
 		        
 		    File file = new File(fc.getDirectory(), fc.getFile());
 		    if (!file.exists())
-			throw new IllegalArgumentException("Error in read-image: unable to read image '" + fc.getFile() + "', file does not exist.");
-		    String filename = file.getAbsolutePath();
+			throw new IllegalArgumentException("Error in read-image: unable to read image '" + file.getAbsolutePath() + "', file does not exist.");
+
 				
-		    RenderedImage img = ImageIO.read(new File((String) filename));
+		    RenderedImage img = ImageIO.read(file);
 		    if (img == null)
-			throw new IllegalArgumentException("Error in read-image: unable to read image '" + filename + "'");
+			throw new IllegalArgumentException("Error in read-image: unable to read image '" + file.getAbsolutePath() + "'");
 		    else
 			return new ImageShell(img);
 		}
@@ -377,6 +380,27 @@ public class WImage extends Globals {
 	kawa.eval("(define orange (color 255 127 0))");
 	kawa.eval("(define pink (color 188 143 143))");
     }
+
+    public BufferedImage convertRenderedImage(RenderedImage img) {
+	if (img instanceof BufferedImage) {
+	    return (BufferedImage)img;
+	}
+	ColorModel cm = img.getColorModel();
+	int width = img.getWidth();
+	int height = img.getHeight();
+	WritableRaster raster = cm.createCompatibleWritableRaster(width, height);
+	boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+	Hashtable properties = new Hashtable();
+	String[] keys = img.getPropertyNames();
+	if (keys!=null) {
+	    for (int i = 0; i < keys.length; i++) {
+		properties.put(keys[i], img.getProperty(keys[i]));
+	    }
+	}
+	BufferedImage result = new BufferedImage(cm, raster, isAlphaPremultiplied, properties);
+	img.copyData(raster);
+	return result;
+    }
 }
 
 
@@ -391,19 +415,41 @@ class ImageShell {
 	Data = new Color[Height][Width];
     }
 
-    public ImageShell(RenderedImage img) {
+    public ImageShell(RenderedImage rimg) {
+	BufferedImage img = convertRenderedImage(rimg);
+
 	Height = img.getHeight();
 	Width = img.getWidth();
 
 	Data = new Color[Height][Width];
 
-	Raster raster = img.getData();
 	for (int r = 0; r < Height; r++)
 	    for (int c = 0; c < Width; c++)
-		Data[r][c] = new Color(raster.getSample(c, r, 0),
-				       raster.getSample(c, r, 1),
-				       raster.getSample(c, r, 2));
+		Data[r][c] = new Color(img.getRGB(c, r));
     }
+
+    /** http://www.jguru.com/forums/view.jsp?EID=828091 */
+    private BufferedImage convertRenderedImage(RenderedImage img) {
+	if (img instanceof BufferedImage) {
+	    return (BufferedImage)img;
+	}
+	ColorModel cm = img.getColorModel();
+	int width = img.getWidth();
+	int height = img.getHeight();
+	WritableRaster raster = cm.createCompatibleWritableRaster(width, height);
+	boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+	Hashtable properties = new Hashtable();
+	String[] keys = img.getPropertyNames();
+	if (keys!=null) {
+	    for (int i = 0; i < keys.length; i++) {
+		properties.put(keys[i], img.getProperty(keys[i]));
+	    }
+	}
+	BufferedImage result = new BufferedImage(cm, raster, isAlphaPremultiplied, properties);
+	img.copyData(raster);
+	return result;
+    }
+
     
     public String toString() {
 	return "[image " + Height + " " + Width + "]";
