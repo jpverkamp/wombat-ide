@@ -159,6 +159,9 @@ public class KawaWrap {
 			// Otherwise return the answer.
 			else
 				return formatObject(result);
+		} catch (OutOfMemoryError ex) {
+		    o_ex = ex;
+		    err = "Error: Out of memory.";
 
 		} catch (StackOverflowError ex) {
 			o_ex = ex;
