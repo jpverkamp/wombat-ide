@@ -53,6 +53,10 @@ public class BracketMatcher implements CaretListener {
 			int pos = e.getDot() - 1;
         
             if (pos >= 0 && pos < textArea.getText().length() && "()[]".contains(textArea.code.getDocument().getText(pos, 1))) {
+		// skip character literals
+		if (pos >= 2 && "#\\".equals(textArea.code.getDocument().getText(pos - 2, 2)))
+		    return;
+
                 // Find the matching bracket.
                 String text = textArea.code.getDocument().getText(0, textArea.code.getDocument().getLength());
                 
@@ -64,8 +68,8 @@ public class BracketMatcher implements CaretListener {
                 int index;
                 boolean foundMatch = false;
                 for (matchPos = pos; matchPos >= 0 && matchPos < text.length(); matchPos += d) {
-                	if (d < 0) {
-	                	index = text.lastIndexOf(';', matchPos);
+		    if (d < 0) {
+			    index = text.lastIndexOf(';', matchPos);
 	                    if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
 	                    	matchPos = index;
 	                    	continue;
@@ -91,6 +95,10 @@ public class BracketMatcher implements CaretListener {
                 	}
                 	
                 	c = text.charAt(matchPos);
+
+			// ignore character literals
+			if (matchPos >= 2 && "#\\".equals(text.substring(matchPos - 2, matchPos)))
+			    continue;
                     
                     if (!brackets.isEmpty() && brackets.peek() == c) {
                         brackets.pop();
@@ -103,7 +111,6 @@ public class BracketMatcher implements CaretListener {
             				 (brackets.peek() == '[' && c == '(') ||
             				 (brackets.peek() == ')' && c == ']') ||
             				 (brackets.peek() == ']' && c == ')'))) {
-                    	
                     	foundMatch = false;
                     	break;
                     }

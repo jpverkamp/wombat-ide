@@ -247,6 +247,10 @@ public class SchemeTextArea extends JPanel {
                 	i = text.lastIndexOf("#|", index);
                 	continue;
                 }
+
+		// Ignore character literals
+		if (i >= 2 && text.charAt(i - 1) == '\\' && text.charAt(i - 2) == '#')
+		    continue;
                 
                 if (c == ')') brackets.push('(');
                 if (c == ']') brackets.push('[');
