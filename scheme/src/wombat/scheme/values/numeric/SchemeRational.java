@@ -23,6 +23,13 @@ public class SchemeRational extends SchemeNumber<BigRational> {
 			Value = new BigRational(new BigInteger(value), BigInteger.ONE);
 		}
 	}
+	
+	public SchemeNumber<?> _add(SchemeNumber<?> that) {
+		return new SchemeRational(
+				Value.Numerator.add(((SchemeRational) that).Value.Numerator),
+				Value.Denomiator.add(((SchemeRational) that).Value.Denomiator)
+			);
+	}
 }
 
 class BigRational extends Number {

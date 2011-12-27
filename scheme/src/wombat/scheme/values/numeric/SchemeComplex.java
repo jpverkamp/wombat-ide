@@ -28,6 +28,13 @@ public class SchemeComplex extends SchemeNumber<BigComplex> {
 			Value = new BigComplex(new BigDecimal(value), BigDecimal.ZERO);
 		} 
 	}
+	
+	public SchemeNumber<?> _add(SchemeNumber<?> that) {
+		return new SchemeComplex(
+				Value.Real.add(((SchemeComplex) that).Value.Real),
+				Value.Imagionary.add(((SchemeComplex) that).Value.Imagionary)
+			);
+	}
 }
 
 class BigComplex extends Number {

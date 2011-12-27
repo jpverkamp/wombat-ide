@@ -32,6 +32,15 @@ public abstract class SchemeNumber<T extends Number> extends SchemeObject<T> {
 	}
 	
 	/**
+	 * Add another number to this.
+	 */
+	public SchemeNumber<?> add(SchemeNumber<?> that) {
+		Class<? extends SchemeNumber<?>> to = matchTypes(this, that);
+		return this.convert(to)._add(that.convert(to)).simplify();
+	}
+	abstract SchemeNumber<?> _add(SchemeNumber<?> that);
+	
+	/**
 	 * Match the types of two Scheme numbers.
 	 * @param a The first number.
 	 * @param b The second number.
@@ -104,7 +113,7 @@ public abstract class SchemeNumber<T extends Number> extends SchemeObject<T> {
 		if (this instanceof SchemeRational && ((SchemeRational) this).Value.Denomiator.equals(BigInteger.ONE))
 			return new SchemeInteger(((SchemeRational) this).Value.Numerator);
 		else if (this instanceof SchemeComplex && ((SchemeComplex) this).Value.Imagionary.equals(BigDecimal.ZERO))
-			return new SchemeReal(((SchemeComplex) this).Value.Imagionary);
+			return new SchemeReal(((SchemeComplex) this).Value.Real);
 		else
 			return this;
 	}

@@ -12,4 +12,8 @@ public class SchemeReal extends SchemeNumber<BigDecimal> {
 	public SchemeReal(String value) {
 		super(new BigDecimal(value));
 	}
+	
+	public SchemeNumber<?> _add(SchemeNumber<?> that) {
+		return new SchemeReal(Value.add(((SchemeReal) that).Value));
+	}
 }

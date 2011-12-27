@@ -12,4 +12,8 @@ public class SchemeInteger extends SchemeNumber<BigInteger> {
 	public SchemeInteger(String value) {
 		super(new BigInteger(value));
 	}
+	
+	public SchemeNumber<?> _add(SchemeNumber<?> that) {
+		return new SchemeInteger(Value.add(((SchemeInteger) that).Value));
+	}
 }
