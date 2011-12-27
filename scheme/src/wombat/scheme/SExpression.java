@@ -87,6 +87,19 @@ public class SExpression extends SchemeObject<Object> {
 			return "#<broken s-expression>";
 	}
 	
+	/**
+	 * Convert to a string for debuggin.
+	 * @return That string.
+	 */
+	public String toString() {
+		if (isLiteral())
+			return LiteralValue.toString();
+		else if (isList()) 
+			return Arrays.toString(ListValue.toArray());
+		else
+			return "#<broken s-expression>";
+	}
+	
 	
 	/**
 	 * Is this a literal value?
@@ -125,7 +138,8 @@ public class SExpression extends SchemeObject<Object> {
 	 * @param next The new value as a literal.
 	 */
 	public void add(SchemeObject<?> next) {
-		ListValue.add(SExpression.literal(next));
+		if (next != null)
+			ListValue.add(SExpression.literal(next));
 	}
 	
 	/**
@@ -133,6 +147,7 @@ public class SExpression extends SchemeObject<Object> {
 	 * @param next The new value as an s-expression.
 	 */
 	public void add(SExpression next) {
-		ListValue.add(next);
+		if (next != null)
+			ListValue.add(next);
 	}
 }

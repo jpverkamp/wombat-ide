@@ -1,6 +1,5 @@
 package wombat.scheme;
 
-import wombat.scheme.errors.SchemeRuntimeError;
 import wombat.scheme.values.*;
 
 /**
@@ -22,6 +21,6 @@ public class Evaluator {
 		if (sexp.isLiteral())
 			return sexp.getLiteral();
 		else 
-			throw new SchemeRuntimeError(sexp, "Not implemented");
+			return new SchemeVoid();
 	}
 }

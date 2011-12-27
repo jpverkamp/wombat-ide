@@ -15,6 +15,44 @@ public class Parser {
 	int Index; // Current index into that code
 	int Line, Column; // Line and column number of the index.
 	
+	static final ParsePattern[] LiteralPatterns = new ParsePattern[]{
+		new ParsePattern("boolean", "#[tfTF]") {
+			SchemeObject<?> read() {
+				return new SchemeBoolean(LastMatch.group().toLowerCase().charAt(1) == 't');
+			}
+		},
+		
+		new ParsePattern("complex", "\\d+(\\.\\d*)?[\\+-]\\d+(\\.\\d*)?i") {
+			SchemeObject<?> read() {
+				return new SchemeComplex(LastMatch.group());
+			}
+		},
+		
+		new ParsePattern("real", "\\d+\\.\\d*") {
+			SchemeObject<?> read() {
+				return new SchemeReal(LastMatch.group());
+			}
+		},
+		
+		new ParsePattern("rational", "\\d+/\\d+") {
+			SchemeObject<?> read() {
+				return new SchemeRational(LastMatch.group());
+			}
+		},
+		
+		new ParsePattern("integer", "\\d") {
+			SchemeObject<?> read() {
+				return new SchemeInteger(LastMatch.group());
+			}
+		},
+		
+		new ParsePattern("symbol", "[A-Za-z0-9!$%&*+-./:<=>?@^_~]+") {
+			SchemeObject<?> read() { 
+				return new SchemeSymbol(LastMatch.group());
+			}
+		},
+	};
+	
 	/**
 	 * Parse code into a list of e-expressions. Each will be evaluated in turn.
 	 * @param code The code to parse.
@@ -53,7 +91,7 @@ public class Parser {
 	 * @return True or false.
 	 */
 	public boolean hasNext() {
-		return Index != Code.length();
+		return Index < Code.length();
 		
 	}
 	
@@ -62,8 +100,6 @@ public class Parser {
 	 * @return The next s-expression.
 	 */
 	public SExpression next() {
-		System.err.println("At " + Line + ":" + Column + " -- " + Code.substring(Index));
-		
 		// Removing leading whitespace.
 		for (; Index < Code.length(); Index++) {
 			if (Character.isWhitespace(Code.charAt(Index))) {
@@ -77,6 +113,8 @@ public class Parser {
 				break;
 			}
 		}
+		
+		System.out.println("At " + Line + ":" + Column + " -- " + Code.substring(Index));
 		
 		// If we finished, return.
 		if (Index >= Code.length())
@@ -112,19 +150,69 @@ public class Parser {
 				throw new SchemeParseError(sublist, "Mismatched brackets.");
 		}
 	
-		// Otherwise, match against literal types.
-		Matcher match;
-		
-		// Integer.
-		Pattern reInteger = Pattern.compile("\\d+");
-		if ((match = reInteger.matcher(Code.substring(Index))).find()) {
-			SExpression result = SExpression.literal(new SchemeInteger(match.group())).at(Line, Column);
-			Index += match.group().length();
-			Column += match.group().length();
-			return result;
+		// Otherwise, match against literal types.		
+		for (ParsePattern pattern : LiteralPatterns) {
+			if (pattern.match(Code.substring(Index))) {
+				SExpression result = SExpression.literal(pattern.read()).at(Line, Column);
+				
+				System.out.println("Parsed " + pattern.Type + " -- " + result);
+				
+				Index += pattern.Length;
+				Column += pattern.Length;
+				return result;
+			}
 		}
 		
 		// Nothing matches, fall up a level.
 		return null;
 	}
+}
+
+/**
+ * Represent individual literal parse patterns.
+ */
+abstract class ParsePattern {
+	String Type;
+	Pattern Regex;
+	Matcher LastMatch;
+	int Length;
+	
+	/**
+	 * Create a new parse pattern.
+	 * @param type The type to parse (used only for debugging).
+	 * @param re The regular expression (matches at the beginning of the string).
+	 */
+	public ParsePattern(String type, String re) {
+		Type = type;
+		
+		if (re.length() > 1 && !(re.charAt(0) == '^'))
+			re = '^' + re;
+		
+		Regex = Pattern.compile(re);
+	}
+	
+	/**
+	 * Does the pattern match the given code?
+	 * Sets the LastGroup variable.
+	 * 
+	 * @param code The code to match.
+	 * @return If the code matches the pattern.
+	 */
+	boolean match(String code) {
+		LastMatch = Regex.matcher(code);
+		boolean result = LastMatch.find();
+		
+		if (result)
+			Length = LastMatch.group().length();
+		else
+			Length = -1;
+		
+		return result;
+	}
+	
+	/**
+	 * Use the variable set by match to create a Scheme object.
+	 * @return The parsed object.
+	 */
+	abstract SchemeObject<?> read();
 }
