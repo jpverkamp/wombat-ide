@@ -30,6 +30,12 @@ public class Parser {
 			}
 		},
 		
+		new ParsePattern("character", "#\\\\[A-Za-z]+") {
+			SchemeObject<?> read() {
+				return new SchemeCharacter(LastMatch.group().substring(2));
+			}
+		},
+		
 		new ParsePattern("complex", "\\d+(\\.\\d*)?[\\+-]\\d+(\\.\\d*)?i") {
 			SchemeObject<?> read() {
 				return new SchemeComplex(LastMatch.group());
