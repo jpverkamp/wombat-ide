@@ -51,4 +51,12 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 		else
 			return "#<procedure " + Name + ">";
 	}
+
+	/**
+	 * Get this procedure's name.
+	 * @return The name.
+	 */
+	public String getName() {
+		return Name;
+	}
 }

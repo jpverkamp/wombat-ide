@@ -47,7 +47,7 @@ public class Environment {
 	public SchemeObject<?> get(SchemeSymbol key) {
 		String skey = key.getValue();
 		
-		if (Values.containsKey(key))
+		if (Values.containsKey(skey))
 			return Values.get(skey);
 		else if (Parent != null)
 			return Parent.get(key);
@@ -63,7 +63,7 @@ public class Environment {
 	public void set(SchemeSymbol key, SchemeObject<?> val) {
 		String skey = key.getValue();
 		
-		if (Values.containsKey(key))
+		if (Values.containsKey(skey))
 			Values.put(skey, val);
 		else if (Parent != null)
 			Parent.set(key, val);
@@ -78,5 +78,13 @@ public class Environment {
 	 */
 	public void define(SchemeSymbol key, SchemeObject<?> val) {
 		Values.put(key.getValue(), val);
+	}
+	
+	/**
+	 * Define a new procedure (they already contain their name).
+	 * @param proc The new procedure.
+	 */
+	public void defineProcedure(SchemeProcedure proc) {
+		Values.put(proc.getName(), proc);
 	}
 }
