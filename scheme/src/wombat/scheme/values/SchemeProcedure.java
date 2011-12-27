@@ -1,5 +1,9 @@
 package wombat.scheme.values;
 
+import java.util.Arrays;
+
+import wombat.scheme.errors.SchemeRuntimeError;
+
 /**
  * Creates a procedure.
  */
@@ -24,6 +28,39 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 		Name = name;
 	}
 	
+	
+	/**
+	 * Verify an exact argument count.
+	 * @param argCount The amount we got. 
+	 * @param expectedArgCount The amount we expected.
+	 */
+	public void verifyExactArity(int argCount, int expectedArgCount) {
+		if (argCount != expectedArgCount)
+			throw new SchemeRuntimeError(this, "Incorrent number of arguments to " + write() + ", expected " + expectedArgCount + ", got " + argCount);
+	}
+
+	/**
+	 * Verify a variable argument count.
+	 * @param argCount THe amount we got.
+	 * @param expectedMinArgCount The amount we expected (at minimum)
+	 */
+	public void verifyMinimumArity(int argCount, int expectedMinArgCount) {
+		if (argCount < expectedMinArgCount)
+			throw new SchemeRuntimeError(this, "Incorrent number of arguments to " + write() + ", expected at least " + expectedMinArgCount + ", got " + argCount);
+	}
+	
+	/**
+	 * Verify a variable arg count (from a case-lambda for example)
+	 * @param argCount The number of arguments.
+	 * @param possibleArgCounts The possible argument counts.
+	 */
+	public void verifyListArity(int argCount, int... possibleArgCounts) {
+		for (int possibleArgCount : possibleArgCounts)
+			if (argCount == possibleArgCount)
+				return;
+		
+		throw new SchemeRuntimeError(this, "Incorrent number of arguments to " + write() + ", expected " + Arrays.toString(possibleArgCounts) + ", got " + argCount);
+	}
 	
 	/**
 	 * Apply the procedure.
