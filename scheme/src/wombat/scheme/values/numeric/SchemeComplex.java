@@ -1,4 +1,4 @@
-package values.numeric;
+package wombat.scheme.values.numeric;
 
 import java.math.BigDecimal;
 

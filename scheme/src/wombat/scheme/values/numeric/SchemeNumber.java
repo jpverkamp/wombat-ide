@@ -1,11 +1,11 @@
-package values.numeric;
+package wombat.scheme.values.numeric;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import errors.SchemeRuntimeError;
 
-import values.SchemeObject;
+import wombat.scheme.errors.SchemeRuntimeError;
+import wombat.scheme.values.SchemeObject;
 
 /**
  * Represents the numeric tower.
@@ -15,7 +15,7 @@ import values.SchemeObject;
 public abstract class SchemeNumber<T extends Number> extends SchemeObject<T> { 
 	private static final long serialVersionUID = 7750105092519285421L;
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("unchecked")
 	static final Class[] tower = new Class[] {
 		SchemeInteger.class,
 		SchemeRational.class,

@@ -1,4 +1,4 @@
-package values;
+package wombat.scheme.values;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
  */
 public abstract class SchemeObject<T> implements Serializable {
 	private static final long serialVersionUID = 7967428058437269262L;
-	
+
 	protected T Value;
 	
 	/**
@@ -19,6 +19,14 @@ public abstract class SchemeObject<T> implements Serializable {
 	 */
 	public SchemeObject(T value) {
 		Value = value;
+	}
+	
+	/**
+	 * Accessor for the value.
+	 * @return The value.
+	 */
+	public T getValue() {
+		return Value;
 	}
 	
 	/**
@@ -53,7 +61,7 @@ public abstract class SchemeObject<T> implements Serializable {
 	 */
 	public boolean equals(Object that) {
 		return (!(that == null)
-				&& (that instanceof SchemeObject) 
+				&& (that instanceof SchemeObject<?>) 
 				&& ((Value == null && ((SchemeObject<?>) that).Value == null)
 						|| Value.equals(((SchemeObject<?>) that).Value)));
 	}

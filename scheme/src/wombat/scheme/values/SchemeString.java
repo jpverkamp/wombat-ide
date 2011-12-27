@@ -1,4 +1,4 @@
-package values;
+package wombat.scheme.values;
 
 /**
  * A sequence of characters.

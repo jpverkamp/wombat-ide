@@ -1,6 +1,6 @@
-package errors;
+package wombat.scheme.errors;
 
-import values.*;
+import wombat.scheme.values.*;
 
 /**
  * Generic Scheme Error.

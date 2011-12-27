@@ -1,6 +1,6 @@
-package errors;
+package wombat.scheme.errors;
 
-import values.SchemeObject;
+import wombat.scheme.values.SchemeObject;
 
 public class SchemeParseError extends SchemeError {
 	private static final long serialVersionUID = -6327468641560922995L;

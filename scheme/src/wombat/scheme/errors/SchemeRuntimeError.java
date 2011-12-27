@@ -1,7 +1,7 @@
-package errors;
+package wombat.scheme.errors;
 
-import values.SchemeContinuation;
-import values.SchemeObject;
+import wombat.scheme.values.SchemeContinuation;
+import wombat.scheme.values.SchemeObject;
 
 public class SchemeRuntimeError extends SchemeError {
 	private static final long serialVersionUID = 297969606443356635L;
