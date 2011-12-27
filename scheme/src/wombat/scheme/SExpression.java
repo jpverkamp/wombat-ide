@@ -62,6 +62,33 @@ public class SExpression extends SchemeObject<Object> {
 	}
 	
 	/**
+	 * Return a human-readable version of the object (does not have to be machine readable).
+	 * @return That string.
+	 */
+	public String display() {
+		if (isLiteral())
+			return LiteralValue.toString();
+		else if (isList()) 
+			return Arrays.toString(ListValue.toArray());
+		else
+			return "#<broken s-expression>";
+	}
+	
+	/**
+	 * Return a machine-readable version of the object.
+	 * @return That string.
+	 */
+	public String write() {
+		if (isLiteral())
+			return LiteralValue.toString();
+		else if (isList()) 
+			return Arrays.toString(ListValue.toArray());
+		else
+			return "#<broken s-expression>";
+	}
+	
+	
+	/**
 	 * Is this a literal value?
 	 * @return True or false.
 	 */

@@ -27,7 +27,7 @@ public class WombatScheme {
 		
 		List<SExpression> blocks = Parser.parse(code);
 		for (SExpression block : blocks) {
-			sb.append(Evaluator.evaluate(block, Env));
+			sb.append(Evaluator.evaluate(block, Env).display());
 			sb.append("\n");
 		}
 		

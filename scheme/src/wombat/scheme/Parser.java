@@ -1,8 +1,11 @@
 package wombat.scheme;
 
 import java.util.*;
+import java.util.regex.*;
 
-import wombat.scheme.errors.SchemeParseError;
+import wombat.scheme.errors.*;
+import wombat.scheme.values.*;
+import wombat.scheme.values.numeric.*;
 
 /**
  * Parser object, use Parser.parse(...)
@@ -28,6 +31,10 @@ public class Parser {
 			if (next != null)
 				result.add(next);
 		}
+		
+		for (SExpression each : result)
+			System.out.println("parsed: " + each.display());
+		
 		return result;
 	}
 	
@@ -46,7 +53,7 @@ public class Parser {
 	 * @return True or false.
 	 */
 	public boolean hasNext() {
-		return Index == Code.length();
+		return Index != Code.length();
 		
 	}
 	
@@ -55,6 +62,8 @@ public class Parser {
 	 * @return The next s-expression.
 	 */
 	public SExpression next() {
+		System.err.println("At " + Line + ":" + Column + " -- " + Code.substring(Index));
+		
 		// Removing leading whitespace.
 		for (; Index < Code.length(); Index++) {
 			if (Character.isWhitespace(Code.charAt(Index))) {
@@ -103,10 +112,19 @@ public class Parser {
 				throw new SchemeParseError(sublist, "Mismatched brackets.");
 		}
 	
+		// Otherwise, match against literal types.
+		Matcher match;
 		
+		// Integer.
+		Pattern reInteger = Pattern.compile("\\d+");
+		if ((match = reInteger.matcher(Code.substring(Index))).find()) {
+			SExpression result = SExpression.literal(new SchemeInteger(match.group())).at(Line, Column);
+			Index += match.group().length();
+			Column += match.group().length();
+			return result;
+		}
 		
-		
-		// Error!
+		// Nothing matches, fall up a level.
 		return null;
 	}
 }
