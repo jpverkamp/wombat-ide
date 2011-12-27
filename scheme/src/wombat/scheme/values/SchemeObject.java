@@ -64,7 +64,7 @@ public abstract class SchemeObject<T> implements Serializable {
 	 * @return That string.
 	 */
 	public String toString() {
-		return getClass().getName() + "(" + Value.toString() + ")";
+		return (Value.toString() + ":" + getClass().getName()).replaceAll("wombat.scheme.values(.numeric)?.Scheme", "");
 	}
 	
 	/**
