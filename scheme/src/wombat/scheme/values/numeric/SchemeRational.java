@@ -35,6 +35,10 @@ class BigRational extends Number {
 		Numerator = numer;
 		Denomiator = denom;
 	}
+	
+	public String toString() {
+		return Numerator.toString() + "/" + Denomiator.toString();
+	}
 
 	public double doubleValue() {
 		return Numerator.doubleValue() / Denomiator.doubleValue();

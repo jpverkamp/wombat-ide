@@ -16,8 +16,10 @@ public class SchemeComplex extends SchemeNumber<BigComplex> {
 	public SchemeComplex(String value) {
 		super(null);
 		
+		System.err.println("parsing complex: " + value);
+		
 		if (value.contains("+")) {
-			String[] parts = value.replace("i", "").split("+");
+			String[] parts = value.replace("i", "").split("\\+");
 			Value = new BigComplex(new BigDecimal(parts[0]), new BigDecimal(parts[1]));
 		} else if (value.contains("-")) {
 				String[] parts = value.replace("i", "").split("-");
@@ -37,6 +39,13 @@ class BigComplex extends Number {
 	public BigComplex(BigDecimal real, BigDecimal imag) {
 		Real = real;
 		Imagionary = imag;
+	}
+	
+	public String toString() {
+		if (Imagionary.compareTo(BigDecimal.ZERO) >= 0)
+			return Real.toString() + "+" + Imagionary.toString() + "i";
+		else
+			return Real.toString() + Imagionary.toString() + "i";
 	}
 
 	public double doubleValue() {
