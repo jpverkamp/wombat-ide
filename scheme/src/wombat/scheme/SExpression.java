@@ -7,12 +7,36 @@ import wombat.scheme.values.SchemeObject;
 /**
  * Either an object or a list of objects.
  */
-public class SExpression {
+public class SExpression extends SchemeObject<Object> {
+	private static final long serialVersionUID = 4890762867658098391L;
+
 	SchemeObject<?> LiteralValue;
 	List<SExpression> ListValue;
 	
-	private SExpression () {}
+	int Line;
+	int Column;
+	
+	/** Hide constructor. */
+	private SExpression () {
+		super(null);
+	}
 
+	/**
+	 * Set the line and column of this s-expression.
+	 * @param line The line.
+	 * @param column The column.
+	 * @return This s-expression.
+	 */
+	public SExpression at(int line, int column) {
+		Line = line;
+		Column = column;
+		
+		if (isLiteral())
+			LiteralValue.at(line, column);
+		
+		return this;
+	}
+	
 	/**
 	 * Create a new literal value.
 	 * @param value The value to store.

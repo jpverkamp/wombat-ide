@@ -11,6 +11,8 @@ public abstract class SchemeObject<T> implements Serializable {
 	private static final long serialVersionUID = 7967428058437269262L;
 
 	protected T Value;
+	int Line;
+	int Column;
 	
 	/**
 	 * Create a new Scheme object.
@@ -19,6 +21,18 @@ public abstract class SchemeObject<T> implements Serializable {
 	 */
 	public SchemeObject(T value) {
 		Value = value;
+	}
+	
+	/**
+	 * Set the location of this scheme object.
+	 * @param line The line this object was created at.
+	 * @param column The column this object was created at.
+	 * @return This object.
+	 */
+	public SchemeObject<T> at(int line, int column) {
+		Line = line;
+		Column = column;
+		return this;
 	}
 	
 	/**

@@ -14,9 +14,10 @@ public class Evaluator {
 	/**
 	 * Evaluate an s-expression.
 	 * @param sexp The expression to evaluate.
+	 * @param env The environment to evaluate the expression in.
 	 * @return The resulting scheme object.
 	 */
-	public static SchemeObject<?> evaluate(SExpression sexp) {
+	public static SchemeObject<?> evaluate(SExpression sexp, Environment env) {
 		return new SchemeVoid();
 	}
 }
