@@ -13,8 +13,10 @@ import wombat.scheme.values.numeric.*;
 public class Parser {
 	String Code; // Full code to be parsed
 	int Index; // Current index into that code
+	int LastIndex; // Previously used index, used to detect loops
 	int Line, Column; // Line and column number of the index.
 	
+	// List of parseable literals in the order that they will be applied.
 	static final ParsePattern[] LiteralPatterns = new ParsePattern[]{
 		new ParsePattern("boolean", "#[tfTF]") {
 			SchemeObject<?> read() {
@@ -52,6 +54,15 @@ public class Parser {
 			}
 		},
 	};
+
+	// List of sublist prefixes (things like quote/unquote/etc)
+	static final String[][] ParsePrefixes = new String[][]{
+		{",@", "unquote-splicing"},
+		{"'#", "vector"},
+		{"`", "quasiquote"},
+		{",", "unquote"},
+		{"'", "quote"},
+	};
 	
 	/**
 	 * Parse code into a list of e-expressions. Each will be evaluated in turn.
@@ -82,6 +93,7 @@ public class Parser {
 	private Parser(String code) {
 		Code = code;
 		Index = 0;
+		LastIndex = -1;
 		Line = 0;
 		Column = 0;
 	}
@@ -92,7 +104,6 @@ public class Parser {
 	 */
 	public boolean hasNext() {
 		return Index < Code.length();
-		
 	}
 	
 	/**
@@ -100,6 +111,11 @@ public class Parser {
 	 * @return The next s-expression.
 	 */
 	public SExpression next() {
+		// Break out of infinite loops
+		if (Index < Code.length() && Index == LastIndex)
+			throw new SchemeParseError(new SchemeVoid().at(Line, Column), "Unable to continue parsing");
+		LastIndex = Index;
+		
 		// Removing leading whitespace.
 		for (; Index < Code.length(); Index++) {
 			if (Character.isWhitespace(Code.charAt(Index))) {
@@ -150,6 +166,18 @@ public class Parser {
 				throw new SchemeParseError(sublist, "Mismatched brackets.");
 		}
 	
+		// Next, try to match against possible prefixes.
+		for (String[] pair : ParsePrefixes) {
+			if (Code.substring(Index).startsWith(pair[0])) {
+				SExpression longForm = SExpression.literal(new SchemeSymbol(pair[1])).at(Line, Column);
+				
+				Index += pair[0].length();
+				Column += pair[0].length();
+				
+				return SExpression.list(longForm, next());
+			}
+		}
+		
 		// Otherwise, match against literal types.		
 		for (ParsePattern pattern : LiteralPatterns) {
 			if (pattern.match(Code.substring(Index))) {
