@@ -24,6 +24,12 @@ public class Parser {
 			}
 		},
 		
+		new ParsePattern("string", "\"([^\\\"]|\\\\|\\\")*\"") {
+			SchemeObject<?> read() {
+				return new SchemeString(LastMatch.group().substring(1, LastMatch.group().length() - 1));
+			}
+		},
+		
 		new ParsePattern("complex", "\\d+(\\.\\d*)?[\\+-]\\d+(\\.\\d*)?i") {
 			SchemeObject<?> read() {
 				return new SchemeComplex(LastMatch.group());
@@ -54,9 +60,12 @@ public class Parser {
 			}
 		},
 	};
+	
+	// List of prefixes that turn into symbols with a single argument.
 
 	// List of sublist prefixes (things like quote/unquote/etc)
 	static final String[][] ParsePrefixes = new String[][]{
+		{"#u8", "bytevector"},
 		{",@", "unquote-splicing"},
 		{"'#", "vector"},
 		{"`", "quasiquote"},
