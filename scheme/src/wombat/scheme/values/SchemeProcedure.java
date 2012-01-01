@@ -2,7 +2,7 @@ package wombat.scheme.values;
 
 import java.util.Arrays;
 
-import wombat.scheme.errors.SchemeRuntimeError;
+import wombat.scheme.errors.*;
 
 /**
  * Creates a procedure.
@@ -60,6 +60,17 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 				return;
 		
 		throw new SchemeRuntimeError(this, "Incorrent number of arguments to " + write() + ", expected " + Arrays.toString(possibleArgCounts) + ", got " + argCount);
+	}
+	
+	/**
+	 * Verify the type of an argument.
+	 * @param n
+	 * @param arg
+	 * @param expected
+	 */
+	public void verifyTypeOf(int n, SchemeObject<?> arg, String expected) {
+		if (!(arg.getSchemeType().equals(expected)))
+			throw new SchemeRuntimeError(this, expected + " expected as argument " + n + ", got " + arg.getSchemeType() + " '" + arg.display() + "'");
 	}
 	
 	/**

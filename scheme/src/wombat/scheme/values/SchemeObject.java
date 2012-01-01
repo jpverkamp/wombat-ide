@@ -10,6 +10,7 @@ import java.io.Serializable;
 public abstract class SchemeObject<T> implements Serializable {
 	private static final long serialVersionUID = 7967428058437269262L;
 
+	String SchemeType;
 	protected T Value;
 	int Line;
 	int Column;
@@ -20,6 +21,7 @@ public abstract class SchemeObject<T> implements Serializable {
 	 * @param value The Java value to store in the object.
 	 */
 	public SchemeObject(T value) {
+		SchemeType = getClass().getName().replaceAll("wombat.scheme.values(.numeric)?.Scheme", "");
 		Value = value;
 	}
 	
@@ -64,7 +66,7 @@ public abstract class SchemeObject<T> implements Serializable {
 	 * @return That string.
 	 */
 	public String toString() {
-		return (Value.toString() + ":" + getClass().getName()).replaceAll("wombat.scheme.values(.numeric)?.Scheme", "");
+		return Value.toString() + ":" + getSchemeType();
 	}
 	
 	/**
@@ -86,5 +88,13 @@ public abstract class SchemeObject<T> implements Serializable {
 	 */
 	public String getLocation() {
 		return Line + ":" + Column;
+	}
+	
+	/**
+	 * Get the name of the Scheme type of this object. 
+	 * @return The name.
+	 */
+	public String getSchemeType() {
+		return SchemeType;
 	}
 }
