@@ -1,5 +1,9 @@
 package wombat.scheme.values;
 
+import java.util.*;
+
+import wombat.scheme.errors.SchemeRuntimeError;
+
 public class SchemePair extends SchemeObject<Pair> {
 	private static final long serialVersionUID = -4995393512892288973L;
 
@@ -10,6 +14,42 @@ public class SchemePair extends SchemeObject<Pair> {
 	 */
 	public SchemePair(SchemeObject<?> car, SchemeObject<?> cdr) {
 		super(new Pair(car, cdr));
+	}
+	
+	/**
+	 * Generate a list from a java array.
+	 * @param ls The 'list' to make into a list.
+	 */
+	public static SchemePair fromList(SchemeObject<?>[] ls) {
+		SchemeObject<?> cdr = SchemeEmptyList.singleton();
+		for (int i = ls.length - 1; i >= 1; i--)
+			cdr = new SchemePair(ls[i], cdr);
+		
+		return new SchemePair(ls[0], cdr);
+	}
+	
+	/**
+	 * Generate a java array from a list.
+	 * @return An equivalent array.
+	 */
+	public SchemeObject<?>[] toList() {
+		List<SchemeObject<?>> ls = new ArrayList<SchemeObject<?>>();
+		ls.add(Value.Car);
+		
+		SchemeObject<?> cdr = Value.Cdr;
+		do {
+			ls.add(((SchemePair) cdr).Value.Car);
+			cdr = ((SchemePair) cdr).Value.Cdr;
+		} while (cdr instanceof SchemePair);
+		
+		if (cdr instanceof SchemeEmptyList) {
+			SchemeObject<?>[] result = new SchemeObject<?>[ls.size()];
+			for (int i = 0; i < result.length; i++)
+				result[i] = ls.get(i);
+			return result;
+		} else {
+			throw new SchemeRuntimeError(this, "Is not a proper list");
+		}
 	}
 	
 	/**
@@ -92,6 +132,13 @@ public class SchemePair extends SchemeObject<Pair> {
 		
 		sb.append(")");
 		return sb.toString();
+	}
+	
+	/**
+	 * Override because it doesn't use values.
+	 */
+	public String toString() {
+		return display();
 	}
 }
 

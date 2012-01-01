@@ -5,12 +5,22 @@ package wombat.scheme.values;
  */
 public class SchemeEmptyList extends SchemeObject<Object> {
 	private static final long serialVersionUID = 5537628395539291741L;
+	
+	static final SchemeEmptyList Singleton = new SchemeEmptyList();
 
 	/**
 	 * Create a new empty list.
 	 */
-	public SchemeEmptyList() {
+	private SchemeEmptyList() {
 		super(null);
+	}
+	
+	/**
+	 * Return the empty list.
+	 * @return The empty list.
+	 */
+	public static SchemeEmptyList singleton() {
+		return Singleton;
 	}
 	
 	/**

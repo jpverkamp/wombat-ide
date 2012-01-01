@@ -1,6 +1,7 @@
 package wombat.scheme.values;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import wombat.scheme.values.numeric.SchemeInteger;
 
@@ -56,5 +57,12 @@ public class SchemeVector extends SchemeObject<SchemeObject<?>[]> {
 		sb.delete(sb.length() - 1, sb.length());
 		sb.append(")");
 		return sb.toString();
+	}
+	
+	/**
+	 * Override to debug-print vectors.
+	 */
+	public String toString() {
+		return "Vector" + Arrays.toString(Value);
 	}
 }

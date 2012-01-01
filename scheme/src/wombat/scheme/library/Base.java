@@ -13,6 +13,10 @@ public class Base {
 	 * Load base methods.
 	 */
 	public static void load(Environment env) {
+		// From Section 4.1 of R7RS (draft 5)
+		LiteralExpressions.load(env);
+		
+		// From Section 6 of R7RS (draft 5)
 		EquivalencePredicates.load(env);
 		Numbers.load(env);
 		Booleans.load(env);
