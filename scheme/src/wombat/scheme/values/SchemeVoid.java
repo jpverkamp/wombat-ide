@@ -6,11 +6,21 @@ package wombat.scheme.values;
 public class SchemeVoid extends SchemeObject<Object> {
 	private static final long serialVersionUID = 1039101308536892172L;
 
+	static final SchemeVoid Singleton = new SchemeVoid();
+	
 	/**
 	 * Create a new void object.
 	 */
-	public SchemeVoid() {
+	private SchemeVoid() {
 		super(null);
+	}
+	
+	/**
+	 * Get the void.
+	 * @return The void.
+	 */
+	public static SchemeVoid singleton() {
+		return Singleton;
 	}
 	
 	/**
