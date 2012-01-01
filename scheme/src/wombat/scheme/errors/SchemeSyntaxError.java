@@ -1,7 +1,7 @@
 package wombat.scheme.errors;
 
-import wombat.scheme.values.SchemeContinuation;
-import wombat.scheme.values.SchemeObject;
+import wombat.scheme.continuations.*;
+import wombat.scheme.values.*;
 
 public class SchemeSyntaxError extends SchemeError {
 	private static final long serialVersionUID = -6898709884346328744L;
@@ -23,7 +23,7 @@ public class SchemeSyntaxError extends SchemeError {
 	 * @param k A continuation representing the stack trace.
 	 * @param msg A (hopefully) helpful error message.
 	 */
-	public SchemeSyntaxError(SchemeObject<?> src, SchemeContinuation k, String msg) {
+	public SchemeSyntaxError(SchemeObject<?> src, Continuation k, String msg) {
 		super(src, k, msg);
 	}
 }

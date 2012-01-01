@@ -65,8 +65,8 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 	/**
 	 * Apply the procedure.
 	 * 
+	 * @param k What to do after applying the function.
 	 * @param args Arguments to the function.
-	 * @return The result of applying the function.
 	 */
 	public abstract SchemeObject<?> apply(SchemeObject<?>... args);
 	

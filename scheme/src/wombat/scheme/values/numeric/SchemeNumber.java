@@ -15,7 +15,7 @@ import wombat.scheme.values.SchemeObject;
 public abstract class SchemeNumber<T extends Number> extends SchemeObject<T> { 
 	private static final long serialVersionUID = 7750105092519285421L;
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	static final Class[] tower = new Class[] {
 		SchemeInteger.class,
 		SchemeRational.class,

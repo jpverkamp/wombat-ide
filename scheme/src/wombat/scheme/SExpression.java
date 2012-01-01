@@ -16,8 +16,7 @@ public class SExpression extends SchemeObject<Object> {
 	int Line;
 	int Column;
 	
-	/** Hide constructor. */
-	private SExpression () {
+	SExpression () {
 		super(null);
 	}
 

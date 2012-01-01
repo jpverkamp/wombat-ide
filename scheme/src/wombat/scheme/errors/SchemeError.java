@@ -1,5 +1,6 @@
 package wombat.scheme.errors;
 
+import wombat.scheme.continuations.*;
 import wombat.scheme.values.*;
 
 /**
@@ -9,7 +10,7 @@ public abstract class SchemeError extends Error {
 	private static final long serialVersionUID = -7579375473634586976L;
 	
 	SchemeObject<?> Source;
-	SchemeContinuation Stack;
+	Continuation Stack;
 	
 	/**
 	 * Create an Error without a stack trace.
@@ -28,7 +29,7 @@ public abstract class SchemeError extends Error {
 	 * @param k A continuation representing the stack trace.
 	 * @param msg A (hopefully) helpful error message.
 	 */
-	public SchemeError(SchemeObject<?> src, SchemeContinuation k, String msg) {
+	public SchemeError(SchemeObject<?> src, Continuation k, String msg) {
 		super(msg);
 		Source = src;
 		Stack = k;
