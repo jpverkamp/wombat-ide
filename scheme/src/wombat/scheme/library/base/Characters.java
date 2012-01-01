@@ -25,7 +25,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(((SchemeCharacter) args[i]).getValue()) != 
@@ -41,7 +41,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(((SchemeCharacter) args[i]).getValue()) >= 
@@ -57,7 +57,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(((SchemeCharacter) args[i]).getValue()) <= 
@@ -73,7 +73,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(((SchemeCharacter) args[i]).getValue()) > 
@@ -89,7 +89,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(((SchemeCharacter) args[i]).getValue()) < 
@@ -107,7 +107,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(Character.toLowerCase(Character.toLowerCase(((SchemeCharacter) args[i]).getValue()))) != 
@@ -123,7 +123,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(Character.toLowerCase(((SchemeCharacter) args[i]).getValue())) >= 
@@ -139,7 +139,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(Character.toLowerCase(((SchemeCharacter) args[i]).getValue())) <= 
@@ -155,7 +155,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(Character.toLowerCase(((SchemeCharacter) args[i]).getValue())) > 
@@ -171,7 +171,7 @@ public class Characters {
 				verifyMinimumArity(args.length, 2);
 				
 				for (int i = 0; i < args.length; i++)
-					verifyTypeOf(i + 1, args[i], "Character");
+					verifyTypeOf(i + 1, args[i], SchemeCharacter.class);
 				
 				for (int i = 0; i < args.length - 1; i++)
 					if (Character.getNumericValue(Character.toLowerCase(((SchemeCharacter) args[i]).getValue())) < 
@@ -186,7 +186,7 @@ public class Characters {
 		env.defineProcedure(new SchemeProcedure("digit-value") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyExactArity(args.length, 1);
-				verifyTypeOf(1, args[0], "Character");
+				verifyTypeOf(1, args[0], SchemeCharacter.class);
 				
 				if (Character.isDigit(((SchemeCharacter) args[0]).getValue()))
 					return new SchemeInteger(args[0].display());
@@ -199,7 +199,7 @@ public class Characters {
 		env.defineProcedure(new SchemeProcedure("char->integer") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyExactArity(args.length, 1);
-				verifyTypeOf(1, args[0], "Character");
+				verifyTypeOf(1, args[0], SchemeCharacter.class);
 				return new SchemeInteger(Character.getNumericValue(((SchemeCharacter) args[0]).getValue()));
 			}
 		});
@@ -208,7 +208,7 @@ public class Characters {
 		env.defineProcedure(new SchemeProcedure("integer->char") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyExactArity(args.length, 1);
-				verifyTypeOf(1, args[0], "Integer");
+				verifyTypeOf(1, args[0], SchemeInteger.class);
 				
 				if (((SchemeInteger) args[0]).getValue().compareTo(new BigInteger("ffff", 16)) < 0)
 					return new SchemeCharacter((char) ((SchemeInteger) args[0]).getValue().intValue());
@@ -221,7 +221,7 @@ public class Characters {
 		env.defineProcedure(new SchemeProcedure("char-upcase") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyExactArity(args.length, 1);
-				verifyTypeOf(1, args[0], "Character");
+				verifyTypeOf(1, args[0], SchemeCharacter.class);
 				return new SchemeCharacter(Character.toUpperCase((((SchemeCharacter) args[0]).getValue())));
 			}
 		});
@@ -230,7 +230,7 @@ public class Characters {
 		env.defineProcedure(new SchemeProcedure("char-downcase") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyExactArity(args.length, 1);
-				verifyTypeOf(1, args[0], "Character");
+				verifyTypeOf(1, args[0], SchemeCharacter.class);
 				return new SchemeCharacter(Character.toLowerCase((((SchemeCharacter) args[0]).getValue())));
 			}
 		});
@@ -239,7 +239,7 @@ public class Characters {
 		env.defineProcedure(new SchemeProcedure("char-foldcase") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyExactArity(args.length, 1);
-				verifyTypeOf(1, args[0], "Character");
+				verifyTypeOf(1, args[0], SchemeCharacter.class);
 				return new SchemeCharacter(Character.toLowerCase((((SchemeCharacter) args[0]).getValue())));
 			}
 		});

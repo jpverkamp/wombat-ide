@@ -68,9 +68,9 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 	 * @param arg
 	 * @param expected
 	 */
-	public void verifyTypeOf(int n, SchemeObject<?> arg, String expected) {
-		if (!(arg.getSchemeType().equals(expected)))
-			throw new SchemeRuntimeError(this, expected + " expected as argument " + n + ", got " + arg.getSchemeType() + " '" + arg.display() + "'");
+	public void verifyTypeOf(int n, SchemeObject<?> arg, Class<? extends SchemeObject<?>> expected) {
+		if (!expected.isInstance(arg))
+			throw new SchemeRuntimeError(this, "Argument " + n + " expected " + expected.getName().replace(".numeric", "").replace("wombat.scheme.values.Scheme", "") + ", got " + arg.getSchemeType() + " '" + arg.display() + "'");
 	}
 	
 	/**
@@ -98,6 +98,13 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 			return "#<procedure>";
 		else
 			return "#<procedure " + Name + ">";
+	}
+	
+	/**
+	 * Better debugging because there are a lot of these.
+	 */
+	public String toString() {
+		return write();
 	}
 
 	/**
