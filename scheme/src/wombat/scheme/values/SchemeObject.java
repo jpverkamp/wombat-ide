@@ -79,4 +79,12 @@ public abstract class SchemeObject<T> implements Serializable {
 				&& ((Value == null && ((SchemeObject<?>) that).Value == null)
 						|| Value.equals(((SchemeObject<?>) that).Value)));
 	}
+	
+	/**
+	 * Get the location of an error. 
+	 * @return The location.
+	 */
+	public String getLocation() {
+		return Line + ":" + Column;
+	}
 }

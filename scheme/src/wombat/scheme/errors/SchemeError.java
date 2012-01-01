@@ -20,4 +20,8 @@ public abstract class SchemeError extends Error {
 		super(msg);
 		Source = src;
 	}
+	
+	public String getMessage() {
+		return "Error @ " + Source.getLocation() + " -- " + super.getMessage(); 
+	}
 }
