@@ -32,8 +32,7 @@ public class ControlFeatures {
 		
 		// (*map f ls1 ...) applies f to each item in the given lists
 		// * could be nothing for lists, string, or vector
-		env.defineProcedure(new SchemeProcedure("map") {
-			@Override
+		final SchemeProcedure map = new SchemeProcedure("map") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyMinimumArity(args.length, 2);
 				verifyTypeOf(1, args[0], SchemeProcedure.class);
@@ -72,9 +71,10 @@ public class ControlFeatures {
 					results.add(((SchemeProcedure) args[0]).apply(current));
 				}
 			}
-		});
+		};
+		env.defineProcedure(map);
 		
-		env.defineProcedure(new SchemeProcedure("string-map") {
+		final SchemeProcedure stringMap = new SchemeProcedure("string-map") {
 			@Override
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyMinimumArity(args.length, 2);
@@ -109,9 +109,10 @@ public class ControlFeatures {
 						throw new SchemeRuntimeError(this, args[0].display() + " did not return a Character");
 				}
 			}
-		});
+		};
+		env.defineProcedure(stringMap);
 		
-		env.defineProcedure(new SchemeProcedure("vector-map") {
+		final SchemeProcedure vectorMap = new SchemeProcedure("vector-map") {
 			@Override
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
 				verifyMinimumArity(args.length, 2);
@@ -142,14 +143,39 @@ public class ControlFeatures {
 					result.add(((SchemeProcedure) args[0]).apply(current));
 				}
 			}
-		});
+		};
+		env.defineProcedure(vectorMap);
 		
 		// (*for-each f ls1 ...) applies f to each item in the given lists but doesn't return
 		// * could be nothing for lists, string, or vector
+		env.defineProcedure(new SchemeProcedure("for-each") {
+			public SchemeObject<?> apply(SchemeObject<?>... args) {
+				map.apply(args);
+				return SchemeVoid.singleton();
+			}
+		});
 		
+		env.defineProcedure(new SchemeProcedure("string-for-each") {
+			public SchemeObject<?> apply(SchemeObject<?>... args) {
+				stringMap.apply(args);
+				return SchemeVoid.singleton();
+			}
+		});
+		
+		env.defineProcedure(new SchemeProcedure("vector-for-each") {
+			public SchemeObject<?> apply(SchemeObject<?>... args) {
+				vectorMap.apply(args);
+				return SchemeVoid.singleton();
+			}
+		});
 		
 		// TODO: (call-with-current-continuation f)
 		// alias: call/cc
-
+		env.defineProcedure(new SchemeProcedure("call-with-current-continuation") {
+			public SchemeObject<?> apply(SchemeObject<?>... args) {
+				throw new SchemeRuntimeError(this, "Sorry, call/cc is not possible in this system");
+			}
+		});
+		env.define(new SchemeSymbol("call/cc"), env.get(new SchemeSymbol("call-with-current-continuation")));
 	}
 }
