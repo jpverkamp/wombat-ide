@@ -22,6 +22,10 @@ public abstract class SchemeError extends Error {
 	}
 	
 	public String getMessage() {
-		return "Error @ " + Source.getLocation() + " -- " + super.getMessage(); 
+		String sourceName = Source.display();
+		if (sourceName.length() > 40)
+			sourceName = sourceName.substring(0, 40) + "...";
+		
+		return "Error in " + sourceName + " at " + Source.getLocation() + "\n" + super.getMessage(); 
 	}
 }
