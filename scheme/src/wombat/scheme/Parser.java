@@ -30,7 +30,7 @@ public class Parser {
 			}
 		},
 		
-		new ParsePattern("character", "#\\\\[A-Za-z]+") {
+		new ParsePattern("character", "#\\\\[^\\s\\(\\)\\[\\]]+") {
 			SchemeObject<?> read() {
 				return new SchemeCharacter(LastMatch.group().substring(2));
 			}
@@ -54,7 +54,7 @@ public class Parser {
 			}
 		},
 		
-		new ParsePattern("integer", "\\d") {
+		new ParsePattern("integer", "\\d+") {
 			SchemeObject<?> read() {
 				return new SchemeInteger(LastMatch.group());
 			}
