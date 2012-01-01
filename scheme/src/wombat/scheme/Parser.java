@@ -65,6 +65,12 @@ public class Parser {
 				return new SchemeSymbol(LastMatch.group());
 			}
 		},
+		
+		new ParsePattern("hash-sequence", "#[^\\s\\(\\)\\[\\]]+") {
+			SchemeObject<?> read() { 
+				return new SchemeHashSequence(LastMatch.group());
+			}
+		},
 	};
 	
 	// List of prefixes that turn into symbols with a single argument.
@@ -73,7 +79,7 @@ public class Parser {
 	static final String[][] ParsePrefixes = new String[][]{
 		{"#u8", "bytevector"},
 		{",@", "unquote-splicing"},
-		{"'#", "vector"},
+		{"'#", "literal-vector"},
 		{"`", "quasiquote"},
 		{",", "unquote"},
 		{"'", "quote"},
@@ -98,6 +104,7 @@ public class Parser {
 		
 		for (SExpression each : result)
 			System.out.println("parsed: " + each.display());
+		System.out.println();
 		
 		return result;
 	}
@@ -128,7 +135,7 @@ public class Parser {
 	public SExpression next() {
 		// Break out of infinite loops
 		if (Index < Code.length() && Index == LastIndex)
-			throw new SchemeParseError(new SchemeVoid().at(Line, Column), "Unable to continue parsing");
+			throw new SchemeParseError(SchemeVoid.singleton().at(Line, Column), "Unable to continue parsing");
 		LastIndex = Index;
 		
 		// Removing leading whitespace.
@@ -145,7 +152,7 @@ public class Parser {
 			}
 		}
 		
-		System.out.println("At " + Line + ":" + Column + " -- " + Code.substring(Index));
+//		 System.out.println("At " + Line + ":" + Column + " -- " + Code.substring(Index));
 		
 		// If we finished, return.
 		if (Index >= Code.length())
@@ -198,7 +205,7 @@ public class Parser {
 			if (pattern.match(Code.substring(Index))) {
 				SExpression result = SExpression.literal(pattern.read()).at(Line, Column);
 				
-				System.out.println("Parsed " + pattern.Type + " -- " + result);
+//				 System.out.println("Parsed " + pattern.Type + " -- " + result);
 				
 				Index += pattern.Length;
 				Column += pattern.Length;

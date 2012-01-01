@@ -1,5 +1,6 @@
 package wombat.scheme;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 import wombat.scheme.errors.*;
@@ -30,27 +31,75 @@ public class Evaluator {
 		
 		// Keep going until we run out of expressions to evaluate.
 		while (!(sexps.isEmpty())) {
+			// DEBUG
+			System.out.println(" Sexps: " + Arrays.toString(sexps.toArray()));
+			System.out.println("  Envs: " + Arrays.toString(envs.toArray()));
+			System.out.println("Values: " + Arrays.toString(values.toArray()));
+			System.out.println();
+			
+			
 			sexp = sexps.pop();
 			env = envs.pop();
 		
 			// Deal with tags.
 			if (sexp instanceof Tag) {
+				// Check if we're going to be doing a macro or a procedure
+				if (sexp instanceof ProcedureOrMacroTag) {
+					// Get the procedure and the rest of the arguments
+					SchemeObject<?> procOrMacro = values.pop();
+					SExpression rands = sexps.pop();
+					
+					// Deal with macros.
+					if (procOrMacro instanceof SchemeMacro) {
+						// Push the arguments back on directly, then the macro
+						for (int i = rands.getList().size() - 1; i >= 1; i--)
+							values.push(rands.getList().get(i));
+						values.push(procOrMacro);
+					}
+					
+					// Deal with procedures (has to be second because Macro is a subclass)
+					else if (procOrMacro instanceof SchemeProcedure) {
+						// Push the procedure, then the arguments to evaluate.
+						sexps.push(SExpression.literal(procOrMacro));
+						envs.push(env);
+						for (int i = 1; i < rands.getList().size(); i++) {
+							sexps.push(rands.getList().get(i));
+							envs.push(env);
+						}						
+					}
+					
+					// Otherwise, this isn't applyable
+					else 
+						throw new SchemeRuntimeError(procOrMacro, procOrMacro.display() + " is not a procedure");
+					
+					// Either way, push the thing to run back on.
+					
+				}
+				
 				// Application.
-				if (sexp instanceof ApplicationTag) {
+				else if (sexp instanceof ApplicationTag) {
 					// Get the rator and rands off the stack.
 					SchemeObject<?> rator = values.pop();
 					SchemeObject<?>[] rands = new SchemeObject<?>[((ApplicationTag) sexp).Args];
 					for (int i = 0; i < rands.length; i++)
 						rands[i] = values.pop();
 					
-					// Evaluate procedures
-					if (rator instanceof SchemeProcedure)
-						values.push(((SchemeProcedure) rator).apply(rands));
-						
-					// TODO: Evaluate macros
-					//else if 
+					// Evaluate macros (might return either an s-expression or a literal
+					if (rator instanceof SchemeMacro) {
+						SchemeObject<?> result = ((SchemeProcedure) rator).apply(rands);
+						if (result instanceof SExpression) {
+							sexps.push((SExpression) result);
+							envs.push(env);
+						} else {
+							values.push(result);
+						}
+					}
 					
-					// Otherwise, it's not a procedure. EXPLODE!
+					// Evaluate procedures / macros (they're both really the same thing now)
+					else if (rator instanceof SchemeProcedure)
+						values.push(((SchemeProcedure) rator).apply(rands)); 
+					
+					// Otherwise, it's not a procedure or a macro. EXPLODE!
 					else
 						throw new SchemeRuntimeError(rator, rator.display() + " is not a procedure");
 				}
@@ -77,12 +126,17 @@ public class Evaluator {
 				// This will tell us when to actually do the evaluation and how many arguments it wants
 				sexps.push(new ApplicationTag(sexp.getList().size() - 1));
 				envs.push(env);
+
+				// Push this s-expression back, the next tag will pull it back off and do what it needs to
+				sexps.push(sexp);
 				
-				// Push the rator then the rands to evaluate them (each with it's own environment)
-				for (SExpression each : sexp.getList()) {
-					sexps.push(each);
-					envs.push(env);
-				}
+				// Push the choice we'll have to make if we're going to do a macro or a procedure.
+				sexps.push(new ProcedureOrMacroTag());
+				envs.push(env);
+				
+				// Now push the rator/rand
+				sexps.push(sexp.getList().get(0));
+				envs.push(env);
 			}
 		}
 		
@@ -113,4 +167,11 @@ class ApplicationTag extends Tag {
 	public ApplicationTag(int args) {
 		Args = args;
 	}
+}
+
+/**
+ * Tag to check if we're dealing with a procedure or a macro.
+ */
+class ProcedureOrMacroTag extends Tag {
+	private static final long serialVersionUID = -4881239183721789528L;
 }

@@ -87,4 +87,37 @@ public class Environment {
 	public void defineProcedure(SchemeProcedure proc) {
 		Values.put(proc.getName(), proc);
 	}
+	
+	/**
+	 * Define a new macro (they already contain their name).
+	 * @param proc The new macro.
+	 */
+	public void defineMacro(SchemeMacro proc) {
+		Values.put(proc.getName(), proc);
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		
+		if (Parent != null) {
+			
+			for (String key : Values.keySet()) {
+				sb.append(key);
+				sb.append("=");
+				sb.append(Values.get(key));
+				sb.append(", ");
+			}
+			if (!Values.isEmpty()) {
+				sb.delete(sb.length() - 2, sb.length());
+				sb.append("; ");
+			}
+			String subs = Parent.toString();
+			sb.append(subs.substring(1, subs.length() - 1));
+		}
+		
+		sb.append("}");
+			
+		return sb.toString();
+	}
 }

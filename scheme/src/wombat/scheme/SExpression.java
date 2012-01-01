@@ -3,6 +3,7 @@ package wombat.scheme;
 import java.util.*;
 
 import wombat.scheme.values.SchemeObject;
+import wombat.scheme.values.SchemePair;
 
 /**
  * Either an object or a list of objects.
@@ -95,6 +96,8 @@ public class SExpression extends SchemeObject<Object> {
 			return LiteralValue.toString();
 		else if (isList()) 
 			return Arrays.toString(ListValue.toArray());
+		else if (this instanceof Tag)
+			return getClass().getName().replace("wombat.scheme.", "");
 		else
 			return "#<broken s-expression>";
 	}
@@ -149,4 +152,20 @@ public class SExpression extends SchemeObject<Object> {
 		if (next != null)
 			ListValue.add(next);
 	}
+	
+	/**
+	 * Convert to a regular literal/list.
+	 * @return A literal / list.
+	 */
+	public SchemeObject<?> deSExpression() {
+		if (isLiteral())
+			return getLiteral();
+		else {
+			SchemeObject<?>[] ls = new SchemeObject<?>[getList().size()];
+			for (int i = 0; i < ls.length; i++)
+				ls[i] = getList().get(i).deSExpression();
+			return SchemePair.fromList(ls);
+		}
+	}
+	
 }
