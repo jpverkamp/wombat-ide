@@ -14,4 +14,15 @@ public class SchemeRuntimeError extends SchemeError {
 	public SchemeRuntimeError(SchemeObject<?> src, String msg) {
 		super(src, msg);
 	}
+
+	/**
+	 * Create a runtime error with irritants.
+	 * 
+	 * @param src The object that caused the Error.
+	 * @param msg A (hopefully) helpful error message.
+	 * @param irritants Any other irritants that might help debugging.
+	 */
+	public SchemeRuntimeError(SchemeProcedure src, String msg, SchemeObject<?>[] irritants) {
+		super(src, msg, irritants);
+	}
 }
