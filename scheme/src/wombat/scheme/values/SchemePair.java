@@ -153,4 +153,10 @@ class Pair {
 		Car = car;
 		Cdr = cdr;
 	}
+	
+	public boolean equals(Object that) {
+		return (that instanceof Pair
+				&& Car.equals(((Pair) that).Car)
+				&& Cdr.equals(((Pair) that).Cdr));
+	}
 }

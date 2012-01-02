@@ -39,4 +39,10 @@ public class SchemeEmptyList extends SchemeObject<Object> {
 		return "()";
 	}
 
+	/**
+	 * Check if equal.
+	 */
+	public boolean equals(Object other) {
+		return other instanceof SchemeEmptyList;
+	}
 }

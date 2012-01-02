@@ -38,5 +38,12 @@ public class SchemeVoid extends SchemeObject<Object> {
 	public String write() {
 		return "#<void>";
 	}
-
+	
+	/**
+	 * Check if two voids are equal.
+	 * @return They aren't.
+	 */
+	public boolean equals() {
+		return false;
+	}
 }
