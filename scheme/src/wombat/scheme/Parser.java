@@ -24,7 +24,7 @@ public class Parser {
 			}
 		},
 		
-		new ParsePattern("string", "\"([^\\\"]|\\\\|\\\")*\"") {
+		new ParsePattern("string", "\"([^\\\\\"]|\\\\.)*\"") {
 			SchemeObject<?> read() {
 				return new SchemeString(LastMatch.group().substring(1, LastMatch.group().length() - 1));
 			}
