@@ -20,7 +20,10 @@ public class SchemePair extends SchemeObject<Pair> {
 	 * Generate a list from a java array.
 	 * @param ls The 'list' to make into a list.
 	 */
-	public static SchemePair fromList(SchemeObject<?>[] ls) {
+	public static SchemeObject<?> fromList(SchemeObject<?>[] ls) {
+		if (ls.length == 0)
+			return SchemeEmptyList.singleton();
+		
 		SchemeObject<?> cdr = SchemeEmptyList.singleton();
 		for (int i = ls.length - 1; i >= 1; i--)
 			cdr = new SchemePair(ls[i], cdr);
