@@ -3,6 +3,7 @@ package wombat.scheme.library.base;
 import java.util.*;
 
 import wombat.scheme.*;
+import wombat.scheme.errors.SchemeNotImplementedError;
 import wombat.scheme.errors.SchemeRuntimeError;
 import wombat.scheme.values.*;
 
@@ -173,7 +174,7 @@ public class ControlFeatures {
 		// alias: call/cc
 		env.defineProcedure(new SchemeProcedure("call-with-current-continuation") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
-				throw new SchemeRuntimeError(this, "Sorry, call/cc is not possible in this system");
+				throw new SchemeNotImplementedError(this);
 			}
 		});
 		env.define(new SchemeSymbol("call/cc"), env.get(new SchemeSymbol("call-with-current-continuation")));
