@@ -114,4 +114,12 @@ public abstract class SchemeProcedure extends SchemeObject<Object> {
 	public String getName() {
 		return Name;
 	}
+
+	/**
+	 * Rename the procedure.
+	 * @param value The new name.
+	 */
+	public void setName(String name) {
+		Name = name;
+	}
 }

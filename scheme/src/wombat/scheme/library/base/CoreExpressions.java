@@ -102,29 +102,6 @@ public class CoreExpressions {
 				verifyListArity(args.length, 2, 3);
 				
 				// Tag that can contain the branches and will choose between them based on the top value.
-				class IfTag extends Tag {
-					SExpression OnTrue;
-					SExpression OnFalse;
-					
-					public IfTag(SExpression onTrue, SExpression onFalse) {
-						OnTrue = onTrue;
-						OnFalse = onFalse;
-					}
-					
-					public void apply(
-							Stack<SExpression> sexps,
-							Stack<Environment> envs,
-							Stack<SchemeObject<?>> values, 
-							Environment env) {
-						
-						SchemeObject<?> cond = values.pop();
-						if (cond instanceof SchemeBoolean && !((SchemeBoolean) cond).getValue())
-							sexps.push(OnFalse);
-						else
-							sexps.push(OnTrue);
-						envs.push(env);
-					}
-				}
 				sexps.push(new IfTag(args[1], args.length == 2 ? SExpression.literal(SchemeVoid.singleton()) : args[2]));
 				envs.push(env);
 				
@@ -132,13 +109,128 @@ public class CoreExpressions {
 				sexps.push(args[0]);
 				envs.push(env);
 			}
-			
 		});
 		
-		// if
-		// set!
-		// define
+		env.defineMacro(new SchemeMacro("set!") {
+			public void macroApply(
+					Stack<SExpression> sexps,
+					Stack<Environment> envs,
+					Stack<SchemeObject<?>> values,
+					Environment env, SExpression... args) {
+				
+				verifyExactArity(args.length, 2);
+				if (args[0].isLiteral())
+					verifyTypeOf(1, args[0].getLiteral(), SchemeSymbol.class);
+				else
+					verifyTypeOf(1, args[0], SchemeSymbol.class);
+				
+				// Push on a tag that will do that actual setting.
+				sexps.push(new SetBangTag((SchemeSymbol) args[0].getLiteral()));
+				envs.push(env);
+				
+				// Then push on the value to evaluate.
+				sexps.push(args[1]);
+				envs.push(env);
+			}
+		});
+		
+		env.defineMacro(new SchemeMacro("define") {
+			public void macroApply(
+					Stack<SExpression> sexps,
+					Stack<Environment> envs,
+					Stack<SchemeObject<?>> values,
+					Environment env, SExpression... args) {
+				
+				verifyExactArity(args.length, 2);
+				if (args[0].isLiteral())
+					verifyTypeOf(1, args[0].getLiteral(), SchemeSymbol.class);
+				else
+					verifyTypeOf(1, args[0], SchemeSymbol.class);
+				
+				// Push on a tag that will do that actual setting.
+				sexps.push(new DefineTag((SchemeSymbol) args[0].getLiteral()));
+				envs.push(env);
+				
+				// Then push on the value to evaluate.
+				sexps.push(args[1]);
+				envs.push(env);
+			}
+		});
 	}
 	
 	
+}
+
+class IfTag extends Tag {
+	private static final long serialVersionUID = 3729440849677325667L;
+	
+	SExpression OnTrue;
+	SExpression OnFalse;
+	
+	public IfTag(SExpression onTrue, SExpression onFalse) {
+		OnTrue = onTrue;
+		OnFalse = onFalse;
+	}
+	
+	public void apply(
+			Stack<SExpression> sexps,
+			Stack<Environment> envs,
+			Stack<SchemeObject<?>> values, 
+			Environment env) {
+		
+		SchemeObject<?> cond = values.pop();
+		if (cond instanceof SchemeBoolean && !((SchemeBoolean) cond).getValue())
+			sexps.push(OnFalse);
+		else
+			sexps.push(OnTrue);
+		envs.push(env);
+	}
+}
+
+class SetBangTag extends Tag {
+	private static final long serialVersionUID = -6219294329111768317L;
+	
+	SchemeSymbol Name;
+	
+	public SetBangTag(SchemeSymbol name) {
+		Name = name;
+	}
+	
+	public void apply(
+			Stack<SExpression> sexps,
+			Stack<Environment> envs,
+			Stack<SchemeObject<?>> values, 
+			Environment env) {
+		
+		SchemeObject<?> toSet = values.pop();
+		if (toSet instanceof SchemeProcedure)
+			((SchemeProcedure) toSet).setName(Name.getValue());
+		
+		env.set(Name, toSet);
+		values.push(SchemeVoid.singleton());
+	}
+}
+
+class DefineTag extends Tag {
+	private static final long serialVersionUID = 2046247061891921114L;
+	
+	SchemeSymbol Name;
+	
+	public DefineTag(SchemeSymbol name) {
+		Name = name;
+	}
+	
+	public void apply(
+			Stack<SExpression> sexps,
+			Stack<Environment> envs,
+			Stack<SchemeObject<?>> values, 
+			Environment env) {
+		
+		SchemeObject<?> toSet = values.pop();
+		if (toSet instanceof SchemeProcedure)
+			((SchemeProcedure) toSet).setName(Name.getValue());
+		
+		env.define(Name, toSet);
+		values.push(SchemeVoid.singleton());
+	}
 }
