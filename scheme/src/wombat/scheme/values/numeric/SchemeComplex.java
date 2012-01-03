@@ -16,8 +16,6 @@ public class SchemeComplex extends SchemeNumber<BigComplex> {
 	public SchemeComplex(String value) {
 		super(null);
 		
-		System.err.println("parsing complex: " + value);
-		
 		if (value.contains("+")) {
 			String[] parts = value.replace("i", "").split("\\+");
 			Value = new BigComplex(new BigDecimal(parts[0]), new BigDecimal(parts[1]));
