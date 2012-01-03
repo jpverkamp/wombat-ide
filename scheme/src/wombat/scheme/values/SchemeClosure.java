@@ -1,12 +1,9 @@
 package wombat.scheme.values;
 
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
 
-import wombat.scheme.Environment;
-import wombat.scheme.SExpression;
-import wombat.scheme.Tag;
-import wombat.scheme.errors.SchemeSyntaxError;
+import wombat.scheme.*;
+import wombat.scheme.errors.*;
 
 
 /**
@@ -81,17 +78,19 @@ public class SchemeClosure extends SchemeMacro {
 			Environment env,
 			SchemeObject<?>... args) {
 		
-		if (Rest != null)
-			if (Params != null) // otherwise accepts any number of arguments
+		if (Rest == null) {
+			if (Params == null) {
+				throw new SchemeSyntaxError(this, "Malformed closure, no parameters set");
+			} else {
+				verifyExactArity(args.length, Params.length);
+			}
+		} else {
+			if (Params == null) {
+				// any arity with only a rest parameter so no need to verify
+			} else {
 				verifyMinimumArity(args.length, Params.length);
-		else
-			verifyExactArity(args.length, Params.length);
-		
-		System.err.println("closure:");
-		if (Params != null) System.err.println("\tparams: " + Arrays.toString(Params));
-		if (Rest != null) System.err.println("\trest: " + Rest);
-		System.err.println("\tvalues: " + Arrays.toString(args));
-		System.err.println("\told env: " + ClosureEnv);
+			}
+		}
 		
 		// Build the new environment
 		Environment newEnv = ClosureEnv.extend();
@@ -101,13 +100,11 @@ public class SchemeClosure extends SchemeMacro {
 		}
 		if (Rest != null) {
 			int restStart = (Params == null ? 0 : Params.length);
-			SchemeObject<?>[] ls = new SchemeObject<?>[Params.length - restStart];
+			SchemeObject<?>[] ls = new SchemeObject<?>[args.length - restStart];
 			for (int i = 0; i < ls.length; i++)
 				ls[i] = args[i - restStart];
 			newEnv.define(Rest, SchemePair.fromList(ls));
 		}
-		
-		System.err.println("\tnew env: " + newEnv);
 		
 		// Push each body with the new environment
 		// Also push something to eat the value from each except the last
