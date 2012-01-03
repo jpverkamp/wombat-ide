@@ -188,8 +188,15 @@ public class CoreExpressions {
 					
 					// Now, build the new closure and then store them
 
+					// (define (name) bodies ...) => (define name (lambda () bodies ...)
+					if (args[0].getList().size() == 1) {
+						SchemeClosure toDefine = new SchemeClosure(new SchemeSymbol[0], env, bodies);
+						toDefine.setName(name.getValue());
+						env.define(name, toDefine);
+					}
+					
 					// (define (name . x) bodies ...) => (define name (lambda x bodies ...))
-					if (args[0].getList().size() == 3 && ((SchemeSymbol) args[0].getList().get(1).getLiteral()).isDot()) {
+					else if (args[0].getList().size() == 3 && ((SchemeSymbol) args[0].getList().get(1).getLiteral()).isDot()) {
 						SchemeSymbol rest = ((SchemeSymbol) args[0].getList().get(size - 1).getLiteral());
 						
 						SchemeClosure toDefine = new SchemeClosure(rest, env, bodies);
