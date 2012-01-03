@@ -2,8 +2,6 @@ package wombat.scheme;
 
 import java.util.*;
 
-import wombat.scheme.library.*;
-
 /**
  * Wrapper for the parser and evaluator together.
  */
@@ -16,12 +14,7 @@ public class WombatScheme {
 	 */
 	public WombatScheme() {
 		// Create an environment and load in the base library.
-		Env = Environment.empty();
-		Base.load(Env);
-		
-		// Extend the environment.
-		Env = Env.extend();
-		
+		Env = Environment.base();
 		Running = true;
 	}
 	

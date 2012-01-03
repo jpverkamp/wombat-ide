@@ -1,5 +1,7 @@
 package wombat.scheme.library.base;
 
+import java.util.Stack;
+
 import wombat.scheme.*;
 import wombat.scheme.errors.SchemeRuntimeError;
 import wombat.scheme.values.*;
@@ -14,12 +16,18 @@ public class Vectors {
 		});
 		
 		env.defineMacro(new SchemeMacro("literal-vector") {
-			public SchemeObject<?> macroApply(SExpression... args) {
+			public void macroApply(
+					final Stack<SExpression> sexps,
+					final Stack<Environment> envs, 
+					final Stack<SchemeObject<?>> values,
+					final Environment env, 
+					SExpression... args) {
+				
 				verifyExactArity(args.length, 1);
 				if (args[0].isList())
-					return new SchemeVector(((SchemePair) args[0].deSExpression()).toList());
+					values.push(new SchemeVector(((SchemePair) args[0].deSExpression()).toList()));
 				else
-					throw new SchemeRuntimeError(this, args[0].getLiteral() + " is not a valid vector");
+					throw new SchemeRuntimeError(this, args[0].getLiteral() + " is not a valid vector");				
 			}
 		});
 	}

@@ -10,7 +10,7 @@ import wombat.scheme.errors.*;
 public abstract class SchemeProcedure extends SchemeObject<Object> {
 	private static final long serialVersionUID = 6809643481710108526L;
 	
-	String Name;
+	protected String Name;
 	
 	/**
 	 * Create a new anonymous procedure.

@@ -32,78 +32,17 @@ public class Evaluator {
 		// Keep going until we run out of expressions to evaluate.
 		while (!(sexps.isEmpty())) {
 			// DEBUG
-			System.out.println(" Sexps: " + Arrays.toString(sexps.toArray()));
-			System.out.println("  Envs: " + Arrays.toString(envs.toArray()));
-			System.out.println("Values: " + Arrays.toString(values.toArray()));
+			System.out.println(" Sexps (" + sexps.size() + "): " + Arrays.toString(sexps.toArray()));
+			System.out.println("  Envs (" + envs.size() + "): " + Arrays.toString(envs.toArray()));
+			System.out.println("Values (" + values.size() + "): " + Arrays.toString(values.toArray()));
 			System.out.println();
-			
-			
+
 			sexp = sexps.pop();
 			env = envs.pop();
 		
 			// Deal with tags.
-			if (sexp instanceof Tag) {
-				// Check if we're going to be doing a macro or a procedure
-				if (sexp instanceof ProcedureOrMacroTag) {
-					// Get the procedure and the rest of the arguments
-					SchemeObject<?> procOrMacro = values.pop();
-					SExpression rands = sexps.pop();
-					
-					// Deal with macros.
-					if (procOrMacro instanceof SchemeMacro) {
-						// Push the arguments back on directly, then the macro
-						for (int i = rands.getList().size() - 1; i >= 1; i--)
-							values.push(rands.getList().get(i));
-						values.push(procOrMacro);
-					}
-					
-					// Deal with procedures (has to be second because Macro is a subclass)
-					else if (procOrMacro instanceof SchemeProcedure) {
-						// Push the procedure, then the arguments to evaluate.
-						sexps.push(SExpression.literal(procOrMacro));
-						envs.push(env);
-						for (int i = 1; i < rands.getList().size(); i++) {
-							sexps.push(rands.getList().get(i));
-							envs.push(env);
-						}						
-					}
-					
-					// Otherwise, this isn't applyable
-					else 
-						throw new SchemeRuntimeError(procOrMacro, procOrMacro.display() + " is not a procedure");
-					
-					// Either way, push the thing to run back on.
-					
-				}
-				
-				// Application.
-				else if (sexp instanceof ApplicationTag) {
-					// Get the rator and rands off the stack.
-					SchemeObject<?> rator = values.pop();
-					SchemeObject<?>[] rands = new SchemeObject<?>[((ApplicationTag) sexp).Args];
-					for (int i = 0; i < rands.length; i++)
-						rands[i] = values.pop();
-					
-					// Evaluate macros (might return either an s-expression or a literal
-					if (rator instanceof SchemeMacro) {
-						SchemeObject<?> result = ((SchemeProcedure) rator).apply(rands);
-						if (result instanceof SExpression) {
-							sexps.push((SExpression) result);
-							envs.push(env);
-						} else {
-							values.push(result);
-						}
-					}
-					
-					// Evaluate procedures / macros (they're both really the same thing now)
-					else if (rator instanceof SchemeProcedure)
-						values.push(((SchemeProcedure) rator).apply(rands)); 
-					
-					// Otherwise, it's not a procedure or a macro. EXPLODE!
-					else
-						throw new SchemeRuntimeError(rator, rator.display() + " is not a procedure");
-				}
-			}
+			if (sexp instanceof Tag)
+				((Tag) sexp).apply(sexps, envs, values, env);
 			
 			// Deal with literals
 			else if (sexp.isLiteral()) {
@@ -129,6 +68,7 @@ public class Evaluator {
 
 				// Push this s-expression back, the next tag will pull it back off and do what it needs to
 				sexps.push(sexp);
+				envs.push(env);
 				
 				// Push the choice we'll have to make if we're going to do a macro or a procedure.
 				sexps.push(new ProcedureOrMacroTag());
@@ -146,13 +86,6 @@ public class Evaluator {
 }
 
 /**
- * Tags that will be inserted into the s-expression stack to signify interesting things to do.
- */
-abstract class Tag extends SExpression {
-	private static final long serialVersionUID = -4350298610979134739L;
-} 
-
-/**
  * Apply something with the given number of arguments.
  */
 class ApplicationTag extends Tag {
@@ -167,6 +100,49 @@ class ApplicationTag extends Tag {
 	public ApplicationTag(int args) {
 		Args = args;
 	}
+
+	/**
+	 * Apply the application.
+	 * 
+	 * @param sexps The stack of s-expression to manipulate.
+	 * @param envs The stack of environments (must have one per s-expression).
+	 * @param values The stack of values already evaluated.
+	 * @param env The current environment.
+	 */
+	public void apply(
+			Stack<SExpression> sexps, 
+			Stack<Environment> envs,
+			Stack<SchemeObject<?>> values, 
+			Environment env) {
+			
+		// Get the rator and rands off the stack.
+		SchemeObject<?> rator = values.pop();
+		SchemeObject<?>[] rands = new SchemeObject<?>[Args];
+		for (int i = 0; i < rands.length; i++)
+			rands[i] = values.pop();
+		
+		// Evaluate closures
+		if (rator instanceof SchemeClosure) {
+			((SchemeClosure) rator).closureApply(sexps, envs, values, env, rands);
+		}
+		
+		// Evaluate macros
+		else if (rator instanceof SchemeMacro) {
+			SExpression[] serands = new SExpression[rands.length];
+			for (int i = 0; i < serands.length; i++)
+				serands[i] = (SExpression) rands[i];
+			
+			((SchemeMacro) rator).macroApply(sexps, envs, values, env, serands);
+		}
+		
+		// Evaluate procedures / macros (they're both really the same thing now)
+		else if (rator instanceof SchemeProcedure)
+			values.push(((SchemeProcedure) rator).apply(rands)); 
+		
+		// Otherwise, it's not a procedure or a macro. EXPLODE!
+		else
+			throw new SchemeRuntimeError(rator, rator.display() + " is not a procedure");
+	}
 }
 
 /**
@@ -174,4 +150,58 @@ class ApplicationTag extends Tag {
  */
 class ProcedureOrMacroTag extends Tag {
 	private static final long serialVersionUID = -4881239183721789528L;
+
+	/**
+	 * Apply the tag.
+	 * 
+	 * @param sexps The stack of s-expression to manipulate.
+	 * @param envs The stack of environments (must have one per s-expression).
+	 * @param values The stack of values already evaluated.
+	 * @param env The current environment.
+	 */
+	public void apply(
+			Stack<SExpression> sexps, 
+			Stack<Environment> envs,
+			Stack<SchemeObject<?>> values, 
+			Environment env) {
+
+		// Get the procedure and the rest of the arguments
+		SchemeObject<?> procOrMacro = values.pop();
+		SExpression rands = sexps.pop();
+		envs.pop();
+		
+		// Deal with closures.
+		if (procOrMacro instanceof SchemeClosure) {
+			// Push the procedure, then the arguments to evaluate.
+			sexps.push(SExpression.literal(procOrMacro));
+			envs.push(env);
+			for (int i = 1; i < rands.getList().size(); i++) {
+				sexps.push(rands.getList().get(i));
+				envs.push(env);
+			}						
+		}
+		
+		// Deal with macros.
+		else if (procOrMacro instanceof SchemeMacro) {
+			// Push the arguments back on directly, then the macro
+			for (int i = rands.getList().size() - 1; i >= 1; i--)
+				values.push(rands.getList().get(i));
+			values.push(procOrMacro);
+		}
+		
+		// Deal with procedures (has to be second because Macro is a subclass)
+		else if (procOrMacro instanceof SchemeProcedure) {
+			// Push the procedure, then the arguments to evaluate.
+			sexps.push(SExpression.literal(procOrMacro));
+			envs.push(env);
+			for (int i = 1; i < rands.getList().size(); i++) {
+				sexps.push(rands.getList().get(i));
+				envs.push(env);
+			}						
+		}
+		
+		// Otherwise, this isn't applyable
+		else 
+			throw new SchemeRuntimeError(procOrMacro, procOrMacro.display() + " is not a procedure");
+	}
 }

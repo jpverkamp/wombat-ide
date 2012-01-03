@@ -3,6 +3,7 @@ package wombat.scheme;
 import java.util.*;
 
 import wombat.scheme.errors.SchemeRuntimeError;
+import wombat.scheme.library.Base;
 import wombat.scheme.values.*;
 
 
@@ -12,6 +13,7 @@ import wombat.scheme.values.*;
 public class Environment {
 	Environment Parent;
 	Map<String, SchemeObject<?>> Values;
+	boolean IsBase = false;
 	
 	/**
 	 * No constructor, use empty() or extend().
@@ -26,6 +28,17 @@ public class Environment {
 	 */
 	public static Environment empty() {
 		Environment env = new Environment();
+		return env;
+	}
+	
+	/**
+	 * Load an environment with all of the base parameters loaded.
+	 * @return The base environment.
+	 */
+	public static Environment base() {
+		Environment env = new Environment();
+		Base.load(env);
+		env.IsBase = true;
 		return env;
 	}
 	
@@ -96,12 +109,17 @@ public class Environment {
 		Values.put(proc.getName(), proc);
 	}
 	
+	/**
+	 * Debug print for environments. 
+	 * @return The default print.
+	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		
-		if (Parent != null) {
-			
+		if (IsBase) {
+			sb.append("§");
+		} else {
 			for (String key : Values.keySet()) {
 				sb.append(key);
 				sb.append("=");
@@ -112,8 +130,10 @@ public class Environment {
 				sb.delete(sb.length() - 2, sb.length());
 				sb.append("; ");
 			}
-			String subs = Parent.toString();
-			sb.append(subs.substring(1, subs.length() - 1));
+			if (Parent != null) {
+				String subs = Parent.toString();
+				sb.append(subs.substring(1, subs.length() - 1));
+			}
 		}
 		
 		sb.append("}");

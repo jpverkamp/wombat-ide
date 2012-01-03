@@ -13,4 +13,12 @@ public class SchemeSymbol extends SchemeObject<String> {
 	public SchemeSymbol(String value) {
 		super(value);
 	}
+	
+	/**
+	 * Check if I'm a dot.
+	 * @return Am I a dot? DOTDOTDOT
+	 */
+	public boolean isDot() {
+		return ".".equals(Value);
+	}
 }

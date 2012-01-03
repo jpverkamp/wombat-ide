@@ -12,8 +12,8 @@ public abstract class SchemeObject<T> implements Serializable {
 
 	String SchemeType;
 	protected T Value;
-	int Line;
-	int Column;
+	protected int Line;
+	protected int Column;
 	
 	/**
 	 * Create a new Scheme object.

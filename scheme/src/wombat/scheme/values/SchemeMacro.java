@@ -1,6 +1,9 @@
 package wombat.scheme.values;
 
-import wombat.scheme.SExpression;
+import java.util.*;
+
+import wombat.scheme.*;
+import wombat.scheme.errors.SchemeSyntaxError;
 
 /**
  * Creates a procedure.
@@ -41,19 +44,21 @@ public abstract class SchemeMacro extends SchemeProcedure {
 	 * @param args Arguments to the function.
 	 */
 	public SchemeObject<?> apply(SchemeObject<?>... args) {
-		SExpression[] sargs = new SExpression[args.length];
-		for (int i = 0; i < args.length; i++) {
-			verifyTypeOf(1, args[0], SExpression.class);
-			sargs[i] = (SExpression) args[i];
-		}
-		
-		return macroApply(sargs);
+		throw new SchemeSyntaxError(this, "Macros should not be called as procedures");
 	}
 	
 	/**
 	 * Special apply function for macros. Override this one instead of the other in gneral.
-	 * @param args
-	 * @return
+	 * @param sexps The stack of s-expression to manipulate.
+	 * @param envs The stack of environments (must have one per s-expression).
+	 * @param values The stack of values already evaluated.
+	 * @param env The current environment.
+	 * @param args Any arguments to the macro (as s-expressions).
 	 */
-	public abstract SchemeObject<?> macroApply(SExpression... args);
+	public abstract void macroApply(
+			final Stack<SExpression> sexps, 
+			final Stack<Environment> envs, 
+			final Stack<SchemeObject<?>> values,
+			final Environment env,
+			SExpression... args);
 }
