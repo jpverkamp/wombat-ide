@@ -92,6 +92,49 @@ public class CoreExpressions {
 			}
 		});
 		
+		env.defineMacro(new SchemeMacro("if") {
+			public void macroApply(
+					Stack<SExpression> sexps,
+					Stack<Environment> envs,
+					Stack<SchemeObject<?>> values,
+					Environment env, SExpression... args) {
+				
+				verifyListArity(args.length, 2, 3);
+				
+				// Tag that can contain the branches and will choose between them based on the top value.
+				class IfTag extends Tag {
+					SExpression OnTrue;
+					SExpression OnFalse;
+					
+					public IfTag(SExpression onTrue, SExpression onFalse) {
+						OnTrue = onTrue;
+						OnFalse = onFalse;
+					}
+					
+					public void apply(
+							Stack<SExpression> sexps,
+							Stack<Environment> envs,
+							Stack<SchemeObject<?>> values, 
+							Environment env) {
+						
+						SchemeObject<?> cond = values.pop();
+						if (cond instanceof SchemeBoolean && !((SchemeBoolean) cond).getValue())
+							sexps.push(OnFalse);
+						else
+							sexps.push(OnTrue);
+						envs.push(env);
+					}
+				}
+				sexps.push(new IfTag(args[1], args.length == 2 ? SExpression.literal(SchemeVoid.singleton()) : args[2]));
+				envs.push(env);
+				
+				// Then push on the conditional so it gets evaluated.
+				sexps.push(args[0]);
+				envs.push(env);
+			}
+			
+		});
+		
 		// if
 		// set!
 		// define
