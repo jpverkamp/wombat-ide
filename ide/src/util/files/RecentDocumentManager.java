@@ -31,7 +31,7 @@ public class RecentDocumentManager {
 
 		// Old documents fall off.
 		while (fileList.size() > 10)
-			fileList.remove(10);
+			fileList.remove(0);
 		
 		// Rebuild the menu.
 		rebuildMenu();
@@ -45,9 +45,14 @@ public class RecentDocumentManager {
 			// Send the file list to all of the listeners.
 			menu.removeAll();
 			JMenuItem item;
-//			for (final File each : fileList) {
 			for (int i = fileList.size() - 1; i >= 0; i--) {
 				final File each = fileList.get(i);
+				
+				if (!each.exists()) {
+					fileList.remove(i);
+					continue;
+				}
+				
 				item = new JMenuItem(each.getPath());
 				item.addActionListener(new ActionListener() {
 					@Override
