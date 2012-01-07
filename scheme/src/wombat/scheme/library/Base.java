@@ -13,22 +13,22 @@ public class Base {
 	 * Load base methods.
 	 */
 	public static void load(Environment env) {
-		// From Section 4.1 of R7RS (draft 5)
-		CoreExpressions.load(env);
-		
-		// From Section 6 of R7RS (draft 5)
-		EquivalencePredicates.load(env);
-		Numbers.load(env);
-		Booleans.load(env);
-		PairsAndLists.load(env);
-		Symbols.load(env);
-		Characters.load(env);
-		Strings.load(env);
-		Vectors.load(env);
+		BindingConstructs.load(env);
 		Bytevectors.load(env);
+		Characters.load(env);
+		Conditionals.load(env);
 		ControlFeatures.load(env);
-		Exceptions.load(env);
+		DelayedEvaluation.load(env);
+		DynamicBindings.load(env);
+		EquivalencePredicates.load(env);
 		Eval.load(env);
+		Exceptions.load(env);
 		InputAndOutput.load(env);
+		Numbers.load(env);
+		PairsAndLists.load(env);
+		Sequencing.load(env);
+		Strings.load(env);
+		Symbols.load(env);
+		Vectors.load(env);
 	}
 }

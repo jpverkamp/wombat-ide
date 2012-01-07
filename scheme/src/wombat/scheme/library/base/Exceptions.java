@@ -1,6 +1,9 @@
 package wombat.scheme.library.base;
 
+import java.util.Stack;
+
 import wombat.scheme.Environment;
+import wombat.scheme.SExpression;
 import wombat.scheme.errors.*;
 import wombat.scheme.values.*;
 
@@ -57,6 +60,18 @@ public class Exceptions {
 		
 		env.defineProcedure(new SchemeProcedure("error-object-irritants") {
 			public SchemeObject<?> apply(SchemeObject<?>... args) {
+				throw new SchemeNotImplementedError(this);
+			}
+		});
+		
+		env.defineMacro(new SchemeMacro("guard") {
+			public void macroApply(
+					final Stack<SExpression> sexps, 
+					final Stack<Environment> envs, 
+					final Stack<SchemeObject<?>> values,
+					final Environment env,
+					SExpression... args
+					) {
 				throw new SchemeNotImplementedError(this);
 			}
 		});
