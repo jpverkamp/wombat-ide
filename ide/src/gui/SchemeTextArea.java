@@ -153,7 +153,7 @@ public class SchemeTextArea extends JPanel {
     	}
     	
     	// Remove extra whitespace at the end of the file.
-    	if (Character.isWhitespace(text.charAt(text.length() - 1))) {
+    	if (text.length() > 0 && Character.isWhitespace(text.charAt(text.length() - 1))) {
 	    	int pos = code.getCaretPosition();
 	    	text = getText().replaceAll("\\s+$", "");
 	    	setText(text);

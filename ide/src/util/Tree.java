@@ -117,7 +117,7 @@ public class Tree {
 		}
 				
 		// My node.
-		String s = Value.toString();
+		String s = KawaWrap.formatObject(Value);
 		FontMetrics fm = g.getFontMetrics();
 		int w = fm.stringWidth(s);
 		
@@ -126,7 +126,7 @@ public class Tree {
 		g.setColor(Color.BLACK);
 		g.drawOval(x - w / 2 - 10, y - 15, w + 20, 30);
 		
-		g.drawString(Value.toString(), x - fm.stringWidth(s) / 2, y + fm.getAscent() / 2);
+		g.drawString(s, x - fm.stringWidth(s) / 2, y + fm.getAscent() / 2);
 	}
 	
 	/**
