@@ -8,23 +8,15 @@
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="subants" description="recursively build the parts of the project">
-		<subant target="">
-            <fileset dir="./ide/" includes="*/build.xml"/>
-		</subant>
-		
-		<subant target="">
-            <fileset dir="./petite/" includes="*/build.xml"/>
-		</subant>
-		
-		<subant target="">
-            <fileset dir="./launcher/" includes="*/build.xml"/>
-		</subant>
-		
-		<copy todir="${dist-dir}">
-			<fileset dir="./ide/dist" />
-			<fileset dir="./petite/dist" />
-			<fileset dir="./launcher/dist" />
-		</copy>
+	  <ant dir="./ide/" />
+	  <ant dir="./petite/" />
+	  <ant dir="./launcher/" />
+	  
+	  <copy todir="${dist-dir}">
+	    <fileset dir="./ide/dist" />
+	    <fileset dir="./petite/dist" />
+	    <fileset dir="./launcher/dist" />
+	  </copy>
 	</target>
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
