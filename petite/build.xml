@@ -8,13 +8,13 @@
 	<property name="bin-dir" location="bin" />
 	<property name="jar-dir" location="dist" />
 	
-	<property name="jar-name" location="petite-8.4.jar" />
+	<property name="jar-name" value="petite-8.4.jar" />
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="build" description="build the source ">
 		<mkdir dir="${bin-dir}" />
 
-		<javac srcdir="${src-dir}" destdir="${bin-dir}" classpathref="classpath" includeantruntime="false" />
+		<javac srcdir="${src-dir}" destdir="${bin-dir}" includeantruntime="false" />
 
 		<copy todir="${bin-dir}">
 			<fileset dir="${src-dir}" />
@@ -25,10 +25,9 @@
 	<target name="jar" depends="build" description="generate a jar file">
 		<mkdir dir="${jar-dir}" />
 
-		<jar jarfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
+		<jar destfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
 			<manifest>
 				<attribute name="Main-Class" value="Petite" />
-				<attribute name="Class-Path" value="${libs}" />
 			</manifest>
 		</jar>
 	</target>

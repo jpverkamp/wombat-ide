@@ -13,7 +13,7 @@ public class Petite {
 					while (true) {
 						if (p.hasOutput()) {
 							System.out.println(p.getOutput());
-							System.out.print("§ ");
+							System.out.print(">> ");
 						}
 						
 						try { Thread.sleep(10); } catch (InterruptedException e) {}
