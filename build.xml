@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="wombat" default="subants">
+	<description>
+    	Build file for Wombat in general.
+	</description>
+
+	<property name="dist-dir" location="dist" />
+	
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="subants" description="recursively build the parts of the project">
+		<subant target="">
+            <fileset dir="./ide/" includes="*/build.xml"/>
+		</subant>
+		
+		<subant target="">
+            <fileset dir="./petite/" includes="*/build.xml"/>
+		</subant>
+		
+		<subant target="">
+            <fileset dir="./launcher/" includes="*/build.xml"/>
+		</subant>
+		
+		<copy todir="${dist-dir}">
+			<fileset dir="./ide/dist" />
+			<fileset dir="./petite/dist" />
+			<fileset dir="./launcher/dist" />
+		</copy>
+	</target>
+	
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="clean" description="remove all of the extra files / directories">
+		<delete dir="${dist-dir}" />
+	</target>
+</project>
