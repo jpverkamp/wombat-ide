@@ -27,7 +27,7 @@
 
 		<jar destfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
 			<manifest>
-				<attribute name="Main-Class" value="Petite" />
+				<attribute name="Main-Class" value="wombat.scheme.Petite" />
 			</manifest>
 		</jar>
 	</target>
