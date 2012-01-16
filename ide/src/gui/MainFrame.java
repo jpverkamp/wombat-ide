@@ -1,32 +1,24 @@
 package gui;
 
-import gnu.mapping.OutPort;
 import icons.IconManager;
 
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
+import javax.swing.event.*;
 import javax.swing.text.BadLocationException;
 
-import wombat.DocumentManager;
-import wombat.Options;
-import wombat.Wombat;
-import wombat.launcher.Updater;
-import util.KawaWrap;
-import util.errors.ErrorListener;
-import util.errors.ErrorManager;
+import wombat.*;
+import util.errors.*;
 
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
+import java.io.*;
 import java.util.*;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
+
+import wombat.scheme.*;
 
 /**
  * Create a main frame.
@@ -39,7 +31,7 @@ public class MainFrame extends JFrame {
 	
 	// Display components.
 	RootWindow Root;
-    KawaWrap Kawa;
+	Petite Petite;
     StringViewMap ViewMap;
     
     // Toolbar.
@@ -55,9 +47,6 @@ public class MainFrame extends JFrame {
     NonEditableTextArea Display;
     NonEditableTextArea Debug;
     REPLTextArea REPL;
-    
-    // Output/error redirect.
-    SchemePrinter OutErr;
 
     /**
      * Don't directly create this, use me().
@@ -146,12 +135,6 @@ public class MainFrame extends JFrame {
         Root.setWindow(fullSplit);
         add(Root);
         
-        // Connect to Kawa.
-        OutErr = new SchemePrinter("Display", Display);
-        OutPort.setOutDefault(OutErr);
-        OutPort.setErrDefault(OutErr);
-        Kawa = new KawaWrap();
-        
         // Add a toolbar.
         ToolBar = new JToolBar();
         ToolBarRun = new JButton(MenuManager.itemForName("Run").getAction());
@@ -210,27 +193,35 @@ public class MainFrame extends JFrame {
 		ToolBar.addSeparator();
         ToolBar.add(RowColumn);
         
-        // Add a check for updating.
-        if (Wombat.AllowUpdate) {
-        	Thread t = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					ErrorManager.logError("Checking for updates...");
-					try {
-						boolean needsUpdate = Updater.needsUpdate();
-						ErrorManager.logError("Updates necessary? " + needsUpdate);
-						if (needsUpdate)
-							UpdateButton.setVisible(true);
-					} catch (MalformedURLException e) {
-					} catch (IOException e) {
-					}
-				}
-        	});
-        	t.setDaemon(false);
-        	t.start();
-        } else {
-        	ErrorManager.logError("Automatic updates disabled.");
-        }
+     // Connect to Petite.
+        try {
+			Petite = new Petite();
+		} catch (IOException e1) {
+			ErrorManager.logError(e1.getMessage());
+		}
+        Thread petiteOutputThread = new Thread(new Runnable() {
+        	public void run() {
+        		while (true) {
+        			if (Petite.hasOutput())
+        				History.append(Petite.getOutput());
+        			
+        			if ((Running && Petite.isReady())
+        					|| (!Running && !Petite.isReady())) {
+        				Running = !Petite.isReady();
+            			
+            			MenuManager.itemForName("Run").setEnabled(!Running);
+            			ToolBarRun.setEnabled(!Running);
+            	    	
+            			MenuManager.itemForName("Stop").setEnabled(Running);
+            			ToolBarStop.setEnabled(Running);
+        			}
+    				
+        			try { Thread.sleep(20); } catch (InterruptedException e) { }
+        		}
+        	}
+        });
+        petiteOutputThread.setDaemon(true);
+        petiteOutputThread.start();
     }
 
 	/**
@@ -253,41 +244,7 @@ public class MainFrame extends JFrame {
 
         History.append("\n~ " + cmd.replace("\n", "\n  ") + "\n");
         
-        final SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
-			@Override
-			protected String doInBackground() throws Exception {
-				return Kawa.eval(cmd);
-			}
-			
-			@Override
-			protected void done() {
-				try {
-					
-					String result = get();
-					if (result != null)
-			        	History.append(result + "\n");
-					
-					if (OutErr.HasContent)
-						OutErr.showContent();
-					
-					MenuManager.itemForName("Run").setEnabled(true);
-			    	MenuManager.itemForName("Stop").setEnabled(false);
-					
-			    	ToolBarRun.setEnabled(true);
-			    	ToolBarStop.setEnabled(false);
-			    	
-			    	Running = false;
-			    	
-					workers.remove(this);
-					
-				} catch (CancellationException e) {
-				} catch (InterruptedException e) {
-				} catch (ExecutionException e) {
-				}
-			}
-        };
-        worker.execute();
-        workers.add(worker);
+        Petite.sendCommand(cmd);
     }
 
     /**
@@ -326,9 +283,11 @@ public class MainFrame extends JFrame {
 	 * Reset Kawa.
 	 */
 	public void resetKawa() {
-		Kawa.reset();
-		History.setText("");
-		History.append(">>> Environment reset <<<\n");
+//		Kawa.reset();
+//		History.setText("");
+//		History.append(">>> Environment reset <<<\n");
+		
+		History.append(">>> this doesn't work right now :( <<<");
 	}
 
 	/**
@@ -377,9 +336,6 @@ public class MainFrame extends JFrame {
 		
     	ToolBarRun.setEnabled(true);
     	ToolBarStop.setEnabled(false);
-    	
-    	if (OutErr.HasContent)
-			OutErr.showContent();
     	
     	Running = false;
     	
