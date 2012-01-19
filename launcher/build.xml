@@ -28,6 +28,7 @@
 		<jar jarfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
 			<manifest>
 				<attribute name="Main-Class" value="wombat.launcher.Main" />
+				<attribute name="Class-Path" value="./*.jar" />
 			</manifest>
 		</jar>
 	</target>

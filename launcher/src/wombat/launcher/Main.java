@@ -214,7 +214,7 @@ public class Main {
 								"Do you want to download the new files?\n",
 							"Update available", 
 							JOptionPane.YES_NO_OPTION))
-				System.exit(0);
+				return;
 			
 			installThese(toUpdate);
 			
