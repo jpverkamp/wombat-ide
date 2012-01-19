@@ -7,8 +7,11 @@
 	<property name="src-dir" location="src" />
 	<property name="bin-dir" location="bin" />
 	<property name="jar-dir" location="dist" />
+	<property name="lib-dir" location="lib" />
 	
-	<property name="jar-name" value="petite-8.4.jar" />
+	<property name="petite-version" value="8.4" />
+	
+	<property name="jar-name" value="petite-${petite-version}.jar" />
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="build" description="build the source ">
@@ -30,6 +33,12 @@
 				<attribute name="Main-Class" value="wombat.scheme.Petite" />
 			</manifest>
 		</jar>
+		
+		<copy todir="${jar-dir}">
+			<fileset dir="${lib-dir}">
+				<include name="petite-${petite-version}-*/*" />
+			</fileset>
+		</copy>
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->

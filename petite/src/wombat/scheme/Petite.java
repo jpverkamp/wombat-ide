@@ -55,12 +55,13 @@ public class Petite {
      */
 	public Petite() throws IOException {
 		File cd = new File(".").getAbsoluteFile();
+		File lib = new File(cd, "lib");
 
 		// Find the correct Petite directory.
 		File pdir = null;
-		for (String path : cd.list())
+		for (String path : lib.list())
 			if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown"))
-				pdir = new File(cd, path);
+				pdir = new File(lib, path);
 		if (pdir == null)
 			throw new Error("Unable to locate Petite directory.");
 		
