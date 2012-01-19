@@ -15,15 +15,22 @@
 	<property name="deploy-server" value="tank.cs.indiana.edu" />
 	<property name="deploy-dir" value="~/cgi/wombat" />
 
-	<property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
+	<property name="libs" value="idw-gpl.jar" />
 
-	<path id="classpath"><fileset dir="${lib-dir}"><include name="*.jar" /></fileset></path>
+	<path id="classpath">
+		<fileset dir="${lib-dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="../petite/dist">
+			<include name="*.jar" />
+		</fileset>
+	</path>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="version" description="calculate current version">
-		<tstamp><format property="version" pattern="1.D.k" /></tstamp>
+		<tstamp><format property="version" pattern="2.D.k" /></tstamp>
 		<echo>${version}</echo>
-		<property name="jar-name" value="Wombat-${version}.jar" />
+		<property name="jar-name" value="Wombat-ide-${version}.jar" />
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->

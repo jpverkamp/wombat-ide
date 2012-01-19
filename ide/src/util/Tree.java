@@ -117,7 +117,7 @@ public class Tree {
 		}
 				
 		// My node.
-		String s = KawaWrap.formatObject(Value);
+		String s = Value.toString();//KawaWrap.formatObject(Value);
 		FontMetrics fm = g.getFontMetrics();
 		int w = fm.stringWidth(s);
 		
