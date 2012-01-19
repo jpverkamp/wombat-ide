@@ -8,19 +8,39 @@
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="subants" description="recursively build the parts of the project">
-	  <ant dir="./ide/" />
-	  <ant dir="./petite/" />
-	  <ant dir="./launcher/" />
+	  <ant dir="./petite/" target="jar" />
+	  <ant dir="./ide/" target="jar" />
+	  <ant dir="./launcher/" target="jar" />
 	  
-	  <copy todir="${dist-dir}">
+	  <mkdir dir="${dist-dir}/lib" />
+	  
+	  <copy todir="${dist-dir}/lib">
 	    <fileset dir="./ide/dist" />
 	    <fileset dir="./petite/dist" />
 	    <fileset dir="./launcher/dist" />
 	  </copy>
+	  
+	  <move todir="${dist-dir}" file="${dist-dir}/lib/wombat.jar" />
+	  
+	  <copy todir="${dist-dir}" file="version.txt" />
 	</target>
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="clean" description="remove all of the extra files / directories">
+		<ant dir="./ide/" target="clean" />
+		<ant dir="./petite/" target="clean" />
+		<ant dir="./launcher/" target="clean" />
+	
 		<delete dir="${dist-dir}" />
+	</target>
+	
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="run" depends="subants" description="run Wombat">
+		<java 
+			dir="${dist-dir}" 
+			jar="${dist-dir}/wombat.jar" 
+			fork="true" 
+			failonerror="true" 
+		/>
 	</target>
 </project>
