@@ -8,7 +8,7 @@
 	<property name="bin-dir" location="bin" />
 	<property name="jar-dir" location="dist" />
 	
-	<property name="jar-name" value="wombat.jar" />
+	<property name="launcher-jar-name" value="wombat.jar" />
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="build" description="build the source ">
@@ -25,7 +25,7 @@
 	<target name="jar" depends="build" description="generate a jar file">
 		<mkdir dir="${jar-dir}" />
 
-		<jar jarfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
+		<jar jarfile="${jar-dir}/${launcher-jar-name}" basedir="${bin-dir}">
 			<manifest>
 				<attribute name="Main-Class" value="wombat.launcher.Main" />
 				<attribute name="Class-Path" value="./*.jar" />
@@ -41,7 +41,7 @@
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="run" depends="jar" description="build and run">
-		<java dir="${jar-dir}" jar="${jar-dir}/${jar-name}" fork="true" failonerror="true">
+		<java dir="${jar-dir}" jar="${jar-dir}/${launcher-jar-name}" fork="true" failonerror="true">
 			<jvmarg value="-Xss64m" />
 		</java>
 	</target>

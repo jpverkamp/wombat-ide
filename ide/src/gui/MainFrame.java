@@ -13,7 +13,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.util.*;
+//import java.util.*;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
@@ -27,7 +27,7 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 2574330949324570164L;
 
 	// Keep track of execution workers.
-	Queue<SwingWorker<String, Void>> workers = new LinkedList<SwingWorker<String, Void>>();
+//	Queue<SwingWorker<String, Void>> workers = new LinkedList<SwingWorker<String, Void>>();
 	
 	// Display components.
 	RootWindow Root;
@@ -166,11 +166,6 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Reset").getAction()})
         	ToolBar.add(new JButton(a));
         
-        ToolBar.addSeparator();
-        UpdateButton = new JButton(new actions.Update());
-        UpdateButton.setVisible(false);
-        ToolBar.add(UpdateButton);
-        
         /*
         ToolBar.addSeparator();
         ToolBar.add(new JButton(MenuManager.itemForName("Share").getAction()));
@@ -282,12 +277,10 @@ public class MainFrame extends JFrame {
 	/**
 	 * Reset Kawa.
 	 */
-	public void resetKawa() {
-//		Kawa.reset();
-//		History.setText("");
-//		History.append(">>> Environment reset <<<\n");
-		
-		History.append(">>> this doesn't work right now :( <<<");
+	public void resetScheme() {
+		Petite.reset();
+		History.setText("");
+		History.append(">>> Environment reset <<<\n");
 	}
 
 	/**
@@ -325,19 +318,21 @@ public class MainFrame extends JFrame {
 	 * Stop all running worker threads.
 	 */
 	public void stopAllThreads() {
-		while (!workers.isEmpty())
-		{
-			workers.peek().cancel(true);
-			workers.poll();
-		}
+		Petite.stop();
 		
-		MenuManager.itemForName("Run").setEnabled(true);
-    	MenuManager.itemForName("Stop").setEnabled(false);
-		
-    	ToolBarRun.setEnabled(true);
-    	ToolBarStop.setEnabled(false);
-    	
-    	Running = false;
+//		while (!workers.isEmpty())
+//		{
+//			workers.peek().cancel(true);
+//			workers.poll();
+//		}
+//		
+//		MenuManager.itemForName("Run").setEnabled(true);
+//    	MenuManager.itemForName("Stop").setEnabled(false);
+//		
+//    	ToolBarRun.setEnabled(true);
+//    	ToolBarStop.setEnabled(false);
+//    	
+//    	Running = false;
     	
     	History.append("\n>>> Execution halted <<<<\n");
 	}

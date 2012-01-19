@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="wombat" default="subants">
+<project name="wombat" default="recur">
 	<description>
     	Build file for Wombat in general.
 	</description>
@@ -7,11 +7,29 @@
 	<property name="dist-dir" location="dist" />
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="subants" description="recursively build the parts of the project">
+	<target name="version" description="calculate current version">
+		<tstamp><format property="ide-version" pattern="2.D.k" /></tstamp>
+		
+		<property name="jar-name" value="Wombat-ide-${ide-version}.jar" />
+		<property name="petite-version" value="8.4" />
+		
+		<echo>Versions:
+		IDE: ${ide-version}
+		Petite: ${petite-version}</echo>
+	</target>
+	
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="recur" depends="version" description="recursively build the parts of the project">
+	  <echo> ----- Building Petite bindings ----- </echo>
 	  <ant dir="./petite/" target="jar" />
+	  
+	  <echo> ----- Building Wombat IDE ----- </echo>
 	  <ant dir="./ide/" target="jar" />
+	  
+	  <echo> ----- Building Wombat launcher ----- </echo>
 	  <ant dir="./launcher/" target="jar" />
 	  
+	  <echo> ----- Creating distribution directory ----- </echo>
 	  <mkdir dir="${dist-dir}/lib" />
 	  
 	  <copy todir="${dist-dir}/lib">
@@ -21,6 +39,20 @@
 	  </copy>
 	  
 	  <move todir="${dist-dir}" file="${dist-dir}/lib/wombat.jar" />
+	  
+	  <echo> ----- Creating version file ----- </echo>
+	  <echo file="${dist-dir}/version.txt">Wombat,${ide-version},lib/Wombat-ide-${ide-version}.jar
+Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
+Petite Bindings,${petite-version},lib/Petite-${petite-version}.jar
+Petite (Linux) (1 of 2),${petite-version},linux,lib/petite-${petite-version}-linux/petite.boot
+Petite (Linux) (2 of 2),${petite-version},linux,lib/petite-${petite-version}-linux/petite
+Petite (OS X) (1 of 2),${petite-version},osx,lib/petite-${petite-version}-osx/petite.boot
+Petite (OS X) (2 of 2),${petite-version},osx,lib/petite-${petite-version}-osx/petite
+Petite (Windows) (1 of 4),${petite-version},win,lib/petite-${petite-version}-win/csv84.dll
+Petite (Windows) (2 of 4),${petite-version},win,lib/petite-${petite-version}-win/msvcr100.dll
+Petite (Windows) (3 of 4),${petite-version},win,lib/petite-${petite-version}-win/petite.boot
+Petite (Windows) (4 of 4),${petite-version},win,lib/petite-${petite-version}-win/petite.exe
+</echo>
 	  
 	  <copy todir="${dist-dir}" file="version.txt" />
 	</target>
@@ -35,7 +67,7 @@
 	</target>
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="run" depends="subants" description="run Wombat">
+	<target name="run" depends="version,recur" description="run Wombat">
 		<java 
 			dir="${dist-dir}" 
 			jar="${dist-dir}/wombat.jar" 

@@ -3,10 +3,16 @@ package wombat.scheme;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Class to wrap Petite bindings.
+ */
 public class Petite {
+	/**
+	 * Run from the command line, providing a REPL.
+	 * @param args Ignored.
+	 */
 	public static void main(String[] args) {
 		try {
-			
 			final Petite p = new Petite();
 			final Scanner s = new Scanner(System.in);
 			
@@ -48,6 +54,7 @@ public class Petite {
     boolean Ready = false;
     StringBuffer Buffer = new StringBuffer();
     Writer ToPetite;
+    Process NativeProcess;
 	
     /**
      * Create a new Petite thread.
@@ -75,15 +82,15 @@ public class Petite {
 		pb.redirectErrorStream(true);
 		
 		// Start the process.
-		final Process p = pb.start();
+		NativeProcess = pb.start();
 		
 		// Set up the print writer.
-		ToPetite = new PrintWriter(p.getOutputStream());
+		ToPetite = new PrintWriter(NativeProcess.getOutputStream());
 		
 		// Create a listener thread.
 		Thread fromPetiteThread = new Thread(new Runnable() {
 			public void run() {
-				Reader r = new InputStreamReader(p.getInputStream());
+				Reader r = new InputStreamReader(NativeProcess.getInputStream());
 
 				char thisc = '\0', lastc = '\0';
 				while (true) {
@@ -110,6 +117,38 @@ public class Petite {
 		});
 		fromPetiteThread.setDaemon(true);
 		fromPetiteThread.start();
+		
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+					try { Thread.sleep(10000); } catch (InterruptedException e) {}
+					
+					System.err.println("trying to stop");
+					stop();
+				}
+			}
+		});
+		t.setDaemon(true);
+		t.start();
+	}
+	
+	/**
+	 * Reset Petite's environment.
+	 */
+	public void reset() {
+		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
+//		sendCommand("(waiter-prompt-string \"%\"");
+	}
+	
+	/**
+	 * Stop the currently running command.
+	 */
+	public void stop() {
+		try {
+			ToPetite.write(0x1d);
+			ToPetite.flush();
+		} catch (IOException e) {
+		}
 	}
 	
 	/**

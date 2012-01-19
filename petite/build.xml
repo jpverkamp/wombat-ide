@@ -11,7 +11,7 @@
 	
 	<property name="petite-version" value="8.4" />
 	
-	<property name="jar-name" value="petite-${petite-version}.jar" />
+	<property name="petite-jar-name" value="petite-${petite-version}.jar" />
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="build" description="build the source ">
@@ -28,13 +28,13 @@
 	<target name="jar" depends="build" description="generate a jar file">
 		<mkdir dir="${jar-dir}" />
 
-		<jar destfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
+		<jar destfile="${jar-dir}/${petite-jar-name}" basedir="${bin-dir}">
 			<manifest>
 				<attribute name="Main-Class" value="wombat.scheme.Petite" />
 			</manifest>
 		</jar>
 		
-		<copy todir="${jar-dir}">
+		<copy todir="${jar-dir}/lib">
 			<fileset dir="${lib-dir}">
 				<include name="petite-${petite-version}-*/*" />
 			</fileset>
@@ -49,7 +49,7 @@
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="run" depends="jar" description="build and run">
-		<java dir="${jar-dir}" jar="${jar-dir}/${jar-name}" fork="true" failonerror="true">
+		<java dir="${jar-dir}" jar="${jar-dir}/${petite-jar-name}" fork="true" failonerror="true">
 			<jvmarg value="-Xss64m" />
 		</java>
 	</target>
