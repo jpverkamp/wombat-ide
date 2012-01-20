@@ -1,6 +1,7 @@
 package wombat.scheme;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -12,8 +13,9 @@ public class Petite {
 	/**
 	 * Run from the command line, providing a REPL.
 	 * @param args Ignored.
+	 * @throws URISyntaxException If we botched the files from the JAR.
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws URISyntaxException {
 		try {
 			final Petite p = new Petite();
 			final Scanner s = new Scanner(System.in);
@@ -67,16 +69,18 @@ public class Petite {
     /**
      * Create a new Petite thread.
      * @throws IOException If we fail to access the Petite process.
+     * @throws URISyntaxException If we have problems getting the path from a JAR file.
      */
-	public Petite() throws IOException {
+	public Petite() throws IOException, URISyntaxException {
 		connect();
 	}
 	
 	/**
 	 * (Re)connect the Petite process.
 	 * @throws IOException If we couldn't connect.
+	 * @throws URISyntaxException If we have problems getting the path from a JAR file.
 	 */
-	private void connect() throws IOException {
+	private void connect() throws IOException, URISyntaxException {
 	    // Reset the wrapper state (necessary in the case of a reconnect).
 		Starting = true;
 		SeenPromt1 = false;
@@ -89,7 +93,9 @@ public class Petite {
 	    // The root is either this directory or a nested 'lib' directory.
 	    File[] searchDirs = new File[]{
 	    		new File("").getCanonicalFile(),
-	    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile()
+	    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
+	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
+	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile()
 	    };
 	    
 	    // Find the correct Petite directory.
@@ -248,8 +254,9 @@ public class Petite {
 	/**
 	 * Stop the running process and get a new one.
 	 * @throws IOException If we cannot connect.
+	 * @throws URISyntaxException Botched file from JAR.
 	 */
-	public void stop() throws IOException {
+	public void stop() throws IOException, URISyntaxException {
 	    // Shut down the old connection.
 		Ready = false;
 	    NativeProcess.destroy();

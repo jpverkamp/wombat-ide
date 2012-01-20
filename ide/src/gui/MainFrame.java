@@ -12,8 +12,6 @@ import util.errors.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
-//import java.util.*;
 
 import net.infonode.docking.*;
 import net.infonode.docking.util.*;
@@ -26,9 +24,6 @@ import wombat.scheme.*;
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 2574330949324570164L;
 
-	// Keep track of execution workers.
-//	Queue<SwingWorker<String, Void>> workers = new LinkedList<SwingWorker<String, Void>>();
-	
 	// Display components.
 	RootWindow Root;
 	Petite Petite;
@@ -188,10 +183,10 @@ public class MainFrame extends JFrame {
 		ToolBar.addSeparator();
         ToolBar.add(RowColumn);
         
-     // Connect to Petite.
+        // Connect to Petite.
         try {
 			Petite = new Petite();
-		} catch (IOException e1) {
+		} catch (Exception e1) {
 			ErrorManager.logError(e1.getMessage());
 		}
         Thread petiteOutputThread = new Thread(new Runnable() {
@@ -336,7 +331,7 @@ public class MainFrame extends JFrame {
 				
 				History.setText(">>> Execution halted <<<<\n\n");
 		    	History.goToEnd();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
 			}
 		}
