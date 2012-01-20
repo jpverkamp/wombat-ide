@@ -1,0 +1,11 @@
+Wombat,2.18.19,lib/Wombat-ide-2.18.19.jar
+Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
+Petite Bindings,8.4,lib/Petite-8.4.jar
+Petite (Linux) (1 of 2),8.4,linux,lib/petite-8.4-linux/petite.boot
+Petite (Linux) (2 of 2),8.4,linux,lib/petite-8.4-linux/petite
+Petite (OS X) (1 of 2),8.4,osx,lib/petite-8.4-osx/petite.boot
+Petite (OS X) (2 of 2),8.4,osx,lib/petite-8.4-osx/petite
+Petite (Windows) (1 of 4),8.4,win,lib/petite-8.4-win/csv84.dll
+Petite (Windows) (2 of 4),8.4,win,lib/petite-8.4-win/msvcr100.dll
+Petite (Windows) (3 of 4),8.4,win,lib/petite-8.4-win/petite.boot
+Petite (Windows) (4 of 4),8.4,win,lib/petite-8.4-win/petite.exe

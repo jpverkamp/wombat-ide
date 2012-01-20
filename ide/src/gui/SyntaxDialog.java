@@ -19,10 +19,10 @@ public final class SyntaxDialog {
 		"cond		2 \n" +
 		"and		5 \n" +
 		"or			4 \n" +
-		"+			2 \n" +
-		"-			2 \n" +
-		"*			2 \n" +
-		"/			2 \n" +
+		"+			3 \n" +
+		"-			3 \n" +
+		"*			3 \n" +
+		"/			3 \n" +
 		"add1		6 \n" +
 		"sub1		6 \n" +
 		"list		6 \n" +
@@ -37,8 +37,8 @@ public final class SyntaxDialog {
 		"do			2 \n" +
 		"else		1 \n" +
 		"trace-define	\n" + 
-		"color\ncolor?\ncolor-equal?\ncolor-ref" +
-		"image?\nimage-equal?\nimage-rows\nimage-cols\nimage-ref\nimage-set!\nread-image\nwrite-image\ndraw-image\nimage-map\nmake-image\ndraw-image-file" +
+		"color\ncolor?\ncolor-equal?\ncolor-ref\n" +
+		"image?\nimage-equal?\nimage-rows\nimage-cols\nimage-ref\nimage-set!\nread-image\nwrite-image\ndraw-image\nimage-map\nmake-image\ndraw-image-file\n" +
 		"tree\ntree?\nleaf\nleaf?\nempty-tree\nempty-tree?\nleft-subtree\nright-subtree\nroot-value\ndraw-tree";
 	
 	static JDialog dialog;

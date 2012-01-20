@@ -15,15 +15,22 @@
 	<property name="deploy-server" value="tank.cs.indiana.edu" />
 	<property name="deploy-dir" value="~/cgi/wombat" />
 
-	<property name="libs" value="idw-gpl.jar kawa-1.11.jar" />
+	<property name="libs" value="idw-gpl.jar" />
 
-	<path id="classpath"><fileset dir="${lib-dir}"><include name="*.jar" /></fileset></path>
+	<path id="classpath">
+		<fileset dir="${lib-dir}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="../petite/dist">
+			<include name="*.jar" />
+		</fileset>
+	</path>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="version" description="calculate current version">
-		<tstamp><format property="version" pattern="1.D.k" /></tstamp>
-		<echo>${version}</echo>
-		<property name="jar-name" value="Wombat-${version}.jar" />
+		<tstamp><format property="ide-version" pattern="2.D.k" /></tstamp>
+		<echo>${ide-version}</echo>
+		<property name="ide-jar-name" value="Wombat-ide-${ide-version}.jar" />
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
@@ -31,7 +38,7 @@
 		<mkdir dir="${bin-dir}" />
 
 		<copy file="${src-dir}/wombat/Wombat.java" tofile="Wombat.java.bak" />
-		<replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${version}" />
+		<replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${ide-version}" />
 
 		<javac srcdir="${src-dir}" destdir="${bin-dir}" classpathref="classpath" includeantruntime="false" />
 
@@ -50,7 +57,7 @@
 			<fileset dir="${lib-dir}" />
 		</copy>
 
-		<jar jarfile="${jar-dir}/${jar-name}" basedir="${bin-dir}">
+		<jar jarfile="${jar-dir}/${ide-jar-name}" basedir="${bin-dir}">
 			<manifest>
 				<attribute name="Main-Class" value="wombat.Wombat" />
 				<attribute name="Class-Path" value="${libs}" />
@@ -62,7 +69,7 @@
 	<target name="sign" depends="version,jar" description="sign the jars">
 		<signjar alias="myself" keystore="keystore" storepass="password" lazy="true">
 			<path>
-				<fileset dir="${jar-dir}" includes="${jar-name} ${libs}" />
+				<fileset dir="${jar-dir}" includes="${ide-jar-name} ${libs}" />
 			</path>
 		</signjar>
 	</target>
@@ -76,7 +83,7 @@
 		</copy>
 
 		<replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
-		<replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{VERSION}" value="${version}" />
+		<replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{VERSION}" value="${ide-version}" />
 
 		<input message="Password:" addproperty="scp-passphrase">
 			<handler classname="org.apache.tools.ant.input.SecureInputHandler" />
@@ -93,7 +100,7 @@
 
 		<exec executable="git">
 			<arg value="tag" />
-			<arg value="${version}" />
+			<arg value="${ide-version}" />
 		</exec>
 	</target>
 
@@ -105,7 +112,7 @@
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="run" depends="jar" description="build and run">
-		<java dir="${jar-dir}" jar="${jar-dir}/${jar-name}" fork="true" failonerror="true">
+		<java dir="${jar-dir}" jar="${jar-dir}/${ide-jar-name}" fork="true" failonerror="true">
 			<jvmarg value="-Xss64m" />
 		</java>
 	</target>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="wombat-petite" default="jar">
+	<description>
+    	Bindings for Wombat and Petite.
+	</description>
+
+	<property name="src-dir" location="src" />
+	<property name="bin-dir" location="bin" />
+	<property name="jar-dir" location="dist" />
+	<property name="lib-dir" location="lib" />
+	
+	<property name="petite-version" value="8.4" />
+	
+	<property name="petite-jar-name" value="petite-${petite-version}.jar" />
+	
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="build" description="build the source ">
+		<mkdir dir="${bin-dir}" />
+
+		<javac srcdir="${src-dir}" destdir="${bin-dir}" includeantruntime="false" />
+
+		<copy todir="${bin-dir}">
+			<fileset dir="${src-dir}" />
+		</copy>
+	</target>
+
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="jar" depends="build" description="generate a jar file">
+		<mkdir dir="${jar-dir}" />
+
+		<jar destfile="${jar-dir}/${petite-jar-name}" basedir="${bin-dir}">
+			<manifest>
+				<attribute name="Main-Class" value="wombat.scheme.Petite" />
+			</manifest>
+		</jar>
+		
+		<copy todir="${jar-dir}/lib">
+			<fileset dir="${lib-dir}">
+				<include name="petite-${petite-version}-*/*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="clean" description="remove all of the extra files / directories">
+		<delete dir="${bin-dir}" />
+		<delete dir="${jar-dir}" />
+	</target>
+
+	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+	<target name="run" depends="jar" description="build and run">
+		<java dir="${jar-dir}" jar="${jar-dir}/${petite-jar-name}" fork="true" failonerror="true">
+			<jvmarg value="-Xss64m" />
+		</java>
+	</target>
+</project>

@@ -80,7 +80,7 @@ public class REPLTextArea extends SchemeTextArea {
 						
 						currentCommand--;
 						setText(commandHistory.get(currentCommand));
-						code.setCaretPosition(0);
+						code.setCaretPosition(code.getText().length());
 					}
 				}
 				

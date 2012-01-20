@@ -25,6 +25,6 @@ public class Reset extends AbstractAction {
 	public void actionPerformed(ActionEvent arg0) {
 		for (Frame frame : JFrame.getFrames())
 			if (frame instanceof MainFrame)
-				((MainFrame) frame).resetKawa();
+				((MainFrame) frame).resetScheme();
 	}
 }
