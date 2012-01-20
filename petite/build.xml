@@ -34,7 +34,7 @@
 			</manifest>
 		</jar>
 		
-		<copy todir="${jar-dir}/lib">
+		<copy todir="${jar-dir}">
 			<fileset dir="${lib-dir}">
 				<include name="petite-${petite-version}-*/*" />
 			</fileset>

@@ -18,7 +18,7 @@ import javax.swing.*;
  * - launch the newest version of Wombat 
  */
 public class Main {
-	static final String UpdateSite = "http://www.cs.indiana.edu/cgi-pub/c211/wombat/";
+	static final String UpdateSite = "http://www.cs.indiana.edu/cgi-pub/c211/wombat/dev/";
 	static final URL UpdateVersionFile;
 	
 	static final File CurrentDir;
@@ -62,6 +62,7 @@ public class Main {
 	 * @param args Ignored.
 	 */
 	public static void main(String[] args) {
+
 		try {
 			loadVersionFile();
 			verifyFiles();
