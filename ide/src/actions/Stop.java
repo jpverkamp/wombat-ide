@@ -25,6 +25,6 @@ public class Stop extends AbstractAction {
 	public void actionPerformed(ActionEvent arg0) {
 		for (Frame frame : JFrame.getFrames())
 			if (frame.isVisible() && frame instanceof MainFrame)
-				((MainFrame) frame).stopAllThreads();
+				((MainFrame) frame).stopAllThreads(false);
 	}
 }

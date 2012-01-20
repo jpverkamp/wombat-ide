@@ -49,11 +49,17 @@ public class Petite {
     static final boolean IsWindows = os.indexOf("win") != -1;
     static final boolean IsOSX = os.indexOf("mac") != -1;
     static final boolean IsLinux = (os.indexOf("nux") != -1) || (os.indexOf("nix") != -1);
+    
+    static final char Promt1 = '|';
+    static final char Promt2 = '`';
 	
-    boolean JustSent = false;
-    boolean Ready = false;
-    StringBuffer Buffer = new StringBuffer();
+    boolean Starting;
+    boolean SeenPromt1;
+    boolean Ready;
+    StringBuffer Buffer;
+    
     Writer ToPetite;
+    Reader FromPetite;
     Process NativeProcess;
 	
     /**
@@ -61,6 +67,24 @@ public class Petite {
      * @throws IOException If we fail to access the Petite process.
      */
 	public Petite() throws IOException {
+		connect();
+	}
+	
+	/**
+	 * (Re)connect the Petite process.
+	 * @throws IOException If we couldn't connect.
+	 */
+	private void connect() throws IOException {
+	    // Reset the wrapper state (necessary in the case of a reconnect).
+		Starting = true;
+		SeenPromt1 = false;
+	    Ready = false;
+	    if (Buffer == null)
+	    	Buffer = new StringBuffer();
+	    else 
+	    	Buffer.delete(0, Buffer.length());
+
+	    // The root is either this directory or a nested 'lib' directory.
 		File cd = new File(".").getAbsoluteFile();
 		File lib = new File(cd, "lib");
 
@@ -86,26 +110,50 @@ public class Petite {
 		
 		// Set up the print writer.
 		ToPetite = new PrintWriter(NativeProcess.getOutputStream());
+		FromPetite = new InputStreamReader(NativeProcess.getInputStream());
+		
+		// Immediately send the command to reset the prompt.
+		sendCommand("(waiter-prompt-string \"|`\")");
 		
 		// Create a listener thread.
 		Thread fromPetiteThread = new Thread() {
 			public void run() {
-				Reader r = new InputStreamReader(NativeProcess.getInputStream());
-
-				char thisc = '\0', lastc = '\0';
+				char c;
 				while (true) {
 					try {
 						
 						while (true) {
-							lastc = thisc;
-							thisc = (char) r.read();
+							c = (char) FromPetite.read();
 							
-							if ((JustSent || lastc == '\n') && thisc == '>')
+							// Potential start of a prompt.
+							if (c == Promt1) {
+								SeenPromt1 = true;
+							}
+							
+							// The whole prompt.
+							else if (SeenPromt1 && c == Promt2) {
+								SeenPromt1 = false;
+								
+								if (Starting) {
+									Buffer.delete(0, Buffer.length());
+									Starting = false;
+								}
+								
 								Ready = true;
-							else
-								Buffer.append(thisc);
+							}
 							
-							JustSent = false;
+							// Thought it was a prompt, but we were wrong.
+							// Remember to store the first half of the prompt.
+							else if (SeenPromt1) {
+								SeenPromt1 = false;
+								Buffer.append(Promt1);
+								Buffer.append(c);
+							}
+							
+							// Normal case, no new characters.
+							else {
+								Buffer.append(c);
+							}
 						}
 						
 					} catch(Exception e) {
@@ -130,18 +178,6 @@ public class Petite {
 	 */
 	public void reset() {
 		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
-//		sendCommand("(waiter-prompt-string \"%\"");
-	}
-	
-	/**
-	 * Stop the currently running command.
-	 */
-	public void stop() {
-//		try {
-//			ToPetite.write(0x1d);
-//			ToPetite.flush();
-//		} catch (IOException e) {
-//		}
 	}
 	
 	/**
@@ -153,11 +189,24 @@ public class Petite {
 	}
 	
 	/**
+	 * Stop the running process and get a new one.
+	 * @throws IOException If we cannot connect.
+	 */
+	public void stop() throws IOException {
+	    // Shut down the old connection.
+		Ready = false;
+	    NativeProcess.destroy();
+		
+	    // Reconnect.
+		connect();
+	}
+	
+	/**
 	 * If the output buffer has any content.
 	 * @return True or false.
 	 */
 	public boolean hasOutput() {
-		return Buffer.length() > 0;
+		return !Starting && (Buffer.length() > 0);
 	}
 	
 	/**
@@ -182,7 +231,6 @@ public class Petite {
 				ToPetite.write("\n");
 			ToPetite.flush();
 			
-			JustSent = true;
 			Ready = false;
 			
 		} catch(Exception e) {
@@ -190,4 +238,6 @@ public class Petite {
 			Buffer.append("\nException: Unable to execute command\n");
 		}
 	}
+
+	
 }

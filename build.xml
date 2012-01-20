@@ -72,7 +72,6 @@ Petite (Windows) (4 of 4),${petite-version},win,lib/petite-${petite-version}-win
 			dir="${dist-dir}" 
 			jar="${dist-dir}/wombat.jar" 
 			fork="true" 
-			failonerror="true" 
 		/>
 	</target>
 </project>

@@ -398,6 +398,13 @@ public class SchemeTextArea extends JPanel {
     public void append(String text) {
         setText(getText() + text);
     }
+    
+    /**
+     * Jump to the end of the text area.
+     */
+    public void goToEnd() {
+//    	code.setCaretPosition(code.getDocument().getLength() - 1);
+    }
 
     /**
      * Update the font.

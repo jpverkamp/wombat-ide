@@ -75,7 +75,7 @@ public class MainFrame extends JFrame {
             	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
             	Options.save();
             	
-            	stopAllThreads();
+            	stopAllThreads(true);
             	DocumentManager.CloseAll();
             	
             	me.dispose();
@@ -197,8 +197,11 @@ public class MainFrame extends JFrame {
         Thread petiteOutputThread = new Thread(new Runnable() {
         	public void run() {
         		while (true) {
-        			if (Petite.hasOutput())
+        			if (Petite.hasOutput()) {
         				History.append(Petite.getOutput());
+        				History.goToEnd();
+        			}
+        			
         			
         			if ((Running && Petite.isReady())
         					|| (!Running && !Petite.isReady())) {
@@ -317,24 +320,26 @@ public class MainFrame extends JFrame {
 	/**
 	 * Stop all running worker threads.
 	 */
-	public void stopAllThreads() {
-		Petite.stop();
-		
-//		while (!workers.isEmpty())
-//		{
-//			workers.peek().cancel(true);
-//			workers.poll();
-//		}
-//		
-//		MenuManager.itemForName("Run").setEnabled(true);
-//    	MenuManager.itemForName("Stop").setEnabled(false);
-//		
-//    	ToolBarRun.setEnabled(true);
-//    	ToolBarStop.setEnabled(false);
-//    	
-//    	Running = false;
-    	
-    	History.append("\n>>> Execution halted <<<<\n");
+	public void stopAllThreads(boolean silent) {
+		if (silent || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+				this, 
+				"Stopping will reset the current Petite process.\n" + 
+						"Are you sure you want to do this?", 
+				"Confirm Stop", JOptionPane.YES_NO_OPTION)) {
+			
+			try {
+				Petite.stop();
+				
+				while (!Petite.isReady()) {
+					try { Thread.sleep(50); } catch (InterruptedException e) {}
+				}
+				
+				History.setText(">>> Execution halted <<<<\n\n");
+		    	History.goToEnd();
+			} catch (IOException e) {
+				ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
+			}
+		}
 	}
 
 	/**
