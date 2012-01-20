@@ -68,12 +68,13 @@ public class Main {
 			launch();
 			checkForUpdates();
 		} catch(Exception e) {
-			JOptionPane.showConfirmDialog(
+			JOptionPane.showMessageDialog(
 					null, 
 					"Unable to launch Wombat, please try again in a few minutes.\n" +
 						"\n" + 
 						(e.getMessage().length() > 0 ? "Reason:\n" + e.getMessage() : ""),
 					"Unable to launch Wombat", JOptionPane.OK_OPTION);
+			System.exit(0);
 		}
 	}
 
