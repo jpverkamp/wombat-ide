@@ -240,12 +240,17 @@ public final class DocumentManager implements FocusListener {
             String name = me.activeDocument.myView.getViewProperties().getTitle();
             if (me.activeDocument.isDirty()) {
             	if (Options.ConfirmOnClose) {
-            		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+            		int result = JOptionPane.showConfirmDialog(
             				me.activeDocument,
             				"Save " + name + " before closing?\n\n(If you select no, any unsaved work will be lost.)",
             				"Close...",
-            				JOptionPane.YES_NO_OPTION)) {
-            			Save();
+            				(force ? JOptionPane.YES_NO_OPTION : JOptionPane.YES_NO_CANCEL_OPTION));
+            		
+            		if (result == JOptionPane.YES_OPTION){
+            			if (!Save())
+            				return false;
+            		} else if (result == JOptionPane.CANCEL_OPTION) {
+            			return false;
             		}
             	} else {
             		Save();
