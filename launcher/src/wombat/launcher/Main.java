@@ -106,7 +106,7 @@ public class Main {
 				Versions.add(new Version(s.nextLine()));
 			
 		} catch(Exception e) {
-			throw new Error("Unable to read version file.");
+			throw new Error("Unable to read version file:\n" + e.getMessage());
 		}
 	}
 
@@ -414,6 +414,10 @@ public class Main {
 	 * @param to The destination file.
 	 */
 	static void download(final String name, final URL from, final File to) throws IOException {
+		// Make sure that the local directory exists.
+		to.getParentFile().getAbsoluteFile().mkdirs();
+
+		// Establish the connection.
 		URLConnection connection = from.openConnection();
 		final int length = connection.getContentLength();
 		
