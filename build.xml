@@ -44,14 +44,9 @@
 	  <echo file="${dist-dir}/version.txt">Wombat,${ide-version},lib/Wombat-ide-${ide-version}.jar
 Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
 Petite Bindings,${petite-version},lib/Petite-${petite-version}.jar
-Petite (Linux) (1 of 2),${petite-version},linux,lib/petite-${petite-version}-linux/petite.boot
-Petite (Linux) (2 of 2),${petite-version},linux,lib/petite-${petite-version}-linux/petite
-Petite (OS X) (1 of 2),${petite-version},osx,lib/petite-${petite-version}-osx/petite.boot
-Petite (OS X) (2 of 2),${petite-version},osx,lib/petite-${petite-version}-osx/petite
-Petite (Windows) (1 of 4),${petite-version},win,lib/petite-${petite-version}-win/csv84.dll
-Petite (Windows) (2 of 4),${petite-version},win,lib/petite-${petite-version}-win/msvcr100.dll
-Petite (Windows) (3 of 4),${petite-version},win,lib/petite-${petite-version}-win/petite.boot
-Petite (Windows) (4 of 4),${petite-version},win,lib/petite-${petite-version}-win/petite.exe
+Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
+Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
+Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
 </echo>
 	  
 	  <copy todir="${dist-dir}" file="version.txt" />

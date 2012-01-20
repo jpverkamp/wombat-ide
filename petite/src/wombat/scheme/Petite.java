@@ -2,6 +2,8 @@ package wombat.scheme;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Class to wrap Petite bindings.
@@ -85,16 +87,71 @@ public class Petite {
 	    	Buffer.delete(0, Buffer.length());
 
 	    // The root is either this directory or a nested 'lib' directory.
-		File cd = new File(".").getAbsoluteFile();
-		File lib = new File(cd, "lib");
-
-		// Find the correct Petite directory.
+	    File[] searchDirs = new File[]{
+	    		new File("").getCanonicalFile(),
+	    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile()
+	    };
+	    
+	    // Find the correct Petite directory.
 		File pdir = null;
-		for (String path : lib.list())
-			if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown"))
-				pdir = new File(lib, path);
+		for (File dir : searchDirs)
+			if (dir != null && dir.exists() && dir.isDirectory())
+				for (String path : dir.list())
+					if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown"))
+						pdir = new File(dir, path);
+
+		
+		// If it didn't we may have to look for zip files.
+		if (pdir == null) {
+			for (File dir : searchDirs) {
+				if (dir != null && dir.exists() && dir.isDirectory()) {
+					for (String path : dir.list()) {
+						if (path.startsWith("petite") && path.endsWith((IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown") + ".zip")) {
+							ZipFile zip = new ZipFile(new File(dir, path));
+							
+							@SuppressWarnings("unchecked")
+							Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+	
+							while (entries.hasMoreElements()) {
+						        ZipEntry entry = entries.nextElement();
+	
+						        if (entry.isDirectory()) {
+						        	System.out.println("unzipping directory:\n" + entry.getName() + "\nto:\n" + new File(dir, entry.getName()));
+						        	new File(dir, entry.getName()).getCanonicalFile().mkdirs();
+						        } else {
+						        	System.out.println("unzipping:\n" + entry.getName() + "\nto:\n" + new File(dir, entry.getName()));
+						        	
+						        	new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+						        	
+						        	InputStream in = zip.getInputStream(entry);
+						        	OutputStream out = new BufferedOutputStream(new FileOutputStream(new File(dir, entry.getName())));
+						        	
+						        	byte[] buffer = new byte[1024];
+						            int len;
+	
+						            while((len = in.read(buffer)) >= 0)
+						              out.write(buffer, 0, len);
+	
+						            in.close();
+						            out.close();
+						        }
+						      }
+	
+						      zip.close();
+						      
+						      // Try again.
+						      connect();
+						      return;
+						}
+					}
+				}
+			}
+		}
+		
+		// If we made it this far without a directory, something broke. :(
 		if (pdir == null)
-			throw new Error("Unable to locate Petite directory.");
+			throw new IOException("Unable to find Petite directory.");
+			
 		
 		// Create the process builder.
 		ProcessBuilder pb = new ProcessBuilder(

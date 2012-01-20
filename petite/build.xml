@@ -36,7 +36,7 @@
 		
 		<copy todir="${jar-dir}">
 			<fileset dir="${lib-dir}">
-				<include name="petite-${petite-version}-*/*" />
+				<include name="petite-${petite-version}-*.zip" />
 			</fileset>
 		</copy>
 	</target>
