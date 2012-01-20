@@ -88,7 +88,7 @@ public class Petite {
 		ToPetite = new PrintWriter(NativeProcess.getOutputStream());
 		
 		// Create a listener thread.
-		Thread fromPetiteThread = new Thread(new Runnable() {
+		Thread fromPetiteThread = new Thread() {
 			public void run() {
 				Reader r = new InputStreamReader(NativeProcess.getInputStream());
 
@@ -114,22 +114,15 @@ public class Petite {
 					}
 				}
 			}
-		});
+		};
 		fromPetiteThread.setDaemon(true);
 		fromPetiteThread.start();
 		
-		Thread t = new Thread(new Runnable() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				while (true) {
-					try { Thread.sleep(10000); } catch (InterruptedException e) {}
-					
-					System.err.println("trying to stop");
-					stop();
-				}
+				NativeProcess.destroy();
 			}
 		});
-		t.setDaemon(true);
-		t.start();
 	}
 	
 	/**
@@ -144,11 +137,11 @@ public class Petite {
 	 * Stop the currently running command.
 	 */
 	public void stop() {
-		try {
-			ToPetite.write(0x1d);
-			ToPetite.flush();
-		} catch (IOException e) {
-		}
+//		try {
+//			ToPetite.write(0x1d);
+//			ToPetite.flush();
+//		} catch (IOException e) {
+//		}
 	}
 	
 	/**
