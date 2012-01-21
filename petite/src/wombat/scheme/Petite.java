@@ -122,15 +122,13 @@ public class Petite {
 						        ZipEntry entry = entries.nextElement();
 	
 						        if (entry.isDirectory()) {
-						        	System.out.println("unzipping directory:\n" + entry.getName() + "\nto:\n" + new File(dir, entry.getName()));
 						        	new File(dir, entry.getName()).getCanonicalFile().mkdirs();
 						        } else {
-						        	System.out.println("unzipping:\n" + entry.getName() + "\nto:\n" + new File(dir, entry.getName()));
-						        	
 						        	new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
 						        	
+						        	File targetFile = new File(dir, entry.getName());
 						        	InputStream in = zip.getInputStream(entry);
-						        	OutputStream out = new BufferedOutputStream(new FileOutputStream(new File(dir, entry.getName())));
+						        	OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
 						        	
 						        	byte[] buffer = new byte[1024];
 						            int len;
@@ -140,6 +138,8 @@ public class Petite {
 	
 						            in.close();
 						            out.close();
+						            
+						            targetFile.setExecutable(true);
 						        }
 						      }
 	
