@@ -10,7 +10,7 @@
 	<target name="version" description="calculate current version">
 		<tstamp><format property="ide-version" pattern="2.D.k" /></tstamp>
 		
-		<property name="jar-name" value="Wombat-ide-${ide-version}.jar" />
+		<property name="jar-name" value="wombat-ide-${ide-version}.jar" />
 		<property name="petite-version" value="8.4" />
 		
 		<echo>Versions:
@@ -41,9 +41,9 @@
 	  <move todir="${dist-dir}" file="${dist-dir}/lib/wombat.jar" />
 	  
 	  <echo> ----- Creating version file ----- </echo>
-	  <echo file="${dist-dir}/version.txt">Wombat,${ide-version},lib/Wombat-ide-${ide-version}.jar
+	  <echo file="${dist-dir}/version.txt">Wombat,${ide-version},lib/wombat-ide-${ide-version}.jar
 Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
-Petite Bindings,${petite-version},lib/Petite-${petite-version}.jar
+Petite Bindings,${petite-version},lib/petite-${petite-version}.jar
 Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
 Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
 Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip

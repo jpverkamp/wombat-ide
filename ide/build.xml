@@ -30,7 +30,7 @@
 	<target name="version" description="calculate current version">
 		<tstamp><format property="ide-version" pattern="2.D.k" /></tstamp>
 		<echo>${ide-version}</echo>
-		<property name="ide-jar-name" value="Wombat-ide-${ide-version}.jar" />
+		<property name="ide-jar-name" value="wombat-ide-${ide-version}.jar" />
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
