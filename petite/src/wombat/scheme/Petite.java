@@ -95,63 +95,75 @@ public class Petite {
 	    		new File("").getCanonicalFile(),
 	    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
 	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
-	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile()
+	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
+	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
+	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
 	    };
 	    
 	    // Find the correct Petite directory.
 		File pdir = null;
-		for (File dir : searchDirs)
-			if (dir != null && dir.exists() && dir.isDirectory())
-				for (String path : dir.list())
-					if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown"))
-						pdir = new File(dir, path);
-
+		for (File dir : searchDirs) {
+		    System.out.println("Looking in " + dir + " for petite.");
+		    if (dir != null && dir.exists() && dir.isDirectory()) {
+			for (String path : dir.list()) {
+			    if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown")) {
+				pdir = new File(dir, path);
+				System.out.println("Found: " + pdir);
+			    }
+			}
+		    }
+		}
 		
 		// If it didn't we may have to look for zip files.
 		if (pdir == null) {
-			for (File dir : searchDirs) {
-				if (dir != null && dir.exists() && dir.isDirectory()) {
-					for (String path : dir.list()) {
-						if (path.startsWith("petite") && path.endsWith((IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown") + ".zip")) {
-							ZipFile zip = new ZipFile(new File(dir, path));
-							
-							@SuppressWarnings("unchecked")
-							Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
-	
-							while (entries.hasMoreElements()) {
-						        ZipEntry entry = entries.nextElement();
-	
-						        if (entry.isDirectory()) {
-						        	new File(dir, entry.getName()).getCanonicalFile().mkdirs();
-						        } else {
-						        	new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
-						        	
-						        	File targetFile = new File(dir, entry.getName());
-						        	InputStream in = zip.getInputStream(entry);
-						        	OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
-						        	
-						        	byte[] buffer = new byte[1024];
-						            int len;
-	
-						            while((len = in.read(buffer)) >= 0)
-						              out.write(buffer, 0, len);
-	
-						            in.close();
-						            out.close();
-						            
-						            targetFile.setExecutable(true);
-						        }
-						      }
-	
-						      zip.close();
-						      
-						      // Try again.
-						      connect();
-						      return;
-						}
+		    System.out.println("Petite not find, looking for an archive.");
+		    for (File dir : searchDirs) {
+		    System.out.println("Looking in " + dir + " for petite archive.");
+			if (dir != null && dir.exists() && dir.isDirectory()) {
+			    for (String path : dir.list()) {
+				if (path.startsWith("petite") && path.endsWith((IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown") + ".zip")) {
+				    ZipFile zip = new ZipFile(new File(dir, path));
+				    System.out.println("Found: " + zip);
+				    
+				    @SuppressWarnings("unchecked")
+				    Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+				    
+				    while (entries.hasMoreElements()) {
+					ZipEntry entry = entries.nextElement();
+					
+					if (entry.isDirectory()) {
+					    System.out.println("\tunzipping: " + entry.getName());
+					    new File(dir, entry.getName()).getCanonicalFile().mkdirs();
+					} else {
+					    System.out.println("\tunzipping: " + entry.getName());
+					    new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+					    
+					    File targetFile = new File(dir, entry.getName());
+					    InputStream in = zip.getInputStream(entry);
+					    OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
+					    
+					    byte[] buffer = new byte[1024];
+					    int len;
+					    
+					    while((len = in.read(buffer)) >= 0)
+						out.write(buffer, 0, len);
+					    
+					    in.close();
+					    out.close();
+					    
+					    targetFile.setExecutable(true);
 					}
+				    }
+				    
+				    zip.close();
+				    
+				    // Try again.
+				    connect();
+				    return;
 				}
+			    }
 			}
+		    }
 		}
 		
 		// If we made it this far without a directory, something broke. :(
