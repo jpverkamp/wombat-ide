@@ -49,7 +49,7 @@ public class Main {
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.indexOf("win") != -1)
 			MyOS = "win";
-		else if (os.indexOf("win") != -1)
+		else if (os.indexOf("mac") != -1)
 			MyOS = "osx";
 		else if ((os.indexOf("nux") != -1) || (os.indexOf("nix") != -1))
 			MyOS = "linux";
