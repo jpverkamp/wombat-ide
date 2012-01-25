@@ -189,6 +189,7 @@ public class Petite {
 		
 		// Immediately send the command to reset the prompt.
 		sendCommand("(waiter-prompt-string \"|`\")");
+		sendCommand("(case-sensitive #f)");
 		
 		// Create a listener thread.
 		Thread fromPetiteThread = new Thread() {
