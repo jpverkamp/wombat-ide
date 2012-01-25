@@ -6,6 +6,7 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
 import javax.swing.undo.UndoManager;
 
+import util.errors.ErrorManager;
 import wombat.Options;
 
 import java.awt.*;
@@ -400,14 +401,18 @@ public class SchemeTextArea extends JPanel {
      * @param text Text to append.
      */
     public void append(String text) {
-        setText(getText() + text);
+    	try {
+			code.getDocument().insertString(code.getDocument().getLength(), text, null);
+		} catch (BadLocationException e) {
+			ErrorManager.logError(e.getMessage());
+		}
     }
     
     /**
      * Jump to the end of the text area.
      */
     public void goToEnd() {
-//    	code.setCaretPosition(code.getDocument().getLength() - 1);
+    	code.scrollRectToVisible(new Rectangle(0, code.getHeight() - 1, 1, 1));
     }
 
     /**

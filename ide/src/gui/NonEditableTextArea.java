@@ -15,4 +15,14 @@ public class NonEditableTextArea extends SchemeTextArea {
 		setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
         code.setEditable(false);
 	}
+	
+    /**
+     * Append text to the end of the code area.
+     *
+     * @param text Text to append.
+     */
+    public void append(String text) {
+    	super.append(text);
+    	goToEnd();
+    }
 }

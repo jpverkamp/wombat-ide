@@ -197,7 +197,6 @@ public class MainFrame extends JFrame {
         				History.goToEnd();
         			}
         			
-        			
         			if ((Running && Petite.isReady())
         					|| (!Running && !Petite.isReady())) {
         				Running = !Petite.isReady();
@@ -236,6 +235,7 @@ public class MainFrame extends JFrame {
             return;
 
         History.append("\n~ " + cmd.replace("\n", "\n  ") + "\n");
+        History.goToEnd();
         
         Petite.sendCommand(cmd);
     }
