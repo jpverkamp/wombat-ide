@@ -190,6 +190,8 @@ public class Petite {
 		// Immediately send the command to reset the prompt.
 		sendCommand("(waiter-prompt-string \"|`\")");
 		sendCommand("(case-sensitive #f)");
+		sendCommand("(library-directories `((\"..\" . \"..\") . ,(library-directories)))");
+		sendCommand("(print-gensym #f)");
 		
 		// Create a listener thread.
 		Thread fromPetiteThread = new Thread() {
