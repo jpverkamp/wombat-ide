@@ -70,7 +70,7 @@ public class MainFrame extends JFrame {
             	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
             	Options.save();
             	
-            	stopAllThreads(true);
+            	stopAllThreads(true, false);
             	DocumentManager.CloseAll();
             	
             	me.dispose();
@@ -315,7 +315,7 @@ public class MainFrame extends JFrame {
 	/**
 	 * Stop all running worker threads.
 	 */
-	public void stopAllThreads(boolean silent) {
+	public void stopAllThreads(boolean silent, boolean andRestart) {
 		if (silent || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 				this, 
 				"Stopping will reset the current Petite process.\n" + 
@@ -323,14 +323,18 @@ public class MainFrame extends JFrame {
 				"Confirm Stop", JOptionPane.YES_NO_OPTION)) {
 			
 			try {
-				Petite.stop();
-				
-				while (!Petite.isReady()) {
-					try { Thread.sleep(50); } catch (InterruptedException e) {}
+				if (andRestart) {
+					Petite.restart();
+					
+					while (!Petite.isReady()) {
+						try { Thread.sleep(50); } catch (InterruptedException e) {}
+					}
+					
+					History.setText(">>> Execution halted <<<<\n\n");
+			    	History.goToEnd();
+				} else {
+					Petite.stop();
 				}
-				
-				History.setText(">>> Execution halted <<<<\n\n");
-		    	History.goToEnd();
 			} catch (Exception e) {
 				ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
 			}

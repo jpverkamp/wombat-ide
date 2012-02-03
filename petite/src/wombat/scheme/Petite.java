@@ -3,6 +3,8 @@ package wombat.scheme;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -60,7 +62,9 @@ public class Petite {
     boolean Starting;
     boolean SeenPromt1;
     boolean Ready;
+    
     StringBuffer Buffer;
+    Lock BufferLock;
     
     Writer ToPetite;
     Reader FromPetite;
@@ -81,14 +85,19 @@ public class Petite {
 	 * @throws URISyntaxException If we have problems getting the path from a JAR file.
 	 */
 	private void connect() throws IOException, URISyntaxException {
+		System.err.println("Petite connecting");
+		
 	    // Reset the wrapper state (necessary in the case of a reconnect).
 		Starting = true;
 		SeenPromt1 = false;
 	    Ready = false;
+	    
 	    if (Buffer == null)
 	    	Buffer = new StringBuffer();
 	    else 
 	    	Buffer.delete(0, Buffer.length());
+	    
+	    BufferLock = new ReentrantLock();
 
 	    // The root is either this directory or a nested 'lib' directory.
 	    File[] searchDirs = new File[]{
@@ -203,6 +212,8 @@ public class Petite {
 						while (true) {
 							c = (char) FromPetite.read();
 							
+							BufferLock.lock();
+							
 							// Potential start of a prompt.
 							if (c == Promt1) {
 								SeenPromt1 = true;
@@ -224,6 +235,7 @@ public class Petite {
 							// Remember to store the first half of the prompt.
 							else if (SeenPromt1) {
 								SeenPromt1 = false;
+								
 								Buffer.append(Promt1);
 								Buffer.append(c);
 							}
@@ -232,6 +244,8 @@ public class Petite {
 							else {
 								Buffer.append(c);
 							}
+							
+							BufferLock.unlock();
 						}
 						
 					} catch(Exception e) {
@@ -267,16 +281,27 @@ public class Petite {
 	}
 	
 	/**
-	 * Stop the running process and get a new one.
+	 * Stop the running process.
 	 * @throws IOException If we cannot connect.
 	 * @throws URISyntaxException Botched file from JAR.
 	 */
 	public void stop() throws IOException, URISyntaxException {
+		System.err.println("Petite stopping");
+		
 	    // Shut down the old connection.
 		Ready = false;
 	    NativeProcess.destroy();
+	}
+
+	/** 
+	 * Stop and restart.
+	 * @throws IOException If we cannot connect.
+	 * @throws URISyntaxException Botched file from JAR.
+	 */
+	public void restart() throws IOException, URISyntaxException {
+		System.err.println("Petite restarting");
 		
-	    // Reconnect.
+		stop();
 		connect();
 	}
 	
@@ -293,8 +318,10 @@ public class Petite {
 	 * @return The output buffer.
 	 */
 	public String getOutput() {
+		BufferLock.lock();
 		String output = Buffer.toString();
 		Buffer.delete(0, Buffer.length());
+		BufferLock.unlock();
 		return output;
 	}
 	
