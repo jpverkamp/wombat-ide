@@ -70,8 +70,8 @@ public class MainFrame extends JFrame {
             	Options.DisplayHeight = Math.max(400, e.getWindow().getHeight());
             	Options.save();
             	
-            	stopAllThreads(true, false);
             	DocumentManager.CloseAll();
+            	stopAllThreads(true, false);
             	
             	me.dispose();
             }
@@ -193,7 +193,8 @@ public class MainFrame extends JFrame {
         	public void run() {
         		while (true) {
         			if (Petite.hasOutput()) {
-        				History.append(Petite.getOutput());
+        				String output = Petite.getOutput();
+        				History.append(output);
         				History.goToEnd();
         			}
         			

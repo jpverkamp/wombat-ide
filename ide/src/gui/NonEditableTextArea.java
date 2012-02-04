@@ -21,7 +21,7 @@ public class NonEditableTextArea extends SchemeTextArea {
      *
      * @param text Text to append.
      */
-    public void append(String text) {
+    public synchronized void append(String text) {
     	super.append(text);
     	goToEnd();
     }

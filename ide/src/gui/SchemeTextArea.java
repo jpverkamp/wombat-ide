@@ -400,7 +400,7 @@ public class SchemeTextArea extends JPanel {
      *
      * @param text Text to append.
      */
-    public void append(String text) {
+    public synchronized void append(String text) {
     	try {
 			code.getDocument().insertString(code.getDocument().getLength(), text, null);
 		} catch (BadLocationException e) {

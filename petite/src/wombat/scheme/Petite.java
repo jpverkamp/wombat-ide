@@ -69,6 +69,8 @@ public class Petite {
     Writer ToPetite;
     Reader FromPetite;
     Process NativeProcess;
+    
+    Thread FromPetiteThread;
 	
     /**
      * Create a new Petite thread.
@@ -197,66 +199,64 @@ public class Petite {
 		FromPetite = new InputStreamReader(NativeProcess.getInputStream());
 		
 		// Immediately send the command to reset the prompt.
-		sendCommand("(waiter-prompt-string \"|`\")");
-		sendCommand("(case-sensitive #f)");
-		sendCommand("(library-directories `((\"..\" . \"..\") . ,(library-directories)))");
-		sendCommand("(print-gensym #f)");
+		reset();
 		
 		// Create a listener thread.
-		Thread fromPetiteThread = new Thread() {
-			public void run() {
-				char c;
-				while (true) {
-					try {
-						
-						while (true) {
-							c = (char) FromPetite.read();
-							
-							BufferLock.lock();
-							
-							// Potential start of a prompt.
-							if (c == Promt1) {
-								SeenPromt1 = true;
-							}
-							
-							// The whole prompt.
-							else if (SeenPromt1 && c == Promt2) {
-								SeenPromt1 = false;
+		if (FromPetiteThread == null) {
+			FromPetiteThread = new Thread() {
+				public void run() {
+					char c;
+					while (true) {
+						try {
+							while (true) {
+								c = (char) FromPetite.read();
 								
-								if (Starting) {
-									Buffer.delete(0, Buffer.length());
-									Starting = false;
+								BufferLock.lock();
+								
+								// Potential start of a prompt.
+								if (c == Promt1) {
+									SeenPromt1 = true;
 								}
 								
-								Ready = true;
-							}
-							
-							// Thought it was a prompt, but we were wrong.
-							// Remember to store the first half of the prompt.
-							else if (SeenPromt1) {
-								SeenPromt1 = false;
+								// The whole prompt.
+								else if (SeenPromt1 && c == Promt2) {
+									SeenPromt1 = false;
+									
+									if (Starting) {
+										Buffer.delete(0, Buffer.length());
+										Starting = false;
+									}
+									
+									Ready = true;
+								}
 								
-								Buffer.append(Promt1);
-								Buffer.append(c);
+								// Thought it was a prompt, but we were wrong.
+								// Remember to store the first half of the prompt.
+								else if (SeenPromt1) {
+									SeenPromt1 = false;
+									
+									Buffer.append(Promt1);
+									Buffer.append(c);
+								}
+								
+								// Normal case, no new characters.
+								else {
+									Buffer.append(c);
+								}
+								
+								BufferLock.unlock();
 							}
 							
-							// Normal case, no new characters.
-							else {
-								Buffer.append(c);
-							}
-							
-							BufferLock.unlock();
+						} catch(Exception e) {
+							System.err.println("Petite buffer is broken");
+							Buffer.append("\nException: Petite buffer is broken\n");
 						}
-						
-					} catch(Exception e) {
-						System.err.println("Petite buffer is broken");
-						Buffer.append("\nException: Petite buffer is broken\n");
 					}
 				}
-			}
-		};
-		fromPetiteThread.setDaemon(true);
-		fromPetiteThread.start();
+			};
+			FromPetiteThread.setDaemon(true);
+			FromPetiteThread.start();
+		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -270,6 +270,11 @@ public class Petite {
 	 */
 	public void reset() {
 		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
+		sendCommand("(waiter-prompt-string \"|`\")");
+		sendCommand("(case-sensitive #f)");
+		sendCommand("(library-directories `((\"..\" . \"..\") . ,(library-directories)))");
+		sendCommand("(print-gensym #f)");
+		sendCommand("(define (omega) ((lambda (x) (x x)) (lambda (x) (x x))))");
 	}
 	
 	/**
@@ -290,6 +295,9 @@ public class Petite {
 		
 	    // Shut down the old connection.
 		Ready = false;
+		BufferLock.lock();
+		Buffer.delete(0, Buffer.length());
+		BufferLock.unlock();
 	    NativeProcess.destroy();
 	}
 
@@ -344,6 +352,4 @@ public class Petite {
 			Buffer.append("\nException: Unable to execute command\n");
 		}
 	}
-
-	
 }
