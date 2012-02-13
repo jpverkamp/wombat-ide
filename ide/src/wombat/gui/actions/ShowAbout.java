@@ -1,13 +1,10 @@
 package wombat.gui.actions;
 
-
 import java.awt.event.ActionEvent;
-
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import wombat.gui.*;
 import wombat.gui.frames.AboutFrame;
 import wombat.gui.icons.IconManager;
 

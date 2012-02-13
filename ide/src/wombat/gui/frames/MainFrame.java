@@ -41,7 +41,7 @@ public class MainFrame extends JFrame {
     JButton ToolBarStop;
     JButton UpdateButton;
     public static JLabel RowColumn;
-    boolean Running = false;
+    public boolean Running = false;
 
     // Unique code components.
     NonEditableTextArea History;

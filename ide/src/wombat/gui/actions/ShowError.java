@@ -3,11 +3,9 @@ package wombat.gui.actions;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
-
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
-import wombat.gui.*;
 import wombat.gui.frames.MainFrame;
 
 /**
