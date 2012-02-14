@@ -9,6 +9,7 @@ import java.util.*;
 import javax.swing.event.*;
 
 import wombat.util.Base64;
+import wombat.util.FixedLengthList;
 
 /**
  * Designed to share a text area between two or more users over a local network. 
@@ -27,10 +28,7 @@ public class SharedTextArea extends SchemeTextArea {
 	Client Server = null;
 	
 	// Store the last insert/remove.
-	boolean lastWasInsert = false;
-	int lastOffset = -1;
-	int lastLength = -1;
-	String lastString = "";
+	FixedLengthList<String> lastInsertsAndRemoves = new FixedLengthList<String>(5);
 	
 	/**
 	 * Create a new text area.
@@ -39,7 +37,7 @@ public class SharedTextArea extends SchemeTextArea {
 		super();
 		code.setBackground(new Color(240, 255, 240));
 	}
-	
+
 	/**
 	 * Host a new shared text area.
 	 * @return The area.
@@ -67,9 +65,33 @@ public class SharedTextArea extends SchemeTextArea {
 				while (sta.Running)
 					try {
 						
-						Client c = new Client(sta.Host.accept());
+						final Client c = new Client(sta.Host.accept());
 						c.send("hello");
 						sta.Clients.add(c);
+						
+						Thread clientThread = new Thread() {
+							public void run() {
+								while (sta.Running) {
+									try { Thread.sleep(50); } catch(InterruptedException ex) {}
+									
+									String line = c.recv();
+									if (line == null) continue;
+
+									// Ignore it if it's a duplicate.
+									if (sta.lastInsertsAndRemoves.contains(line)) return;
+									
+									// Process the line locally (actually type the text).
+									sta.processLocal(line);
+
+									// Then forward it to the other clients.
+									for (Client cto : sta.Clients) 
+										if (c != cto)
+											cto.send(line);
+								}
+							}
+						};
+						clientThread.setDaemon(true);
+						clientThread.start();
 
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -78,30 +100,6 @@ public class SharedTextArea extends SchemeTextArea {
 		};
 		serverAcceptThread.setDaemon(true);
 		serverAcceptThread.start();
-		
-		// And another thread to process input from clients, copy and echo to other clients.
-		Thread serverProcessThread = new Thread() {
-			public void run() {
-				String line;
-				
-				while (sta.Running) {
-					try { Thread.sleep(50); } catch(InterruptedException ex) {}
-					
-					for (Client c : sta.Clients) {
-						line = c.recv();
-						if (line == null) continue;
-						sta.processLocal(line);
-
-						// Echo to other client
-						for (Client cto : sta.Clients) 
-							if (c != cto)
-								cto.send(line);
-					}
-				}
-			}
-		};
-		serverProcessThread.setDaemon(true);
-		serverProcessThread.start();
 		
 		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
 		
@@ -129,6 +127,8 @@ public class SharedTextArea extends SchemeTextArea {
 		Thread fromServerThread = new Thread() {
 			public void run() {
 				while (sta.Running) {
+					try { Thread.sleep(50); } catch(InterruptedException ex) {}
+					
 					String line = sta.Server.recv();
 					if (line != null)
 						sta.processLocal(line);
@@ -172,8 +172,8 @@ public class SharedTextArea extends SchemeTextArea {
 				int off = Integer.parseInt(parts[1]);
 				String str = new String(Base64.decode(parts[3]));
 				
-				if (lastWasInsert && off == lastOffset && lastString.equals(parts[3])) return;
-				
+				if (lastInsertsAndRemoves.contains(line)) return;
+
 				code.getDocument().insertString(off, str, null);
 				
 			} else if ("remove".equals(parts[0])) {
@@ -181,8 +181,8 @@ public class SharedTextArea extends SchemeTextArea {
 				int off = Integer.parseInt(parts[1]);
 				int len = Integer.parseInt(parts[2]);
 				
-				if (!lastWasInsert && off == lastOffset && len == lastLength) return;
-				
+				if (lastInsertsAndRemoves.contains(line)) return;
+
 				code.getDocument().remove(off, len);
 				
 			}
@@ -236,7 +236,7 @@ class Client {
 	 * @param msg
 	 */
 	public void send(String msg) {
-		System.out.println("send: " + msg); // debug
+		System.out.println("send to " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg); // debug
 		To.println(msg); 
 		To.flush();
 	}
@@ -248,7 +248,7 @@ class Client {
 	public String recv() {
 		if (From.hasNextLine()) {
 			String msg = From.nextLine();
-			System.out.println("recv: " + msg); // debug
+			System.out.println("recv from " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg); // debug
 			return msg;
 		} else {
 			return null;
@@ -285,6 +285,7 @@ class NetworkedDocumentListener implements DocumentListener {
 			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes());
 			
 			String msg = "insert," + off + "," + len + "," + str;
+			STA.lastInsertsAndRemoves.add(msg);
 			
 			if (STA.Server != null) 
 				STA.Server.send(msg);
@@ -292,10 +293,6 @@ class NetworkedDocumentListener implements DocumentListener {
 			if (STA.Clients != null) 
 				for (Client c : STA.Clients)
 					c.send(msg);
-			
-			STA.lastWasInsert = true;
-			STA.lastOffset = off;
-			STA.lastString = str;
 
 		} catch(Exception e) {
 		}
@@ -309,16 +306,13 @@ class NetworkedDocumentListener implements DocumentListener {
 		int len = event.getLength();
 		
 		String msg = "remove," + off + "," + len;
-				
+		STA.lastInsertsAndRemoves.add(msg);
+		
 		if (STA.Server != null) 
 			STA.Server.send(msg);
 		
 		if (STA.Clients != null) 
 			for (Client c : STA.Clients)
 				c.send(msg);
-		
-		STA.lastWasInsert = false;
-		STA.lastOffset = off;
-		STA.lastLength = len;
 	}
 }

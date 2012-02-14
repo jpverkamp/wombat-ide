@@ -1,7 +1,10 @@
 package wombat.gui.frames;
 
 import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,7 +18,7 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	static ConnectDialog me;
 	static String hostPrefix;
 	
-	JTextArea joinAddress;
+	JTextField joinAddress;
 	
 	/**
 	 * Create a new connection dialog. 
@@ -24,25 +27,40 @@ public class ConnectDialog extends JDialog implements ActionListener {
 	public ConnectDialog(MainFrame parent) {
 		super(parent, true);
 		
-		setSize(400, 300);
 		setBackground(Color.RED);
 		setLocationByPlatform(true);
 		setTitle("Connect...");
 		setResizable(false);
-		setLayout(new GridLayout(4, 1));
-
+		setLayout(new GridBagLayout());
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridheight = 1;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.BOTH;
+		
 		JButton hostButton = new JButton("Host");
 		hostButton.addActionListener(this);
-		add(hostButton);
+		gbc.gridx = 2; 
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		add(hostButton, gbc);
 		
-		add(new JLabel());
-		
-		joinAddress = new JTextArea("192.168.1.50:5309");
-		add(joinAddress);
+		joinAddress = new JTextField("192.168.1.50:5309");
+		joinAddress.setPreferredSize(new Dimension(200, 20));
+		joinAddress.setHorizontalAlignment(JTextField.CENTER);
+		gbc.gridx = 0; 
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		add(joinAddress, gbc);
 		
 		JButton joinButton = new JButton("Join");
 		joinButton.addActionListener(this);
-		add(joinButton);
+		gbc.gridx = 2; 
+		gbc.gridy = 1;
+		gbc.gridwidth = 1;
+		add(joinButton, gbc);
+		
+		pack();
 	}
 
 	/**
