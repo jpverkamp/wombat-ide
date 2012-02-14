@@ -45,6 +45,7 @@ public final class MenuManager {
                     buildItem("Save", 'S', new wombat.gui.actions.Save()),
                     buildItem("Save as", null, new wombat.gui.actions.SaveAs()),
                     buildItem("Close", 'W', new wombat.gui.actions.Close()),
+                    buildItem("Connect", null, new wombat.gui.actions.Connect()),
                     buildItem("Exit", "ALT F4", new wombat.gui.actions.Exit())),
                 buildMenu("Edit",
             		buildItem("Cut", 'X', new wombat.gui.actions.Cut()),
@@ -58,7 +59,7 @@ public final class MenuManager {
                     buildItem("Stop", null, new wombat.gui.actions.Stop()),
                     buildItem("Format", Options.CommandFormat, new wombat.gui.actions.Format()),
                     buildItem("Reset", null, new wombat.gui.actions.Reset())),
-                    /* buildItem("Share", null, new actions.Share())), */
+                    
                 Options.buildOptionsMenu(main),
                 buildMenu("Help",
                     buildItem("Show debug console", null, new wombat.gui.actions.ShowError()),

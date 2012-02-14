@@ -19,6 +19,7 @@ import javax.swing.undo.CannotUndoException;
 import wombat.gui.frames.FindReplaceDialog;
 import wombat.gui.frames.MainFrame;
 import wombat.gui.text.SchemeTextArea;
+import wombat.gui.text.SharedTextArea;
 import wombat.util.Options;
 import wombat.util.errors.ErrorManager;
 
@@ -185,10 +186,8 @@ public final class DocumentManager implements FocusListener {
     public static boolean Save() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
-        if (me.activeDocument == null)
-            return false;
-        if (me.activeDocument.myFile == null)
-            return SaveAs();
+        if (me.activeDocument == null) return false;
+        if (me.activeDocument.myFile == null) return SaveAs();
         
         try {
             me.activeDocument.save();
@@ -210,13 +209,11 @@ public final class DocumentManager implements FocusListener {
     public static boolean SaveAs() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
-        if (me.activeDocument == null)
-            return false;
+        if (me.activeDocument == null) return false;
 
         FileDialog fc = new FileDialog(me.Main, "Save as...", FileDialog.SAVE);
         fc.setVisible(true);
-        if (fc.getFile() == null)
-            return false;
+        if (fc.getFile() == null) return false;
 
         File file = new File(fc.getDirectory(), fc.getFile());
         me.activeDocument.myFile = file;
@@ -232,11 +229,9 @@ public final class DocumentManager implements FocusListener {
     public static boolean Close(boolean force) {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
-        if (me.activeDocument == null)
-            return false;
+        if (me.activeDocument == null) return false;
 
-        if (!me.activeDocument.isEmpty())
-        {
+        if (!me.activeDocument.isEmpty()) {
             String name = me.activeDocument.myView.getViewProperties().getTitle();
             if (me.activeDocument.isDirty()) {
             	if (Options.ConfirmOnClose) {
@@ -407,7 +402,7 @@ public final class DocumentManager implements FocusListener {
 		if (me == null) throw new RuntimeException("Document manager not initialized.");
 		SchemeTextArea doc = me.activeDocument;
 		
-		new FindReplaceDialog(me.Main, false, doc.code).setVisible(true);
+		new FindReplaceDialog(me.Main, doc.code).setVisible(true);
 	}
 
     /**
@@ -436,7 +431,58 @@ public final class DocumentManager implements FocusListener {
      * Ignore this.
      * @param e
      */
-    @Override
-    public void focusLost(FocusEvent e) {
+    @Override public void focusLost(FocusEvent e) {
     }
+
+    /**
+     * Create a new shared document.
+     * @throws Exception If we cannot host.
+     */
+	public static boolean NewShared() throws Exception {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+        
+        SharedTextArea ss = SharedTextArea.host();
+        me.allDocuments.add(ss);
+        ss.code.addFocusListener(me);
+        
+        String id = ss.getID();
+        me.Views.addView(id, new View(id, null, ss));
+        ss.myView = me.Views.getView(id);
+        
+        me.Documents.addTab(me.Views.getView(id));
+        
+        if (me.Root != null && !me.Documents.isShowing())
+        	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
+         
+        ss.code.requestFocusInWindow();
+        
+        return true;
+		
+	}
+
+	/**
+	 * Connect to a shared document.
+	 * @param The server to connect to.
+	 * @throws Exception If we cannot join.
+	 */
+	public static boolean OpenShared(String connectTo) throws Exception {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+        
+        SharedTextArea ss = SharedTextArea.join(connectTo);
+        me.allDocuments.add(ss);
+        ss.code.addFocusListener(me);
+        
+        String id = ss.getID();
+        me.Views.addView(id, new View(id, null, ss));
+        ss.myView = me.Views.getView(id);
+        
+        me.Documents.addTab(me.Views.getView(id));
+        
+        if (me.Root != null && !me.Documents.isShowing())
+        	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
+         
+        ss.code.requestFocusInWindow();
+        
+        return true;
+	}
 }

@@ -146,7 +146,9 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("New").getAction(),
         		MenuManager.itemForName("Open").getAction(),
         		MenuManager.itemForName("Save").getAction(),
-        		MenuManager.itemForName("Close").getAction()})
+        		MenuManager.itemForName("Close").getAction(),
+        		MenuManager.itemForName("Connect").getAction(),
+        		})
         	ToolBar.add(new JButton(a));
         
         ToolBar.addSeparator();
@@ -156,7 +158,8 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Paste").getAction(),
         		MenuManager.itemForName("Undo").getAction(),
         		MenuManager.itemForName("Redo").getAction(),
-        		MenuManager.itemForName("Find/Replace").getAction()})
+        		MenuManager.itemForName("Find/Replace").getAction(),
+        		})
         	ToolBar.add(new JButton(a));
         	
         ToolBar.addSeparator();
@@ -164,7 +167,8 @@ public class MainFrame extends JFrame {
         ToolBar.add(ToolBarStop);
         for (Action a : new Action[]{
         		MenuManager.itemForName("Format").getAction(),
-        		MenuManager.itemForName("Reset").getAction()})
+        		MenuManager.itemForName("Reset").getAction(),
+        		})
         	ToolBar.add(new JButton(a));
         
         /*

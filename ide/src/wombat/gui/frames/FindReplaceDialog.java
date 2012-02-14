@@ -22,11 +22,10 @@ public class FindReplaceDialog extends JDialog {
 	/**
 	 * Create a new find/replace dialog.
 	 * @param parent The parent frame of this dialog.
-	 * @param modal If the frame should be modal.
 	 * @param text The text pane to replace.
 	 */
-	public FindReplaceDialog(Frame parent, boolean modal, JTextPane textPane) {
-		super(parent, modal);
+	public FindReplaceDialog(Frame parent, JTextPane textPane) {
+		super(parent, false);
 		
 		final FindReplaceDialog me = this;
 		this.text = textPane;

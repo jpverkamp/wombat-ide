@@ -27,7 +27,6 @@ public class SchemeTextArea extends JPanel {
     public static String NL = "\n"; //System.getProperty("line.separator");
     public int SavedHash;
     public UndoManager Undo = new UndoManager();
-    
     public static final Pattern WhitespaceEOL = Pattern.compile("[ \\t]+\\n");
     
     /**
@@ -36,7 +35,7 @@ public class SchemeTextArea extends JPanel {
     public SchemeTextArea() {
         super();
         setLayout(new BorderLayout());
-
+        
         code = new JTextPane() {
 			private static final long serialVersionUID = 2523699493531510651L;
 
@@ -45,7 +44,6 @@ public class SchemeTextArea extends JPanel {
             	super.paint(go);
             	
             	Graphics2D g = (Graphics2D) go;
-            	
             	
             	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
             	
@@ -90,7 +88,6 @@ public class SchemeTextArea extends JPanel {
         code.addCaretListener(new BracketMatcher(this));
         
         // Undo/redo
-        
 
         // Listen for undo and redo events
         doc.addUndoableEditListener(new UndoableEditListener() {
