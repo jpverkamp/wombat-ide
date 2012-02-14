@@ -163,14 +163,32 @@ public class SharedTextArea extends SchemeTextArea {
 	 */
 	protected void processLocal(String line) {
 		String[] parts = line.split(",");
-		if (parts.length == 2) {
+		if (parts.length == 3) {
 			if (!"type".equals(parts[0])) return;
 			
 			int at = Integer.parseInt(parts[1]);
-			char c = (char) Integer.parseInt(parts[2]);
+			int c = Integer.parseInt(parts[2]);
 			
 			try {
-				code.getDocument().insertString(at, "" + c, null);
+				if (c == 10 || c == 9) { // return
+					
+					int caret = code.getCaretPosition();
+					int changeCaret = Math.min(at, code.getDocument().getLength());
+					
+					code.setCaretPosition(caret);
+					if (c == 10) code.getDocument().insertString(caret, "\n", null);
+					int offset = tab();
+					
+					if (changeCaret < caret)
+						code.setCaretPosition(caret + offset + (c == 10 ? 1 : 0));
+					else
+						code.setCaretPosition(caret);
+					
+				} else { // any normal character
+					code.getDocument().insertString(Math.max(at, code.getDocument().getLength()), "" + (char) c, null);
+				}
+				
+				
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}

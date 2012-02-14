@@ -183,8 +183,9 @@ public class SchemeTextArea extends JPanel {
     
     /**
      * Perform a tab at the current position.
+     * @return 
      */
-    public void tab() {
+    public int tab() {
     	// Things that break tokens.
         String delimiters = "()[] ";
 
@@ -201,7 +202,7 @@ public class SchemeTextArea extends JPanel {
         }
         
         // If we're after the #!eof, don't format.
-        if (text.lastIndexOf("#!eof", pos) >= 0) return;
+        if (text.lastIndexOf("#!eof", pos) >= 0) return 0;
         
         // Variables we are trying to determine.
         int indentNow = 0;
@@ -314,13 +315,20 @@ public class SchemeTextArea extends JPanel {
 
             setText(text.substring(0, insertAt) + toInsert + text.substring(insertAt));
             code.setCaretPosition(pos + (indentTo - indentNow));
+            
+            return (indentTo - indentNow);
         }
 
         // Or remove it, if we need to.
         else if (indentNow > indentTo) {
             setText(text.substring(0, insertAt) + text.substring(insertAt + (indentNow - indentTo)));
         	code.setCaretPosition(Math.min(text.length(), Math.max(0, pos - (indentNow - indentTo))));
+        	
+        	return -1 * (indentTo - indentNow);
         }
+        
+        // Shouldn't get this far.
+        return 0;
     }
 
     /**
