@@ -37,7 +37,7 @@ public class SharedTextArea extends SchemeTextArea {
 	 */
 	private SharedTextArea() {
 		super();
-		code.setBackground(new Color(255, 240, 240));
+		code.setBackground(new Color(240, 255, 240));
 	}
 	
 	/**
