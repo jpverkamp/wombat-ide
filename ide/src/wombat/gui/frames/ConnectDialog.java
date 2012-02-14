@@ -37,7 +37,7 @@ public class ConnectDialog extends JDialog implements ActionListener {
 		
 		add(new JLabel());
 		
-		joinAddress = new JTextArea();
+		joinAddress = new JTextArea("192.168.1.50:5309");
 		add(joinAddress);
 		
 		JButton joinButton = new JButton("Join");

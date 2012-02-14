@@ -1,14 +1,14 @@
 package wombat.gui.text;
 
 import java.awt.Color;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.swing.text.BadLocationException;
+import javax.swing.event.*;
+
+import wombat.util.Base64;
 
 /**
  * Designed to share a text area between two or more users over a local network. 
@@ -25,6 +25,12 @@ public class SharedTextArea extends SchemeTextArea {
 	
 	// Used for joining text areas.
 	Client Server = null;
+	
+	// Store the last insert/remove.
+	boolean lastWasInsert = false;
+	int lastOffset = -1;
+	int lastLength = -1;
+	String lastString = "";
 	
 	/**
 	 * Create a new text area.
@@ -97,18 +103,7 @@ public class SharedTextArea extends SchemeTextArea {
 		serverProcessThread.setDaemon(true);
 		serverProcessThread.start();
 		
-		// Set up a listener to send out typed characters.
-		sta.code.addKeyListener(new KeyListener() {
-			@Override public void keyTyped(KeyEvent ke) {
-				String send = "type," + sta.code.getCaretPosition() + "," + (int) ke.getKeyChar();
-				for (Client c : sta.Clients)
-					c.send(send);
-			}
-			
-			@Override public void keyReleased(KeyEvent arg0) {}
-			
-			@Override public void keyPressed(KeyEvent arg0) {}
-		});
+		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
 		
 		return sta;
 	}
@@ -142,19 +137,26 @@ public class SharedTextArea extends SchemeTextArea {
 		};
 		fromServerThread.setDaemon(true);
 		fromServerThread.start();
-		
-		// Set up a listener to send out typed characters.
-		sta.code.addKeyListener(new KeyListener() {
-			@Override public void keyTyped(KeyEvent ke) {
-				sta.Server.send("type," + sta.code.getCaretPosition() + "," + (int) ke.getKeyChar());					
-			}
-			
-			@Override public void keyReleased(KeyEvent arg0) {}
-			
-			@Override public void keyPressed(KeyEvent arg0) {}
-		});
+
+		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
 		
 		return sta;
+	}
+	
+	/**
+	 * Clamp a number to a given range.
+	 * @param lo Low bound.
+	 * @param x Clamp this.
+	 * @param hi High bound.
+	 * @return The number clamped.
+	 */
+	int clamp(int lo, int x, int hi) {
+		if (x < lo)
+			return lo;
+		else if (x > hi)
+			return hi;
+		else
+			return x;
 	}
 	
 	/**
@@ -163,35 +165,29 @@ public class SharedTextArea extends SchemeTextArea {
 	 */
 	protected void processLocal(String line) {
 		String[] parts = line.split(",");
-		if (parts.length == 3) {
-			if (!"type".equals(parts[0])) return;
-			
-			int at = Integer.parseInt(parts[1]);
-			int c = Integer.parseInt(parts[2]);
-			
-			try {
-				if (c == 10 || c == 9) { // return
-					
-					int caret = code.getCaretPosition();
-					int changeCaret = Math.min(at, code.getDocument().getLength());
-					
-					code.setCaretPosition(caret);
-					if (c == 10) code.getDocument().insertString(caret, "\n", null);
-					int offset = tab();
-					
-					if (changeCaret < caret)
-						code.setCaretPosition(caret + offset + (c == 10 ? 1 : 0));
-					else
-						code.setCaretPosition(caret);
-					
-				} else { // any normal character
-					code.getDocument().insertString(Math.max(at, code.getDocument().getLength()), "" + (char) c, null);
-				}
+		
+		try {
+			if ("insert".equals(parts[0])) {
 				
+				int off = Integer.parseInt(parts[1]);
+				String str = new String(Base64.decode(parts[3]));
 				
-			} catch (BadLocationException e) {
-				e.printStackTrace();
+				if (lastWasInsert && off == lastOffset && lastString.equals(parts[3])) return;
+				
+				code.getDocument().insertString(off, str, null);
+				
+			} else if ("remove".equals(parts[0])) {
+				
+				int off = Integer.parseInt(parts[1]);
+				int len = Integer.parseInt(parts[2]);
+				
+				if (!lastWasInsert && off == lastOffset && len == lastLength) return;
+				
+				code.getDocument().remove(off, len);
+				
 			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -257,5 +253,72 @@ class Client {
 		} else {
 			return null;
 		}
+	}
+}
+
+/**
+ * Document listener which forwards changes to the network.
+ */
+class NetworkedDocumentListener implements DocumentListener {
+	SharedTextArea STA;
+
+	/**
+	 * Create a new networked document listener.
+	 * @param sta The shared text area.
+	 */
+	public NetworkedDocumentListener(SharedTextArea sta) {
+		STA = sta;
+	}
+	
+	/**
+	 * When the document has changed. (Formatting, ignore these.)
+	 */
+	@Override public void changedUpdate(DocumentEvent event) { }
+
+	/**
+	 * When something is inserted.
+	 */
+	@Override public void insertUpdate(DocumentEvent event) {
+		try {
+			int off = event.getOffset();
+			int len = event.getLength();
+			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes());
+			
+			String msg = "insert," + off + "," + len + "," + str;
+			
+			if (STA.Server != null) 
+				STA.Server.send(msg);
+			
+			if (STA.Clients != null) 
+				for (Client c : STA.Clients)
+					c.send(msg);
+			
+			STA.lastWasInsert = true;
+			STA.lastOffset = off;
+			STA.lastString = str;
+
+		} catch(Exception e) {
+		}
+	}
+
+	/**
+	 * When something is removed.
+	 */
+	@Override public void removeUpdate(DocumentEvent event) {
+		int off = event.getOffset();
+		int len = event.getLength();
+		
+		String msg = "remove," + off + "," + len;
+				
+		if (STA.Server != null) 
+			STA.Server.send(msg);
+		
+		if (STA.Clients != null) 
+			for (Client c : STA.Clients)
+				c.send(msg);
+		
+		STA.lastWasInsert = false;
+		STA.lastOffset = off;
+		STA.lastLength = len;
 	}
 }
