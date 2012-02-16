@@ -45,7 +45,7 @@ public class ConnectDialog extends JDialog implements ActionListener {
 		gbc.gridwidth = 1;
 		add(hostButton, gbc);
 		
-		joinAddress = new JTextField("192.168.1.50:5309");
+		joinAddress = new JTextField(""); // for testing: 192.168.1.50:5309
 		joinAddress.setPreferredSize(new Dimension(200, 20));
 		joinAddress.setHorizontalAlignment(JTextField.CENTER);
 		gbc.gridx = 0; 
