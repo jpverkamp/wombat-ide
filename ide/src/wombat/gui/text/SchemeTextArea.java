@@ -1,12 +1,9 @@
 package wombat.gui.text;
 
 import javax.swing.*;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
-import javax.swing.undo.UndoManager;
+import javax.swing.undo.*;
 
-import wombat.gui.frames.MenuManager;
 import wombat.util.Options;
 import wombat.util.errors.ErrorManager;
 
@@ -36,66 +33,8 @@ public class SchemeTextArea extends JPanel {
         super();
         setLayout(new BorderLayout());
         
-        code = new JTextPane() {
-			private static final long serialVersionUID = 2523699493531510651L;
-
-			@Override
-        	public void paint(Graphics go) {
-            	super.paint(go);
-            	
-            	Graphics2D g = (Graphics2D) go;
-            	
-            	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
-            	
-            	g.setColor(Color.LIGHT_GRAY);
-            	g.drawLine(width, 0, width, getHeight() + 10);
-        	}
-        };
-        final JScrollPane cs = new JScrollPane(code);
-        add(cs);
-        
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 100; i++)
-        	sb.append(i + "\n");
-        
-        final SchemeDocument doc = new SchemeDocument();
-        final StyledEditorKit sek = new StyledEditorKit() {
-			private static final long serialVersionUID = 8558935103754214456L;
-
-			public Document createDefaultDocument() {
-                return doc;
-            }
-        };
-
-        code.setFont(new Font("Monospaced", Font.PLAIN, Options.FontSize));
-        code.setEditorKitForContentType("text/scheme", sek);
-        code.setContentType("text/scheme");
-        code.setEditorKit(sek);
-        code.setDocument(doc);
-
-        code.getInputMap().put(KeyStroke.getKeyStroke("TAB"), new wombat.gui.actions.Tab());
-        code.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new wombat.gui.actions.Return());
-        
-        for (String name : new String[]{
-        		"New", "Open", "Save", "Save as", "Close", "Exit", 
-        		"Cut", "Copy", "Paste", "Undo", "Redo", 
-        		"Run", "Format"}) {
-        	JMenuItem item = MenuManager.itemForName(name);
-        	code.getInputMap().put(item.getAccelerator(), item.getAction());
-        }
-        
-        // Bracket highlighting.
-        code.addCaretListener(new BracketMatcher(this));
-
-        // Listen for undo and redo events
-        doc.addUndoableEditListener(new UndoableEditListener() {
-            public void undoableEditHappened(UndoableEditEvent evt) {
-            	if ("style change".equals(evt.getEdit().getPresentationName()))
-            		return;
-            	
-                Undo.addEdit(evt.getEdit());
-            }
-        });
+        code = new LinedTextPane(this);
+        add(new JScrollPane(code));
     }
     
     /**
@@ -436,3 +375,4 @@ public class SchemeTextArea extends JPanel {
 		}
 	}
 }
+

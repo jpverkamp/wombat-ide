@@ -2,6 +2,9 @@ package wombat.gui.text;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -19,6 +22,7 @@ import javax.swing.text.BadLocationException;
 
 import wombat.util.Base64;
 import wombat.util.FixedLengthList;
+import wombat.util.Options;
 
 /**
  * Designed to share a text area between two or more users over a local network. 
@@ -48,6 +52,24 @@ public class SharedTextArea extends SchemeTextArea {
 	 */
 	private SharedTextArea() {
 		super();
+		
+		// Custom text pane that displays server information.
+		code = new LinedTextPane(this) {
+			private static final long serialVersionUID = 7284878426815837099L;
+
+			@Override public void paint(Graphics go) {
+		    	super.paint(go);
+		    	
+		    	Graphics2D g = (Graphics2D) go;
+		    	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
+		    	g.setColor(Color.LIGHT_GRAY);
+		    	
+		    	g.drawString(Host == null ? "Joined" : "Hosted", width + 10, 18);
+		    	g.drawString(ID, width + 10, 36);
+			}
+		};
+        add(new JScrollPane(code));
+        
 		code.setBackground(new Color(240, 255, 240));
 	}
 
