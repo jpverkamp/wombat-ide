@@ -253,6 +253,7 @@ public final class DocumentManager implements FocusListener {
             }
         }
         
+        me.activeDocument.close();
         me.allDocuments.remove(me.activeDocument);
         me.activeDocument.myView.close();
         	        
