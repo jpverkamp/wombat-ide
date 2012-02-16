@@ -86,8 +86,6 @@ public class SchemeTextArea extends JPanel {
         
         // Bracket highlighting.
         code.addCaretListener(new BracketMatcher(this));
-        
-        // Undo/redo
 
         // Listen for undo and redo events
         doc.addUndoableEditListener(new UndoableEditListener() {
@@ -98,6 +96,12 @@ public class SchemeTextArea extends JPanel {
                 Undo.addEdit(evt.getEdit());
             }
         });
+    }
+    
+    /**
+     * Any cleanup that this object may need to do.
+     */
+    public void close() {
     }
 
     /**

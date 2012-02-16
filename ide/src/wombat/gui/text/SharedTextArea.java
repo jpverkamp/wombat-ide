@@ -1,12 +1,21 @@
 package wombat.gui.text;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.*;
+import javax.swing.text.BadLocationException;
 
 import wombat.util.Base64;
 import wombat.util.FixedLengthList;
@@ -16,6 +25,8 @@ import wombat.util.FixedLengthList;
  */
 public class SharedTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 2220038488909999007L;
+	
+	static final boolean NETWORKING_DEBUG = false;
 	
 	String ID;
 	boolean Running = true;
@@ -76,13 +87,14 @@ public class SharedTextArea extends SchemeTextArea {
 									
 									String line = c.recv();
 									if (line == null) continue;
-
+									
 									// Ignore it if it's a duplicate.
-									if (sta.lastInsertsAndRemoves.contains(line)) return;
+									if (sta.lastInsertsAndRemoves.contains(line)) continue;
 									
 									// Process the line locally (actually type the text).
-									sta.processLocal(line);
-
+									String response = sta.processLocal(line, true);
+									if (response != null) c.send(response);
+									
 									// Then forward it to the other clients.
 									for (Client cto : sta.Clients) 
 										if (c != cto)
@@ -101,7 +113,24 @@ public class SharedTextArea extends SchemeTextArea {
 		serverAcceptThread.setDaemon(true);
 		serverAcceptThread.start();
 		
-		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
+		// Add the document listener.
+		final NetworkedDocumentListener NDL = new NetworkedDocumentListener(sta);
+		sta.code.getDocument().addDocumentListener(NDL);
+		
+		// Periodically check for sync.
+		Timer t = new Timer(1000, new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				if (NDL.UnsyncedChanges && sta.Clients.size() > 0) {
+					String msg = "check-sync," + sta.getText().hashCode();
+					for (Client c : sta.Clients)
+						c.send(msg);
+					NDL.UnsyncedChanges = false;
+				}
+			}
+		});
+		t.setCoalesce(true);
+		t.setDelay(1000);
+		t.start();
 		
 		return sta;
 	}
@@ -130,15 +159,33 @@ public class SharedTextArea extends SchemeTextArea {
 					try { Thread.sleep(50); } catch(InterruptedException ex) {}
 					
 					String line = sta.Server.recv();
-					if (line != null)
-						sta.processLocal(line);
+					if (line != null) {
+						String response = sta.processLocal(line, false);
+						if (response != null) sta.Server.send(response);
+					}
 				}
 			}
 		};
 		fromServerThread.setDaemon(true);
 		fromServerThread.start();
-
-		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
+		
+		// Add the document listener.
+		final NetworkedDocumentListener NDL = new NetworkedDocumentListener(sta);
+		sta.code.getDocument().addDocumentListener(NDL);
+		
+		// Periodically check for sync.
+		Timer t = new Timer(1000, new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				if (NDL.UnsyncedChanges) {
+					String msg = "check-sync," + sta.getText().hashCode();
+					sta.Server.send(msg);
+					NDL.UnsyncedChanges = false;
+				}
+			}
+		});
+		t.setCoalesce(true);
+		t.setDelay(1000);
+		t.start();
 		
 		return sta;
 	}
@@ -162,33 +209,142 @@ public class SharedTextArea extends SchemeTextArea {
 	/**
 	 * Process a line locally, either as a host or when joined.
 	 * @param line The new line input.
+	 * @param onServer If we're doing something on the host, versus on a join'er.
+	 * @return Any response to be sent back.
 	 */
-	protected void processLocal(String line) {
+	protected String processLocal(String line, boolean onHost) {
 		String[] parts = line.split(",");
 		
 		try {
-			if ("insert".equals(parts[0])) {
+			
+			if ("hello".equals(parts[0])) {
+				
+				if (onHost && getText().length() > 0)
+					return "force-sync," + Base64.encodeBytes(getText().getBytes());
+				else
+					return null;
+				
+			} if ("insert".equals(parts[0])) {
 				
 				int off = Integer.parseInt(parts[1]);
 				String str = new String(Base64.decode(parts[3]));
 				
-				if (lastInsertsAndRemoves.contains(line)) return;
+				if (lastInsertsAndRemoves.contains(line)) return null;
 
-				code.getDocument().insertString(off, str, null);
+				try {
+					code.getDocument().insertString(off, str, null);
+					return null;
+				} catch(BadLocationException e) {
+					return "check-sync," + getText().hashCode();
+				}
 				
 			} else if ("remove".equals(parts[0])) {
 				
 				int off = Integer.parseInt(parts[1]);
 				int len = Integer.parseInt(parts[2]);
 				
-				if (lastInsertsAndRemoves.contains(line)) return;
+				if (lastInsertsAndRemoves.contains(line)) return null;
 
-				code.getDocument().remove(off, len);
+				try {
+					code.getDocument().remove(off, len);
+					return null;
+				} catch(BadLocationException e) {
+					return "check-sync," + getText().hashCode();
+				}
+				
+			} else if ("check-sync".equals(parts[0])) {
+				
+				int hash = Integer.parseInt(parts[1]);
+				int myHash = getText().hashCode();
+				
+				if (hash != myHash) {
+					setBackground(new Color(255, 240, 240));
+					
+					class WhoDialog extends JDialog {
+						private static final long serialVersionUID = 5219519601249391695L;
+						
+						boolean KeepMine = false;
+						
+						public WhoDialog() {
+							setModal(true);
+							setTitle("Out of sync...");
+							setLayout(new GridBagLayout());
+							
+							for (Component c : getComponents()) {
+								if (c instanceof AbstractButton)
+									c.getParent().remove(c);
+							}
+							
+							GridBagConstraints gbc = new GridBagConstraints();
+							gbc.insets = new Insets(5, 5, 5, 5);
+							
+							gbc.gridx = 0;
+							gbc.gridy = 0;
+							gbc.gridwidth = 2;
+							gbc.gridheight = 1;
+							gbc.fill = GridBagConstraints.BOTH;
+							add(new JLabel(
+									"<html>" +
+									"Your documents are out of sync, choose which version to take." +
+									"<br />" +
+									"Note: If different documents are chosen, this same warning will appear again." + 
+									"</html>"
+								), gbc);
+							
+							gbc.gridy = 1;
+							gbc.gridwidth = 1;
+							gbc.fill = GridBagConstraints.NONE;
+							JButton chooseMine = new JButton("Keep mine");
+							chooseMine.addActionListener(new ActionListener() {
+								@Override public void actionPerformed(ActionEvent arg0) {
+									KeepMine = true;
+									setVisible(false);
+								}
+							});
+							add(chooseMine, gbc);
+							
+							gbc.gridx = 1;
+							JButton chooseTheirs = new JButton("Keep theirs");
+							chooseTheirs.addActionListener(new ActionListener() {
+								@Override public void actionPerformed(ActionEvent e) {
+									KeepMine = false;  
+									setVisible(false);
+								}
+							});
+							add(chooseTheirs, gbc);
+							
+							pack();
+						}
+					};
+					
+					// Set it up and wait for a response.
+					WhoDialog checkWho = new WhoDialog();
+					checkWho.setVisible(true);
+					
+					// If we get this far, the user wants to sync and not keep their own.
+					if (!checkWho.KeepMine) 
+						return "request-sync";
+				}
+				return null;
+				
+			} else if ("request-sync".equals(parts[0])) {
+				
+				return "force-sync," + Base64.encodeBytes(getText().getBytes());
+				
+			} else if ("force-sync".equals(parts[0])) {
+				
+				String str = new String(Base64.decode(parts[1]));
+				code.setText(str);
+				return null;
 				
 			}
+			
+			
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}
+		
+		return null;
 	}
 
 	/**
@@ -222,7 +378,7 @@ class Client {
 	/**
 	 * Shut down the client
 	 */
-	public void dispose() {
+	public void close() {
 		try {
 			To.close();
 			From.close();
@@ -236,7 +392,9 @@ class Client {
 	 * @param msg
 	 */
 	public void send(String msg) {
-		System.out.println("send to " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg); // debug
+		if (SharedTextArea.NETWORKING_DEBUG)  // debug
+			System.out.println("send to " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg);
+		
 		To.println(msg); 
 		To.flush();
 	}
@@ -248,7 +406,10 @@ class Client {
 	public String recv() {
 		if (From.hasNextLine()) {
 			String msg = From.nextLine();
-			System.out.println("recv from " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg); // debug
+			
+			if (SharedTextArea.NETWORKING_DEBUG)  // debug
+				System.out.println("recv from " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg); 
+			
 			return msg;
 		} else {
 			return null;
@@ -261,6 +422,7 @@ class Client {
  */
 class NetworkedDocumentListener implements DocumentListener {
 	SharedTextArea STA;
+	boolean UnsyncedChanges = false;
 
 	/**
 	 * Create a new networked document listener.
@@ -280,6 +442,9 @@ class NetworkedDocumentListener implements DocumentListener {
 	 */
 	@Override public void insertUpdate(DocumentEvent event) {
 		try {
+			
+			UnsyncedChanges = true;
+			
 			int off = event.getOffset();
 			int len = event.getLength();
 			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes());
@@ -302,6 +467,9 @@ class NetworkedDocumentListener implements DocumentListener {
 	 * When something is removed.
 	 */
 	@Override public void removeUpdate(DocumentEvent event) {
+		
+		UnsyncedChanges = true;
+		
 		int off = event.getOffset();
 		int len = event.getLength();
 		
@@ -314,5 +482,6 @@ class NetworkedDocumentListener implements DocumentListener {
 		if (STA.Clients != null) 
 			for (Client c : STA.Clients)
 				c.send(msg);
+		
 	}
 }
