@@ -37,7 +37,7 @@ public class Petite {
 			t.setDaemon(true);
 			t.start();
 			
-			while (true) {
+			while (p.isRunning()) {
 				if (p.isReady() && s.hasNextLine()) {
 					String cmd = s.nextLine();
 					p.sendCommand(cmd);
@@ -59,6 +59,7 @@ public class Petite {
     static final char Promt1 = '|';
     static final char Promt2 = '`';
 	
+    boolean Running;
     boolean Starting;
     boolean SeenPromt1;
     boolean Ready;
@@ -93,6 +94,7 @@ public class Petite {
 		Starting = true;
 		SeenPromt1 = false;
 	    Ready = false;
+	    Running = true;
 	    
 	    if (Buffer == null)
 	    	Buffer = new StringBuffer();
@@ -206,51 +208,58 @@ public class Petite {
 			FromPetiteThread = new Thread() {
 				public void run() {
 					char c;
-					while (true) {
-						try {
-							while (true) {
-								c = (char) FromPetite.read();
-								
-								BufferLock.lock();
-								
-								// Potential start of a prompt.
-								if (c == Promt1) {
-									SeenPromt1 = true;
-								}
-								
-								// The whole prompt.
-								else if (SeenPromt1 && c == Promt2) {
-									SeenPromt1 = false;
-									
-									if (Starting) {
-										Buffer.delete(0, Buffer.length());
-										Starting = false;
-									}
-									
-									Ready = true;
-								}
-								
-								// Thought it was a prompt, but we were wrong.
-								// Remember to store the first half of the prompt.
-								else if (SeenPromt1) {
-									SeenPromt1 = false;
-									
-									Buffer.append(Promt1);
-									Buffer.append(c);
-								}
-								
-								// Normal case, no new characters.
-								else {
-									Buffer.append(c);
-								}
-								
-								BufferLock.unlock();
+					try {
+						while (true) {
+							c = (char) FromPetite.read();
+							BufferLock.lock();
+							
+							// Close down on end of file.
+							if (c == (char) 65535) {
+								Running = false;
+								break;
 							}
 							
-						} catch(Exception e) {
-							System.err.println("Petite buffer is broken");
-							Buffer.append("\nException: Petite buffer is broken\n");
+							// Potential start of a prompt.
+							else if (c == Promt1) {
+								SeenPromt1 = true;
+							}
+							
+							// The whole prompt.
+							else if (SeenPromt1 && c == Promt2) {
+								SeenPromt1 = false;
+								
+								if (Starting) {
+									Buffer.delete(0, Buffer.length());
+									Starting = false;
+								}
+								
+								Ready = true;
+							}
+							
+							// Thought it was a prompt, but we were wrong.
+							// Remember to store the first half of the prompt.
+							else if (SeenPromt1) {
+								SeenPromt1 = false;
+								
+								Buffer.append(Promt1);
+								Buffer.append(c);
+							}
+							
+							// Normal case, no new characters.
+							else {
+								Buffer.append(c);
+							}
+							
+							BufferLock.unlock();
 						}
+						
+					} catch(Exception e) {
+						System.err.println("Petite buffer is broken");
+						Buffer.append("\nException: Petite buffer is broken\n");
+
+						// If we get here, Petite has collapsed.
+						// Destroy the connected process and restart.
+						try { restart(); } catch (Exception e2) { }
 					}
 				}
 			};
@@ -283,6 +292,14 @@ public class Petite {
 	 */
 	public boolean isReady() {
 		return Ready;
+	}
+	
+	/**
+	 * Check if the process is still running.
+	 * @return If the process is still running.
+	 */
+	public boolean isRunning() {
+		return Running;
 	}
 	
 	/**
