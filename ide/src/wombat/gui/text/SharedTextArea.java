@@ -30,6 +30,8 @@ public class SharedTextArea extends SchemeTextArea {
 	
 	String ID;
 	boolean Running = true;
+	SyncTimer SyncTimer;
+	WhoDialog SyncWho = new WhoDialog();
 	
 	// Used for the hosting text areas.
 	ServerSocket Host = null;
@@ -113,24 +115,10 @@ public class SharedTextArea extends SchemeTextArea {
 		serverAcceptThread.setDaemon(true);
 		serverAcceptThread.start();
 		
-		// Add the document listener.
-		final NetworkedDocumentListener NDL = new NetworkedDocumentListener(sta);
-		sta.code.getDocument().addDocumentListener(NDL);
-		
-		// Periodically check for sync.
-		Timer t = new Timer(1000, new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {
-				if (NDL.UnsyncedChanges && sta.Clients.size() > 0) {
-					String msg = "check-sync," + sta.getText().hashCode();
-					for (Client c : sta.Clients)
-						c.send(msg);
-					NDL.UnsyncedChanges = false;
-				}
-			}
-		});
-		t.setCoalesce(true);
-		t.setDelay(1000);
-		t.start();
+		// Add the document listener and start the sync timer.
+		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
+		sta.SyncTimer = new SyncTimer(sta);
+		sta.SyncTimer.start();
 		
 		return sta;
 	}
@@ -169,23 +157,10 @@ public class SharedTextArea extends SchemeTextArea {
 		fromServerThread.setDaemon(true);
 		fromServerThread.start();
 		
-		// Add the document listener.
-		final NetworkedDocumentListener NDL = new NetworkedDocumentListener(sta);
-		sta.code.getDocument().addDocumentListener(NDL);
-		
-		// Periodically check for sync.
-		Timer t = new Timer(1000, new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {
-				if (NDL.UnsyncedChanges) {
-					String msg = "check-sync," + sta.getText().hashCode();
-					sta.Server.send(msg);
-					NDL.UnsyncedChanges = false;
-				}
-			}
-		});
-		t.setCoalesce(true);
-		t.setDelay(1000);
-		t.start();
+		// Add the document listener and start the sync timer.
+		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
+		sta.SyncTimer = new SyncTimer(sta);
+		sta.SyncTimer.start();
 		
 		return sta;
 	}
@@ -232,6 +207,7 @@ public class SharedTextArea extends SchemeTextArea {
 				if (lastInsertsAndRemoves.contains(line)) return null;
 
 				try {
+					SyncTimer.setActive();
 					code.getDocument().insertString(off, str, null);
 					return null;
 				} catch(BadLocationException e) {
@@ -246,6 +222,7 @@ public class SharedTextArea extends SchemeTextArea {
 				if (lastInsertsAndRemoves.contains(line)) return null;
 
 				try {
+					SyncTimer.setActive();
 					code.getDocument().remove(off, len);
 					return null;
 				} catch(BadLocationException e) {
@@ -254,75 +231,23 @@ public class SharedTextArea extends SchemeTextArea {
 				
 			} else if ("check-sync".equals(parts[0])) {
 				
+				// Ignore it if we already have one in progress.
+				if (SyncWho.isVisible())
+					return null;
+				
+				// Otherwise, process like normal.
 				int hash = Integer.parseInt(parts[1]);
 				int myHash = getText().hashCode();
 				
 				if (hash != myHash) {
 					setBackground(new Color(255, 240, 240));
 					
-					class WhoDialog extends JDialog {
-						private static final long serialVersionUID = 5219519601249391695L;
-						
-						boolean KeepMine = false;
-						
-						public WhoDialog() {
-							setModal(true);
-							setTitle("Out of sync...");
-							setLayout(new GridBagLayout());
-							
-							for (Component c : getComponents()) {
-								if (c instanceof AbstractButton)
-									c.getParent().remove(c);
-							}
-							
-							GridBagConstraints gbc = new GridBagConstraints();
-							gbc.insets = new Insets(5, 5, 5, 5);
-							
-							gbc.gridx = 0;
-							gbc.gridy = 0;
-							gbc.gridwidth = 2;
-							gbc.gridheight = 1;
-							gbc.fill = GridBagConstraints.BOTH;
-							add(new JLabel(
-									"<html>" +
-									"Your documents are out of sync, choose which version to take." +
-									"<br />" +
-									"Note: If different documents are chosen, this same warning will appear again." + 
-									"</html>"
-								), gbc);
-							
-							gbc.gridy = 1;
-							gbc.gridwidth = 1;
-							gbc.fill = GridBagConstraints.NONE;
-							JButton chooseMine = new JButton("Keep mine");
-							chooseMine.addActionListener(new ActionListener() {
-								@Override public void actionPerformed(ActionEvent arg0) {
-									KeepMine = true;
-									setVisible(false);
-								}
-							});
-							add(chooseMine, gbc);
-							
-							gbc.gridx = 1;
-							JButton chooseTheirs = new JButton("Keep theirs");
-							chooseTheirs.addActionListener(new ActionListener() {
-								@Override public void actionPerformed(ActionEvent e) {
-									KeepMine = false;  
-									setVisible(false);
-								}
-							});
-							add(chooseTheirs, gbc);
-							
-							pack();
-						}
-					};
-					
 					// Set it up and wait for a response.
-					WhoDialog checkWho = new WhoDialog();
-					checkWho.setVisible(true);
+					SyncWho.KeepMine = false;
+					SyncWho.setVisible(true);
 					
 					// If we get this far, the user wants to sync and not keep their own.
-					if (!checkWho.KeepMine) 
+					if (SyncWho.KeepMine) 
 						return "request-sync";
 				}
 				return null;
@@ -333,6 +258,7 @@ public class SharedTextArea extends SchemeTextArea {
 				
 			} else if ("force-sync".equals(parts[0])) {
 				
+				SyncTimer.setActive();
 				String str = new String(Base64.decode(parts[1]));
 				code.setText(str);
 				return null;
@@ -422,7 +348,6 @@ class Client {
  */
 class NetworkedDocumentListener implements DocumentListener {
 	SharedTextArea STA;
-	boolean UnsyncedChanges = false;
 
 	/**
 	 * Create a new networked document listener.
@@ -443,7 +368,7 @@ class NetworkedDocumentListener implements DocumentListener {
 	@Override public void insertUpdate(DocumentEvent event) {
 		try {
 			
-			UnsyncedChanges = true;
+			STA.SyncTimer.setActive();
 			
 			int off = event.getOffset();
 			int len = event.getLength();
@@ -468,7 +393,7 @@ class NetworkedDocumentListener implements DocumentListener {
 	 */
 	@Override public void removeUpdate(DocumentEvent event) {
 		
-		UnsyncedChanges = true;
+		STA.SyncTimer.setActive();
 		
 		int off = event.getOffset();
 		int len = event.getLength();
@@ -485,3 +410,124 @@ class NetworkedDocumentListener implements DocumentListener {
 		
 	}
 }
+
+/**
+ * Timer that keeps things syncronized.
+ * @author verkampj
+ *
+ */
+class SyncTimer extends Timer {
+	private static final long serialVersionUID = 8137378222084313020L;
+	private boolean DocumentActive = false;
+	private boolean SyncedLastInactive = false;
+	
+	/**
+	 * Create a sync timer for a given text area.
+	 * @param sta
+	 */
+	public SyncTimer(final SharedTextArea sta) {
+		super(1000, null);
+		
+		addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				
+				// Only sync when the previous cycle wasn't active ... 
+				if (!DocumentActive) {
+					// ... and we didn't already sync.
+					if (!SyncedLastInactive) {
+						
+						String msg = "check-sync," + sta.getText().hashCode();
+						
+						if (sta.Server != null)
+							sta.Server.send(msg);
+						
+						if (sta.Clients != null)
+							for (Client c : sta.Clients)
+								c.send(msg);
+						
+						SyncedLastInactive = true;
+						
+					} 
+				}
+				
+				// Reset the active flag.
+				DocumentActive = false;
+			}
+		});
+		
+		setCoalesce(true);
+		setDelay(1000);
+		setInitialDelay(1000);
+	}
+	
+	/**
+	 * The document is active, don't continue.
+	 */
+	public void setActive() {
+		DocumentActive = true;
+		SyncedLastInactive = false;
+	}
+}
+
+/**
+ * Ask which version to keep, mine or theirs.
+ */
+class WhoDialog extends JDialog {
+	private static final long serialVersionUID = 5219519601249391695L;
+	
+	boolean KeepMine = false;
+	
+	/**
+	 * Create the dialog.
+	 */
+	public WhoDialog() {
+		setModal(true);
+		setTitle("Out of sync...");
+		setLayout(new GridBagLayout());
+		
+		for (Component c : getComponents()) {
+			if (c instanceof AbstractButton)
+				c.getParent().remove(c);
+		}
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.gridheight = 1;
+		gbc.fill = GridBagConstraints.BOTH;
+		add(new JLabel(
+				"<html>" +
+				"Your documents are out of sync, choose which version to take." +
+				"<br />" +
+				"Note: If different documents are chosen, this same warning will appear again." + 
+				"</html>"
+			), gbc);
+		
+		gbc.gridy = 1;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		JButton chooseMine = new JButton("Keep mine");
+		chooseMine.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				KeepMine = true;
+				setVisible(false);
+			}
+		});
+		add(chooseMine, gbc);
+		
+		gbc.gridx = 1;
+		JButton chooseTheirs = new JButton("Keep theirs");
+		chooseTheirs.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) {
+				KeepMine = false;  
+				setVisible(false);
+			}
+		});
+		add(chooseTheirs, gbc);
+		
+		pack();
+	}
+};
