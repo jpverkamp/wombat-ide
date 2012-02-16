@@ -92,7 +92,13 @@ public class SharedTextArea extends SchemeTextArea {
 		}
 		
 		// Use that to determine the ID.
-		sta.ID = InetAddress.getLocalHost().getHostAddress() + ":" + sta.Host.getLocalPort();
+		byte[] addr = InetAddress.getLocalHost().getAddress();
+		byte[] data = Arrays.copyOf(addr, addr.length + 2);
+		data[data.length - 2] = (byte) ((sta.Host.getLocalPort() / 256) - 128);
+		data[data.length - 1] = (byte) ((sta.Host.getLocalPort() % 256) - 128);
+		sta.ID = Base64.encodeBytes(data);
+		
+//		sta.ID = InetAddress.getLocalHost().getHostAddress() + ":" + sta.Host.getLocalPort();
 		
 		// Start a thread to get new clients.
 		Thread serverAcceptThread = new Thread() {
@@ -151,9 +157,16 @@ public class SharedTextArea extends SchemeTextArea {
 	 * @throws Exception If we can't get the server.
 	 */
 	public static SharedTextArea join(String connectTo) throws Exception {
-		String[] parts = connectTo.split(":");
-		InetAddress ip = InetAddress.getByName(parts[0]);
-		int port = Integer.parseInt(parts[1]);
+		byte[] data = Base64.decode(connectTo);
+		byte[] addr = Arrays.copyOf(data, data.length - 2);
+		InetAddress ip = InetAddress.getByAddress(addr);
+		int lo = ((int) data[data.length - 2]) + 128;
+		int hi = ((int) data[data.length - 1]) + 128;
+		int port = lo * 256 + hi;
+		
+//		String[] parts = connectTo.split(":");
+//		InetAddress ip = InetAddress.getByName(parts[0]);
+//		int port = Integer.parseInt(parts[1]);
 		
 		final SharedTextArea sta = new SharedTextArea();
 		sta.ID = connectTo;
