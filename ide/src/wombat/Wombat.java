@@ -1,6 +1,6 @@
 package wombat;
 
-import gui.MainFrame;
+import wombat.gui.frames.MainFrame;
 
 /**
  * Main entry point of the program.

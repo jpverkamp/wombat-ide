@@ -67,7 +67,6 @@ public class Main {
 			loadVersionFile();
 			verifyFiles();
 			launch();
-			checkForUpdates();
 		} catch(Exception e) {
 			JOptionPane.showMessageDialog(
 					null, 
@@ -76,6 +75,12 @@ public class Main {
 						(e.getMessage().length() > 0 ? "Reason:\n" + e.getMessage() : ""),
 					"Unable to launch Wombat", JOptionPane.OK_OPTION);
 			System.exit(0);
+		}
+		
+		try {
+			checkForUpdates();
+		} catch(Exception e) {
+			
 		}
 	}
 
