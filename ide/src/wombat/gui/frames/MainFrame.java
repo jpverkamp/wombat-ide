@@ -147,7 +147,13 @@ public class MainFrame extends JFrame {
         		MenuManager.itemForName("Open").getAction(),
         		MenuManager.itemForName("Save").getAction(),
         		MenuManager.itemForName("Close").getAction(),
+        		})
+        	ToolBar.add(new JButton(a));
+        
+        ToolBar.addSeparator();
+        for (Action a : new Action[]{
         		MenuManager.itemForName("Connect").getAction(),
+        		MenuManager.itemForName("Upload").getAction(),
         		})
         	ToolBar.add(new JButton(a));
         

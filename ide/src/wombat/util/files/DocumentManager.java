@@ -489,4 +489,17 @@ public final class DocumentManager implements FocusListener {
         
         return true;
 	}
+
+	/**
+	 * Get the file that the active document is using.
+	 * @return The filename.
+	 */
+	public static File getActiveFile() {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+		
+		if (me.activeDocument == null) 
+			return null;
+		else 
+			return me.activeDocument.myFile;
+	}
 }

@@ -45,21 +45,25 @@ public final class MenuManager {
                     buildItem("Save", 'S', new wombat.gui.actions.Save()),
                     buildItem("Save as", null, new wombat.gui.actions.SaveAs()),
                     buildItem("Close", 'W', new wombat.gui.actions.Close()),
+                    null,
                     buildItem("Connect", null, new wombat.gui.actions.Connect()),
+                    buildItem("Upload", null, new wombat.gui.actions.Upload()),
+                    null,
                     buildItem("Exit", "ALT F4", new wombat.gui.actions.Exit())),
                 buildMenu("Edit",
             		buildItem("Cut", 'X', new wombat.gui.actions.Cut()),
             		buildItem("Copy", 'C', new wombat.gui.actions.Copy()),
             		buildItem("Paste", 'V', new wombat.gui.actions.Paste()),
+            		null,
             		buildItem("Undo", 'Z', new wombat.gui.actions.Undo()),
             		buildItem("Redo", 'Y', new wombat.gui.actions.Redo()),
+            		null,
             		buildItem("Find/Replace", 'F', new wombat.gui.actions.FindReplace())),
                 buildMenu("Scheme",
                     buildItem("Run", Options.CommandRun, new wombat.gui.actions.Run()),
                     buildItem("Stop", null, new wombat.gui.actions.Stop()),
                     buildItem("Format", Options.CommandFormat, new wombat.gui.actions.Format()),
                     buildItem("Reset", null, new wombat.gui.actions.Reset())),
-                    
                 Options.buildOptionsMenu(main),
                 buildMenu("Help",
                     buildItem("Show debug console", null, new wombat.gui.actions.ShowError()),
@@ -142,7 +146,10 @@ public final class MenuManager {
     private JMenu buildMenu(String name, JMenuItem... items) {
         JMenu menu = new JMenu(name);
         for (JMenuItem item : items)
-            menu.add(item);
+        	if (item == null)
+        		menu.addSeparator();
+        	else
+            	menu.add(item);
         return menu;
     }
     
