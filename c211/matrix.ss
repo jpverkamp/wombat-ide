@@ -28,6 +28,11 @@ Other:
     - print the matrix to the console (only the top left corner for large ones)
   (draw-matrix m)
     - display a graphical matrix (will show all of the values, uses Java)
+
+Parameters:
+  print-matrix-rows = the maximum number of printed rows
+  print-matrix-cols = the maximum number of printed columns
+  print-matrix-width = the maximum width of elements to print
 |#
 
 (library
@@ -37,7 +42,8 @@ Other:
     matrix?
     matrix-rows matrix-cols matrix-ref
     matrix-set!
-    print-matrix draw-matrix)
+    print-matrix draw-matrix
+    print-matrix-rows print-matrix-cols print-matrix-width)
 
   (import (chezscheme))
 
@@ -48,12 +54,19 @@ Other:
   (define make-matrix
     (case-lambda
       [(rs cs)
+       (@check-integer 'make-matrix rs)
+       (@check-integer 'make-matrix cs)
        ((record-constructor :matrix) rs cs (make-vector (* rs cs)))]
       [(rs cs i)
+       (@check-integer 'make-matrix rs)
+       (@check-integer 'make-matrix cs)
        (matrix-generator rs cs (lambda (_) i))]))
 
   ; generate a matrix using a generating function based on row and column
   (define (matrix-generator rs cs p)
+    (@check-integer 'matrix-generator rs)
+    (@check-integer 'matrix-generator cs)
+    (@check-procedure 'matrix-generator p)
     (let ([m (make-matrix rs cs)])
       (let ^ ([r 0] [c 0])
         (cond
@@ -71,45 +84,69 @@ Other:
   (define matrix-cols (record-accessor :matrix 1))
   (define matrix-data (record-accessor :matrix 2))
 
+  ; verifiers
+  (define (make-check pred? name)
+    (lambda (proc v)
+      (when (not (pred? v))
+        (error proc (format "~a is not of type ~a" v name)))))
+
+  (define @check-integer (make-check integer? "integer"))
+  (define @check-procedure (make-check procedure? "procedure"))
+  (define @check-matrix (make-check matrix? "matrix"))
+
+  (define (@check-bounds proc i r c)
+    (@check-integer proc r)
+    (@check-integer proc c)
+    (when (or (< r 0) (>= r (matrix-rows i))
+              (< c 0) (>= c (matrix-cols i)))
+      (error proc
+        (format "(~a, ~a) is not a valid index for ~a" r c i))))
+
   ; access values in a matrix
   (define (matrix-ref m r c)
-    (if (or (< r 0) (< c 0) (>= r (matrix-rows m)) (>= c (matrix-cols m)))
-        (error 'matrix-ref
-          (format "(~a, ~a) is not a valid index for a ~a by ~a matrix"
-            r c (matrix-rows m) (matrix-cols m)))
-        (vector-ref (matrix-data m) (+ (* r (matrix-cols m)) c))))
+    (@check-matrix 'matrix-ref m)
+    (@check-bounds 'matrix-ref m r c)
+    (vector-ref (matrix-data m) (+ (* r (matrix-cols m)) c)))
 
   ; mutate the matrix
   (define (matrix-set! m r c v)
-    (if (or (< r 0) (< c 0) (>= r (matrix-rows m)) (>= c (matrix-cols m)))
-        (error 'matrix-set!
-          (format "(~a, ~a) is not a valid index for a ~a by ~a matrix"
-            r c (matrix-rows m) (matrix-cols m)))
-        (vector-set! (matrix-data m) (+ (* r (matrix-cols m)) c) v)))
+    (@check-matrix 'matrix-ref m)
+    (@check-bounds 'matrix-set! m r c)
+    (vector-set! (matrix-data m) (+ (* r (matrix-cols m)) c) v))
 
   ; display the matrix
+  (define print-matrix-rows (make-parameter 10))
+  (define print-matrix-cols (make-parameter 10))
+  (define print-matrix-width (make-parameter 5))
   (define (print-matrix m)
-    (define $draw-matrix-rows$ 10)
-    (define $draw-matrix-cols$ 10)
-    (define $draw-matrix-width$ 5)
+    (@check-matrix 'print-matrix m)
     (let ^ ([r 0] [c 0])
       (cond
-        [(> r $draw-matrix-rows$) (printf "...\n") (void)]
+        [(> r (print-matrix-rows)) (printf "...\n") (void)]
         [(= r (matrix-rows m)) (printf "\n") (void)]
-        [(> c $draw-matrix-cols$) (printf "... \n") (^ (+ r 1) 0)]
+        [(> c (print-matrix-cols)) (printf "... \n") (^ (+ r 1) 0)]
         [(= c (matrix-cols m)) (printf "\n") (^ (+ r 1) 0)]
         [else
           (printf
             (let ([s (format "~a" (matrix-ref m r c))])
-              (if (>= (string-length s) $draw-matrix-width$)
-                  (string-append (substring s 0 (- $draw-matrix-width$ 1)) "~~ ")
+              (if (>= (string-length s) (print-matrix-width))
+                  (string-append (substring s 0 (- (print-matrix-width) 1)) "~~ ")
                   (format
                     (string-append "~"
-                      (number->string $draw-matrix-width$) "a ")
+                      (number->string (print-matrix-width)) "a ")
                     s))))
           (^ r (+ c 1))])))
 
   ; draw the matrix (uses the network connection to Java)
   (define (draw-matrix m)
     #f)
+
+  ; tweak how matricies are printed
+  (record-writer :matrix
+    (lambda (r p wr)
+      (display "#[matrix " p)
+      (wr (matrix-rows r) p)
+      (display " " p)
+      (wr (matrix-cols r) p)
+      (display "]" p)))
   )
