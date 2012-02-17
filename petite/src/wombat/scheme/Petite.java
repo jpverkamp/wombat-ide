@@ -313,6 +313,7 @@ public class Petite {
 		sendCommand("(library-directories `((\"..\" . \"..\") . ,(library-directories)))");
 		sendCommand("(print-gensym #f)");
 		sendCommand("(define (omega) ((lambda (x) (x x)) (lambda (x) (x x))))");
+		sendCommand("(define-syntax \u03BB (syntax-rules () [(\u03BB a ...) (lambda a ...)]))");
 	}
 	
 	/**

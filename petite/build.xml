@@ -10,7 +10,7 @@
 	<property name="lib-dir" location="lib" />
 	
 	<property name="petite-version" value="8.4" />
-	<property name="petite-bindings" value="${petite-version}.1" />
+	<property name="petite-bindings" value="${petite-version}.2" />
 	
 	<property name="petite-jar-name" value="petite-${petite-bindings}.jar" />
 	
