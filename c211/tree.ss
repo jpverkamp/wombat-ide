@@ -1,4 +1,35 @@
-; Provides the C211 tree modules
+; Provides the C211 tree library
+
+#|
+Constructors:
+  (tree v l r)
+    - creates a tree with value v and left and right subtrees l and r
+  (leaf v)
+    - identical to (tree v (empty-tree) (empty-tree))
+  (empty-tree)
+    - creates a new empty tree
+
+Predicates:
+  (tree? t)
+    - tests if something is a tree (either a full tree, a leaf, or empty)
+  (leaf? t)
+    - tests if something is a tree with no children (and not empty)
+  (empty-tree? t)
+    - tests if something is an empty tree (no children or value)
+
+Accessors:
+  (root-value t)
+    - get the value out of the tree
+  (left-subtree t)
+    - access the left subtree of a tree
+  (right-subtree t)
+    - access the right subtree of a tree
+
+Other:
+  (draw-tree t)
+    - display a graphical representation of the tree
+|#
+
 (library
   (c211 tree)
   (export
