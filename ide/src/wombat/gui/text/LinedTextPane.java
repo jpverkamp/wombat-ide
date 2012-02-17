@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -40,6 +42,18 @@ public class LinedTextPane extends JTextPane {
 
         getInputMap().put(KeyStroke.getKeyStroke("TAB"), new wombat.gui.actions.Tab());
         getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new wombat.gui.actions.Return());
+        getInputMap().put(KeyStroke.getKeyStroke(((Character) 'L').charValue(), Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), 
+        		new AbstractAction() {
+					private static final long serialVersionUID = 5003494780540838485L;
+		
+					@Override public void actionPerformed(ActionEvent e) {
+						try {
+							getDocument().insertString(getCaretPosition(), "\u03BB", null);
+						} catch (BadLocationException e1) {
+							e1.printStackTrace();
+						}
+					}
+				});
         
         for (String name : new String[]{
         		"New", "Open", "Save", "Save as", "Close", "Exit", 
