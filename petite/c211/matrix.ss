@@ -54,19 +54,19 @@ Parameters:
   (define make-matrix
     (case-lambda
       [(rs cs)
-       (@check-integer 'make-matrix rs)
-       (@check-integer 'make-matrix cs)
+       (!check-integer 'make-matrix rs)
+       (!check-integer 'make-matrix cs)
        ((record-constructor :matrix) rs cs (make-vector (* rs cs)))]
       [(rs cs i)
-       (@check-integer 'make-matrix rs)
-       (@check-integer 'make-matrix cs)
+       (!check-integer 'make-matrix rs)
+       (!check-integer 'make-matrix cs)
        (matrix-generator rs cs (lambda (_) i))]))
 
   ; generate a matrix using a generating function based on row and column
   (define (matrix-generator rs cs p)
-    (@check-integer 'matrix-generator rs)
-    (@check-integer 'matrix-generator cs)
-    (@check-procedure 'matrix-generator p)
+    (!check-integer 'matrix-generator rs)
+    (!check-integer 'matrix-generator cs)
+    (!check-procedure 'matrix-generator p)
     (let ([m (make-matrix rs cs)])
       (let ^ ([r 0] [c 0])
         (cond
@@ -90,13 +90,13 @@ Parameters:
       (when (not (pred? v))
         (error proc (format "~a is not of type ~a" v name)))))
 
-  (define @check-integer (make-check integer? "integer"))
-  (define @check-procedure (make-check procedure? "procedure"))
-  (define @check-matrix (make-check matrix? "matrix"))
+  (define !check-integer (make-check integer? "integer"))
+  (define !check-procedure (make-check procedure? "procedure"))
+  (define !check-matrix (make-check matrix? "matrix"))
 
-  (define (@check-bounds proc i r c)
-    (@check-integer proc r)
-    (@check-integer proc c)
+  (define (!check-bounds proc i r c)
+    (!check-integer proc r)
+    (!check-integer proc c)
     (when (or (< r 0) (>= r (matrix-rows i))
               (< c 0) (>= c (matrix-cols i)))
       (error proc
@@ -104,14 +104,14 @@ Parameters:
 
   ; access values in a matrix
   (define (matrix-ref m r c)
-    (@check-matrix 'matrix-ref m)
-    (@check-bounds 'matrix-ref m r c)
+    (!check-matrix 'matrix-ref m)
+    (!check-bounds 'matrix-ref m r c)
     (vector-ref (matrix-data m) (+ (* r (matrix-cols m)) c)))
 
   ; mutate the matrix
   (define (matrix-set! m r c v)
-    (@check-matrix 'matrix-ref m)
-    (@check-bounds 'matrix-set! m r c)
+    (!check-matrix 'matrix-ref m)
+    (!check-bounds 'matrix-set! m r c)
     (vector-set! (matrix-data m) (+ (* r (matrix-cols m)) c) v))
 
   ; display the matrix
@@ -119,7 +119,7 @@ Parameters:
   (define print-matrix-cols (make-parameter 10))
   (define print-matrix-width (make-parameter 5))
   (define (print-matrix m)
-    (@check-matrix 'print-matrix m)
+    (!check-matrix 'print-matrix m)
     (let ^ ([r 0] [c 0])
       (cond
         [(> r (print-matrix-rows)) (printf "...\n") (void)]

@@ -85,8 +85,8 @@ Other:
 
   ; map an image to another image
   (define (image-map p i)
-    (@check-image 'image-map i)
-    (@check-procedure 'image-map p)
+    (!check-image 'image-map i)
+    (!check-procedure 'image-map p)
     (let ([i* (make-image (image-rows i) (image-cols i))])
       (let ^ ([r 0] [c 0])
         (cond
@@ -113,20 +113,20 @@ Other:
       (when (not (pred? v))
         (error proc (format "~a is not the correct type, expected ~a" v name)))))
 
-  (define @check-integer (make-check integer? "integer"))
-  (define @check-procedure (make-check procedure? "procedure"))
-  (define @check-color (make-check color? "color"))
-  (define @check-image (make-check image? "color"))
+  (define !check-integer (make-check integer? "integer"))
+  (define !check-procedure (make-check procedure? "procedure"))
+  (define !check-color (make-check color? "color"))
+  (define !check-image (make-check image? "color"))
 
-  (define @check-band
+  (define !check-band
     (make-check
       (lambda (b) (or (and (integer? b) (<= 0 b 2))
                       (member b '(red green blue))))
       "a band number, 'red, 'green, or 'blue"))
 
-  (define (@check-bounds proc i r c)
-    (@check-integer proc r)
-    (@check-integer proc c)
+  (define (!check-bounds proc i r c)
+    (!check-integer proc r)
+    (!check-integer proc c)
     (when (or (< r 0) (>= r (image-rows i))
               (< c 0) (>= c (image-cols i)))
       (error proc
@@ -136,23 +136,23 @@ Other:
   (define image-ref
     (case-lambda
       [(i r c)
-       (@check-bounds 'image-ref i r c)
+       (!check-bounds 'image-ref i r c)
        (matrix-ref (image-data i) r c)]
       [(i r c b)
-       (@check-bounds 'image-ref i r c)
-       (@check-band 'image-ref b)
+       (!check-bounds 'image-ref i r c)
+       (!check-band 'image-ref b)
        (color-ref (matrix-ref (image-data i) r c) b)]))
 
   ; get a band out of a color
   (define (color-ref c b)
-    (@check-color 'color-ref c)
-    (@check-band 'color-ref b)
+    (!check-color 'color-ref c)
+    (!check-band 'color-ref b)
     ((record-accessor :color (if (eq? b 'red) 0 (if (eq? b 'green) 1 2))) c))
 
   ; change a pixel in an image
   (define (image-set! i r c v)
-    (@check-image 'image-set! i)
-    (@check-bounds 'image-set! i r c)
+    (!check-image 'image-set! i)
+    (!check-bounds 'image-set! i r c)
     (matrix-set! (image-data i) r c v))
 
   ; read an image from a file
