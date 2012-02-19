@@ -23,6 +23,10 @@
 		<copy todir="${bin-dir}">
 			<fileset dir="${src-dir}" />
 		</copy>
+		
+		<copy todir="${jar-dir}/c211">
+			<fileset dir="c211" />
+		</copy>
 	</target>
 
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
