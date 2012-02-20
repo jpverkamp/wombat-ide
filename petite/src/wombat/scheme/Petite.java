@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 /**
@@ -57,15 +56,19 @@ public class Petite {
     static final boolean IsOSX = os.indexOf("mac") != -1;
     static final boolean IsLinux = (os.indexOf("nux") != -1) || (os.indexOf("nix") != -1);
     
-    static final char Promt1 = '|';
-    static final char Promt2 = '`';
-	
+    static final char Prompt1 = '|';
+    static final char Prompt2 = '`';
+    static final char Interop = '!';
+    
     boolean Running;
     boolean Starting;
-    boolean SeenPromt1;
+    boolean SeenPrompt1;
     boolean Ready;
     
+    boolean InInterop;
+    
     StringBuffer Buffer;
+    StringBuffer InteropBuffer;
     Lock BufferLock;
     
     Writer ToPetite;
@@ -93,59 +96,115 @@ public class Petite {
 		
 	    // Reset the wrapper state (necessary in the case of a reconnect).
 		Starting = true;
-		SeenPromt1 = false;
+		SeenPrompt1 = false;
 	    Ready = false;
 	    Running = true;
+	    InInterop = false;
 	    
 	    if (Buffer == null)
 	    	Buffer = new StringBuffer();
 	    else 
 	    	Buffer.delete(0, Buffer.length());
 	    
+	    if (InteropBuffer == null)
+	    	InteropBuffer = new StringBuffer();
+	    else
+	    	InteropBuffer.delete(0,  InteropBuffer.length());
+	    
 	    BufferLock = new ReentrantLock();
+
+	    // The root is either this directory or a nested 'lib' directory.
+	    File[] searchDirs = new File[]{
+	    		new File("").getCanonicalFile(),
+	    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
+	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
+	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
+	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
+	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
+	    };
 	    
-	    if (NativeProcess != null) NativeProcess.destroy();
-	    NativeProcess = null;
-	    
-	    // Check for a version of Petite already installed.
-	    try {
-	    	ProcessBuilder protoProcess = new ProcessBuilder("petite");
-			protoProcess.directory(new File("").getCanonicalFile());
-			protoProcess.redirectErrorStream(true);
-			NativeProcess = protoProcess.start();
-			System.out.println("Connected to local Petite installation");
-	    }
-	    
-	    // Failed to run Petite, try Chez.
-	    catch(IOException err) {
-	    	// The root is either this directory or a nested 'lib' directory.
-		    File[] searchDirs = new File[]{
-		    		new File("").getCanonicalFile(),
-		    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
-		    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
-		    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
-		    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
-		    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
-		    };
-		    File pdir = findInstallation(searchDirs);
+	    // Find the correct Petite directory.
+		File pdir = null;
+		for (File dir : searchDirs) {
+		    System.out.println("Looking in " + dir + " for petite.");
+		    if (dir != null && dir.exists() && dir.isDirectory()) {
+			for (String path : dir.list()) {
+			    if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown")) {
+				pdir = new File(dir, path);
+				System.out.println("Found: " + pdir);
+			    }
+			}
+		    }
+		}
+		
+		// If it didn't we may have to look for zip files.
+		if (pdir == null) {
+		    System.out.println("Petite not find, looking for an archive.");
+		    for (File dir : searchDirs) {
+		    System.out.println("Looking in " + dir + " for petite archive.");
+			if (dir != null && dir.exists() && dir.isDirectory()) {
+			    for (String path : dir.list()) {
+				if (path.startsWith("petite") && path.endsWith((IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown") + ".zip")) {
+				    ZipFile zip = new ZipFile(new File(dir, path));
+				    System.out.println("Found: " + zip);
+				    
+				    @SuppressWarnings("unchecked")
+				    Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+				    
+				    while (entries.hasMoreElements()) {
+					ZipEntry entry = entries.nextElement();
+					
+					if (entry.isDirectory()) {
+					    System.out.println("\tunzipping: " + entry.getName());
+					    new File(dir, entry.getName()).getCanonicalFile().mkdirs();
+					} else {
+					    System.out.println("\tunzipping: " + entry.getName());
+					    new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+					    
+					    File targetFile = new File(dir, entry.getName());
+					    InputStream in = zip.getInputStream(entry);
+					    OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
+					    
+					    byte[] buffer = new byte[1024];
+					    int len;
+					    
+					    while((len = in.read(buffer)) >= 0)
+						out.write(buffer, 0, len);
+					    
+					    in.close();
+					    out.close();
+					    
+					    targetFile.setExecutable(true);
+					}
+				    }
+				    
+				    zip.close();
+				    
+				    // Try again.
+				    connect();
+				    return;
+				}
+			    }
+			}
+		    }
+		}
+		
+		// If we made it this far without a directory, something broke. :(
+		if (pdir == null)
+			throw new IOException("Unable to find Petite directory.");
 			
-			// If it didn't we may have to look for zip files.
-		    // This method will restart the connection after unzipping and stop.
-			if (pdir == null) findAndUnzip(searchDirs);
-			
-			// Create the process builder.
-			ProcessBuilder protoProcess = new ProcessBuilder(
+		
+		// Create the process builder.
+		ProcessBuilder pb = new ProcessBuilder(
 				new File(pdir, (IsWindows ? "petite.exe" : "petite")).getAbsolutePath(), 
 				"-b", 
 				new File(pdir, "petite.boot").getAbsolutePath()
 			);
-			protoProcess.directory(new File("").getCanonicalFile());
-			protoProcess.redirectErrorStream(true);
-			NativeProcess = protoProcess.start();
-	    }
+		pb.directory(pdir);
+		pb.redirectErrorStream(true);
 		
-		// Make sure it worked.
-		if (NativeProcess == null) throw new IOException("Unable to find Petite directory.");
+		// Start the process.
+		NativeProcess = pb.start();
 		
 		// Set up the print writer.
 		ToPetite = new PrintWriter(NativeProcess.getOutputStream());
@@ -171,13 +230,13 @@ public class Petite {
 							}
 							
 							// Potential start of a prompt.
-							else if (c == Promt1) {
-								SeenPromt1 = true;
+							else if (c == Prompt1) {
+								SeenPrompt1 = true;
 							}
 							
 							// The whole prompt.
-							else if (SeenPromt1 && c == Promt2) {
-								SeenPromt1 = false;
+							else if (SeenPrompt1 && c == Prompt2) {
+								SeenPrompt1 = false;
 								
 								if (Starting) {
 									Buffer.delete(0, Buffer.length());
@@ -185,20 +244,60 @@ public class Petite {
 								}
 								
 								Ready = true;
+							} 
+							
+							// Switch to interop mode on Prompt1 + Interop
+							else if (SeenPrompt1 && c == Interop) {
+								SeenPrompt1 = false;
+								
+								if (InInterop) {
+									String[] parts = InteropBuffer.toString().split(" ", 2);
+									String key = parts[0];
+									String val = (parts.length > 1 ? parts[1] : null);
+									
+									System.out.println("calling interop: " + key + " with " + val); // debug
+									String result = InteropAPI.interop(key, val);
+									System.out.println("interop returns: " + (result.length() > 10 ? result.subSequence(0,  10) + "..." : result)); // debug
+									if (result != null) {
+										ToPetite.write(result + " ");
+										ToPetite.flush();
+									}
+									
+									System.out.println("exiting interop");
+									Ready = true;
+										
+									InteropBuffer.delete(0, InteropBuffer.length());
+									InInterop = false;
+								} else {
+									System.out.println("entering interop"); // debug
+									
+									InInterop = true;
+								}
+								
 							}
 							
 							// Thought it was a prompt, but we were wrong.
 							// Remember to store the first half of the prompt.
-							else if (SeenPromt1) {
-								SeenPromt1 = false;
+							else if (SeenPrompt1) {
+								SeenPrompt1 = false;
 								
-								Buffer.append(Promt1);
-								Buffer.append(c);
+								
+								if (InInterop) {
+									InteropBuffer.append(Prompt1);
+									InteropBuffer.append(c);
+								} else {
+									Buffer.append(Prompt1);
+									Buffer.append(c);
+								}
 							}
 							
 							// Normal case, no new characters.
 							else {
-								Buffer.append(c);
+								if (InInterop) {
+									InteropBuffer.append(c);
+								} else {
+									Buffer.append(c);
+								}
 							}
 							
 							BufferLock.unlock();
@@ -226,84 +325,6 @@ public class Petite {
 	}
 	
 	/**
-	 * Find a local installation. 
-	 * @param searchDirs The directories that might contain the installation.
-	 * @return The directory where Petite is or null if none found.
-	 */
-	File findInstallation(File[] searchDirs) {
-		for (File dir : searchDirs) {
-			System.out.println("Looking in " + dir + " for petite.");
-			if (dir != null && dir.exists() && dir.isDirectory()) {
-				for (String path : dir.list()) {
-					if (path.startsWith("petite") && path.endsWith(IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown")) {
-						System.out.println("Found: " + new File(dir, path));
-						return new File(dir, path);
-					}
-				}
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * Find a petite installation and unzip it.
-	 * @param searchDirs The directories that might contain the installation.
-	 * @throws IOException Failure to open the zip.
-	 * @throws ZipException Failure to unzip the file.
-	 * @throws URISyntaxException If the recursive connection fails.
-	 */
-	void findAndUnzip(File[] searchDirs) throws ZipException, IOException, URISyntaxException {
-		System.out.println("Petite not find, looking for an archive.");
-	    for (File dir : searchDirs) {
-	    System.out.println("Looking in " + dir + " for petite archive.");
-		if (dir != null && dir.exists() && dir.isDirectory()) {
-		    for (String path : dir.list()) {
-			if (path.startsWith("petite") && path.endsWith((IsWindows ? "win" : IsOSX ? "osx" : IsLinux ? "linux" : "unknown") + ".zip")) {
-			    ZipFile zip = new ZipFile(new File(dir, path));
-			    System.out.println("Found: " + zip);
-			    
-			    @SuppressWarnings("unchecked")
-			    Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
-			    
-			    while (entries.hasMoreElements()) {
-				ZipEntry entry = entries.nextElement();
-				
-				if (entry.isDirectory()) {
-				    System.out.println("\tunzipping: " + entry.getName());
-				    new File(dir, entry.getName()).getCanonicalFile().mkdirs();
-				} else {
-				    System.out.println("\tunzipping: " + entry.getName());
-				    new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
-				    
-				    File targetFile = new File(dir, entry.getName());
-				    InputStream in = zip.getInputStream(entry);
-				    OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
-				    
-				    byte[] buffer = new byte[1024];
-				    int len;
-				    
-				    while((len = in.read(buffer)) >= 0)
-					out.write(buffer, 0, len);
-				    
-				    in.close();
-				    out.close();
-				    
-				    targetFile.setExecutable(true);
-				}
-			    }
-			    
-			    zip.close();
-			    
-			    // Try again.
-			    connect();
-			    return;
-			}
-		    }
-		}
-	    }
-	}
-	
-	/**
 	 * Reset Petite's environment.
 	 */
 	public void reset() {
@@ -313,7 +334,6 @@ public class Petite {
 		sendCommand("(library-directories `((\"..\" . \"..\") . ,(library-directories)))");
 		sendCommand("(print-gensym #f)");
 		sendCommand("(define (omega) ((lambda (x) (x x)) (lambda (x) (x x))))");
-		sendCommand("(define-syntax \u03BB (syntax-rules () [(\u03BB a ...) (lambda a ...)]))");
 	}
 	
 	/**
