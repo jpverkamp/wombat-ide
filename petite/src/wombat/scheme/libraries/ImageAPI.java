@@ -1,0 +1,126 @@
+package wombat.scheme.libraries;
+
+import java.awt.BorderLayout;
+import java.awt.FileDialog;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+
+import java.io.*;
+import javax.imageio.*;
+import javax.swing.*;
+
+/**
+ * Helper class to load, save, and display images using Java. 
+ */
+public class ImageAPI {
+	private ImageAPI() {}
+	
+	/**
+	 * Show a dialog to allow the user to choose an image, then read it into a byte stream.
+	 * @return A stream of encoded data. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
+	 * @throws IOException If we cannot read the file.
+	 */
+	public static ImageData readImage() throws IOException {
+		System.out.println("read-image"); // debug
+		
+		FileDialog fc = new FileDialog((java.awt.Frame) null, "read-image", FileDialog.LOAD);
+        fc.setVisible(true);
+
+        if (fc.getFile() == null)
+        	throw new IllegalArgumentException("Error in read-image: no image chosen.");
+
+        File file = new File(fc.getDirectory(), fc.getFile());
+        
+		return readImage(file.getCanonicalPath());
+	}
+	
+	/**
+	 * Read an image into a bytestream.
+	 * @param filename The file to read.
+	 * @return A stream of encoded data. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
+	 * @throws IOException If we cannot read the image.
+	 */
+	public static ImageData readImage(String filename) throws IOException {
+		System.out.println("read-image " + filename); // debug
+		
+		BufferedImage bi = ImageIO.read(new File(filename));
+		
+		int[] data = new int[bi.getWidth() * bi.getHeight()];
+		bi.getRGB(0, 0, bi.getWidth(), bi.getHeight(), data, 0, bi.getWidth());
+		
+		ImageData result = new ImageData(bi.getWidth(), bi.getHeight());
+		for (int i = 0; i < data.length; i++) {
+			result.Data[3 * i + 0] = (byte) ((data[i] >> 16) - 128);
+			result.Data[3 * i + 1] = (byte) (((data[i] >> 8) & 0xFF) - 128);
+			result.Data[3 * i + 2] = (byte) ((data[i] & 0xFF) - 128);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Write the given [r,g,b,a] buffer to an image. Display a dialog for the filename.
+	 * @param data The image to write. The first two values are the width and height.
+	 * @throws IOException If we cannot write the image.
+	 */
+	public static void writeImage(ImageData data) throws IOException {
+		System.out.println("write-image"); // debug
+		
+		FileDialog fc = new FileDialog((java.awt.Frame) null, "write-image", FileDialog.SAVE);
+        fc.setVisible(true);
+
+        if (fc.getFile() == null)
+        	throw new IllegalArgumentException("Error in read-image: no image chosen.");
+
+        File file = new File(fc.getDirectory(), fc.getFile());
+		writeImage(data, file.getCanonicalPath());
+	}
+	
+	/**
+	 * Write the given [r,g,b,a] buffer to an image.
+	 * @param data The image to write. The first two values are the width and height.
+	 * @param filename The file to write to.
+	 * @throws IOException If we cannot write the image.
+	 */
+	public static void writeImage(ImageData data, String filename) throws IOException {
+		System.out.println("write-image " + filename); // debug
+		
+//		int width = data[0];
+//		int height = data[1];
+//		
+//		RenderedImage ri = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+//		((BufferedImage) ri).setRGB(0, 0, width, height, data, 2, width);
+//		
+//		File file = new File(filename);
+//		String[] parts = file.getName().split(".");
+//		ImageIO.write(ri, parts[parts.length - 1], file);
+	}
+	
+	/**
+	 * Display the given [r,g,b,a] buffer as an image.
+	 * @param data The image to write. The first two values are the width and height.
+	 * @throws IOException If we cannot write the image.
+	 */
+	public static void displayImage(ImageData data) {
+		System.out.println("display-image"); // debug
+		
+//		int width = data[0];
+//		int height = data[1];
+//		
+//		RenderedImage ri = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+//		((BufferedImage) ri).setRGB(0, 0, width, height, data, 2, width);
+//		
+//		// TODO: make this zoomable and able to select pixels
+//		
+//		JFrame treeFrame = new JFrame("draw-image");
+//		treeFrame.setLayout(new BorderLayout());
+//		treeFrame.setResizable(false);
+//		treeFrame.setLocationByPlatform(true);
+//		treeFrame.add(new JLabel(new ImageIcon((Image) ri)));
+//		treeFrame.pack();
+//		treeFrame.setVisible(true);
+	}
+}
+
+

@@ -51,6 +51,8 @@ Other:
 
   (import (chezscheme))
   (import (c211 matrix))
+  (import (c211 base64))
+  (import (c211 interop))
 
   ; create the datatype (image data is stored as a matrix of colors)
   (define :color (make-record-type "color" '(r g b)))
@@ -61,7 +63,9 @@ Other:
     (if (or (not (integer? r)) (< r 0) (> r 255)
             (not (integer? g)) (< g 0) (> g 255)
             (not (integer? b)) (< b 0) (> b 255))
-        (error 'color "#[color ~a ~a ~a] is not a valid color, range is 0-255")
+        (error 'color
+          (format "#[color ~a ~a ~a] is not a valid color, range is 0-255"
+            r g b))
         ((record-constructor :color) r g b)))
 
   ; make an image
@@ -157,15 +161,49 @@ Other:
 
   ; read an image from a file
   (define read-image
-    (case-lambda
-      [() #f]
-      [(fn) #f]))
+    (let ([process-response
+            (lambda ()
+              (let ([rs (read)]
+                    [cs (read)]
+                    [sd (base64->string (read))])
+                (let ([img (make-image rs cs)])
+                  (let ^ ([i 0] [r 0] [c 0])
+                    (cond
+                      [(or (= r rs) (= i (string-length sd))) img]
+                      [(= c cs) (^ i (+ r 1) 0)]
+                      [else
+                       (image-set! img r c
+                         (color
+                           (char->integer (string-ref sd i))
+                           (char->integer (string-ref sd (+ i 1)))
+                           (char->integer (string-ref sd (+ i 2)))))
+                       (^ (+ i 3) r (+ c 1))])))))])
+      (case-lambda
+        [() (call-to-java read-image) (process-response)]
+        [(fn) (call-to-java read-image fn) (process-response)])))
 
   ; write an image to a file
   (define write-image
-    (case-lambda
-      [(i) #f]
-      [(i fn) #f]))
+    (let ([image->base64
+            (lambda (img)
+              (let ([sd (make-string (* 3 (image-rows img) (image-cols img)))])
+                (let ^ ([i 0] [r 0] [c 0])
+                  (cond
+                    [(= r (image-rows img)) sd]
+                    [(= c (image-cols img)) (^ i (+ r 1) 0)]
+                    [else
+                     (string-set! sd i
+                       (integer->char (image-ref img r c 0)))
+                     (string-set! sd (+ i 1)
+                       (integer->char (image-ref img r c 1)))
+                     (string-set! sd (+ i 2)
+                       (integer->char (image-ref img r c 2)))
+                     (^ (+ i 3) r (+ c 1))]))))])
+      (case-lambda
+        [(i) (call-to-java write-image
+               (image-rows i) (image-cols i) (image->base64 i))]
+        [(i fn) (call-to-java write-image
+                  (image-rows i) (image-cols i) (image->base64 i) fn)])))
 
   ; display the image in a Java window
   (define (draw-image i)
