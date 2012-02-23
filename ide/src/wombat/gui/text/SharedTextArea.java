@@ -438,8 +438,6 @@ class NetworkedDocumentListener implements DocumentListener {
 
 /**
  * Timer that keeps things syncronized.
- * @author verkampj
- *
  */
 class SyncTimer extends Timer {
 	private static final long serialVersionUID = 8137378222084313020L;

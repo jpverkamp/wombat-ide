@@ -208,12 +208,13 @@ public class MainFrame extends JFrame {
 	        		while (true) {
 	        			if (Petite.hasOutput()) {
 	        				String output = Petite.getOutput();
-	        				History.append(output);
-	        				History.goToEnd();
+	        				if (History != null && output != null) {
+	        					History.append(output);
+	        					History.goToEnd();
+	        				}
 	        			}
 	        			
-	        			if ((Running && Petite.isReady())
-	        					|| (!Running && !Petite.isReady())) {
+	        			if ((Running && Petite.isReady()) || (!Running && !Petite.isReady())) {
 	        				Running = !Petite.isReady();
 	            			
 	            			MenuManager.itemForName("Run").setEnabled(!Running);
@@ -341,29 +342,35 @@ public class MainFrame extends JFrame {
 	/**
 	 * Stop all running worker threads.
 	 */
-	public void stopAllThreads(boolean silent, boolean andRestart) {
+	public void stopAllThreads(final boolean silent, final boolean andRestart) {
 		if (silent || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 				this, 
 				"Stopping will reset the current Petite process.\n" + 
 						"Are you sure you want to do this?", 
 				"Confirm Stop", JOptionPane.YES_NO_OPTION)) {
 			
-			try {
-				if (andRestart) {
-					Petite.restart();
-					
-					while (!Petite.isReady()) {
-						try { Thread.sleep(50); } catch (InterruptedException e) {}
+			Thread onRestart = new Thread("Wait for restart") {
+				public void run() {
+					try {
+						if (andRestart) {
+							Petite.restart();
+							
+							while (!Petite.isReady()) {
+								try { Thread.sleep(50); } catch (InterruptedException e) {}
+							}
+							
+							History.setText(">>> Execution halted <<<<\n\n");
+					    	History.goToEnd();
+						} else {
+							Petite.stop();
+						}
+					} catch (Exception e) {
+						ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
 					}
-					
-					History.setText(">>> Execution halted <<<<\n\n");
-			    	History.goToEnd();
-				} else {
-					Petite.stop();
 				}
-			} catch (Exception e) {
-				ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
-			}
+			};
+			onRestart.setDaemon(true);
+			onRestart.start();
 		}
 	}
 
