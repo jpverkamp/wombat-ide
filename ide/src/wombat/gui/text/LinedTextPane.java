@@ -48,7 +48,7 @@ public class LinedTextPane extends JTextPane {
 		
 					@Override public void actionPerformed(ActionEvent e) {
 						try {
-							getDocument().insertString(getCaretPosition(), "\u03BB", null);
+							getDocument().insertString(getCaretPosition(), (Options.LambdaMode ? "\u03BB" : "lambda"), null);
 						} catch (BadLocationException e1) {
 							e1.printStackTrace();
 						}

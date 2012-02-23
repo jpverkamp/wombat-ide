@@ -10,6 +10,8 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import wombat.scheme.libraries.types.ImageData;
+
 /**
  * Helper class to load, save, and display images using Java. 
  */

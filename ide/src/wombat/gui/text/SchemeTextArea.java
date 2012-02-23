@@ -71,7 +71,12 @@ public class SchemeTextArea extends JPanel {
             content.append(NL);
         }
         
-        setText(content.toString());
+        String text = content.toString();
+        
+        // Change lambda string to character in lambda mode
+        if (Options.LambdaMode) text = text.replace("lambda", "\u03BB");
+        
+        setText(text);
         SavedHash = getText().hashCode();
     }
     
@@ -83,37 +88,42 @@ public class SchemeTextArea extends JPanel {
     	if (myFile == null) throw new FileNotFoundException("No file set");
     	
     	String text = getText();
+    	boolean changed = false;
     	
     	// Remove extra whitespace at the ends of lines.
     	if (WhitespaceEOL.matcher(text).find()) {
-    		int pos = code.getCaretPosition();
-    		setText(WhitespaceEOL.matcher(text).replaceAll("\n"));
-    		if (pos > text.length())
-	    		code.setCaretPosition(text.length());
-	    	else
-	    		code.setCaretPosition(pos);
+    		text = WhitespaceEOL.matcher(text).replaceAll("\n");
+    		changed = true;
     	}
     	
     	// Remove extra whitespace at the end of the file.
     	if (text.length() > 0 && Character.isWhitespace(text.charAt(text.length() - 1))) {
-	    	int pos = code.getCaretPosition();
 	    	text = getText().replaceAll("\\s+$", "");
-	    	setText(text);
-	    	if (pos > text.length())
-	    		code.setCaretPosition(text.length());
-	    	else
-	    		code.setCaretPosition(pos);
+	    	changed = true;
+    	}
+
+    	// Replace lambda character with lambda string
+    	if (text.contains("\u03BB")) {
+    		text = text.replace("\u03BB", "lambda");
+    		changed = true;
     	}
     	
-    	// Remove extra whitespace from the end of lines.
-    	
-    	
+    	// Write to file.
     	Writer out = new OutputStreamWriter(new FileOutputStream(myFile));
-        out.write(getText());
+        out.write(text);
         out.flush();
         out.close();
+        SavedHash = text.hashCode();
+
         
-        SavedHash = getText().hashCode();
+        // Put the lambdas back in lambda mode.
+        if (Options.LambdaMode)  text = text.replace("lambda", "\u03BB");
+        
+    	// If anything changed, update the file.
+        
+    	if (changed) {
+    		setText(text);
+    	}
     }
     
     /**

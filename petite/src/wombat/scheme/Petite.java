@@ -423,6 +423,11 @@ public class Petite {
 	public void sendCommand(String cmd) {
 		try {
 			
+			// Swap out lambda character for string
+			cmd = cmd.replace("\u03BB", "lambda");
+			
+			// Send it, make sure there's a newline.
+			// Use flush to force it.
 			ToPetite.write(cmd);
 			if (!cmd.endsWith("\n"))
 				ToPetite.write("\n");
