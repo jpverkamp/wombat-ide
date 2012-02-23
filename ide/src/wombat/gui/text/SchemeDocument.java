@@ -335,6 +335,17 @@ public class SchemeDocument extends DefaultStyledDocument {
         }
 
         String token = content.substring(startOffset, endOfToken);
+        
+        try {
+	        if (Options.LambdaMode && "lambda".equals(token)) {
+	        	remove(startOffset, endOfToken - startOffset);
+	        	insertString(startOffset, "\u03BB", null);
+	        } else if (!Options.LambdaMode && "\u03BB".equals(token)) {
+	        	remove(startOffset, endOfToken - startOffset);
+	        	insertString(startOffset, "lambda", null);
+	        }
+        } catch(BadLocationException ble) {
+        }
 
         if (Options.Keywords.containsKey(token)) {
         	if (attributes.containsKey("keyword"))

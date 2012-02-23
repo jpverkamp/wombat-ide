@@ -42,6 +42,7 @@ public final class Options {
 	public static String CommandFormat;
 	
 	// Options menu options.
+	public static boolean LambdaMode;
 	public static boolean EmacsKeybindings;
 	public static boolean ConfirmOnRun;
 	public static boolean ConfirmOnClose;
@@ -70,6 +71,7 @@ public final class Options {
     	CommandRun = prefs.get("Command/Run", "F5");
     	CommandFormat = prefs.get("Command/Format", "F6");
 
+    	LambdaMode = prefs.getBoolean("Options/LambdaMode", false);
     	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", false);
     	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", true);
     	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", true);
@@ -111,6 +113,7 @@ public final class Options {
     	prefs.put("Command/Run", CommandRun);
     	prefs.put("Command/Format", CommandFormat);
     	
+    	prefs.putBoolean("Options/LambdaMode", LambdaMode);
     	prefs.putBoolean("Options/EmacsKeybindings", EmacsKeybindings);
     	prefs.putBoolean("Options/ConfirmOnRun", ConfirmOnRun);
     	prefs.putBoolean("Options/ConfirmOnClose", ConfirmOnClose);
@@ -141,6 +144,16 @@ public final class Options {
     		});
     		optionsMenu.add(emacs);
     		*/
+    		
+    		JCheckBoxMenuItem lambdaMode = new JCheckBoxMenuItem("\u03BB mode", LambdaMode);
+    		lambdaMode.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					LambdaMode = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					SchemeDocument.reload();
+					DocumentManager.ReloadAll();
+				}
+    		});
+    		optionsMenu.add(lambdaMode);
     		
     		JCheckBoxMenuItem confirmRun = new JCheckBoxMenuItem("Confirm on Run", ConfirmOnRun);
     		confirmRun.addItemListener(new ItemListener() {
