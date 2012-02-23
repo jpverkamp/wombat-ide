@@ -83,7 +83,7 @@ public class Main {
 		try {
 			checkForUpdates();
 		} catch(Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 
@@ -204,9 +204,14 @@ public class Main {
 		String newVersionFile = download(UpdateVersionFile);
 		Scanner s = new Scanner(newVersionFile);
 		List<Version> newVersions = new ArrayList<Version>();
-		while (s.hasNextLine())
-			newVersions.add(new Version(s.nextLine()));
-		
+		while (s.hasNextLine()) {
+			String line = s.nextLine().trim();
+			if ("".equals(line)) continue;
+			Version v = new Version(line);
+			if (v.Filename == null) continue;
+			newVersions.add(v);
+		}
+
 		// Check each new version against what we already have.
 		List<Version> toUpdate = new ArrayList<Version>();
 		for (Version newV : newVersions) {
