@@ -35,7 +35,6 @@ public class SharedTextArea extends SchemeTextArea {
 	String ID;
 	boolean Running = true;
 	SyncTimer SyncTimer;
-	WhoDialog SyncWho = new WhoDialog();
 	
 	// Used for the hosting text areas.
 	ServerSocket Host = null;
@@ -195,7 +194,8 @@ public class SharedTextArea extends SchemeTextArea {
 		// Add the document listener and start the sync timer.
 		sta.code.getDocument().addDocumentListener(new NetworkedDocumentListener(sta));
 		sta.SyncTimer = new SyncTimer(sta);
-		sta.SyncTimer.start();
+//		sta.SyncTimer.start();
+		// ^ disabled to force clients to sync to the server rather than the other way around
 		
 		return sta;
 	}
@@ -230,14 +230,14 @@ public class SharedTextArea extends SchemeTextArea {
 			if ("hello".equals(parts[0])) {
 				
 				if (onHost && getText().length() > 0)
-					return "force-sync," + Base64.encodeBytes(getText().getBytes());
+					return "force-sync," + Base64.encodeBytes(getText().getBytes("UTF-8"));
 				else
 					return null;
 				
 			} if ("insert".equals(parts[0])) {
 				
 				int off = Integer.parseInt(parts[1]);
-				String str = new String(Base64.decode(parts[3]));
+				String str = new String(Base64.decode(parts[3]), "UTF-8");
 				
 				if (lastInsertsAndRemoves.contains(line)) return null;
 
@@ -266,35 +266,22 @@ public class SharedTextArea extends SchemeTextArea {
 				
 			} else if ("check-sync".equals(parts[0])) {
 				
-				// Ignore it if we already have one in progress.
-				if (SyncWho.isVisible())
-					return null;
-				
-				// Otherwise, process like normal.
 				int hash = Integer.parseInt(parts[1]);
 				int myHash = getText().hashCode();
 				
-				if (hash != myHash) {
-					setBackground(new Color(255, 240, 240));
-					
-					// Set it up and wait for a response.
-					SyncWho.KeepMine = false;
-					SyncWho.setVisible(true);
-					
-					// If we get this far, the user wants to sync and not keep their own.
-					if (SyncWho.KeepMine) 
-						return "request-sync";
-				}
-				return null;
+				if (hash != myHash)
+					return "request-sync";
+				else
+					return null;
 				
 			} else if ("request-sync".equals(parts[0])) {
 				
-				return "force-sync," + Base64.encodeBytes(getText().getBytes());
+				return "force-sync," + Base64.encodeBytes(getText().getBytes("UTF-8"));
 				
 			} else if ("force-sync".equals(parts[0])) {
 				
 				SyncTimer.setActive();
-				String str = new String(Base64.decode(parts[1]));
+				String str = new String(Base64.decode(parts[1]), "UTF-8");
 				code.setText(str);
 				return null;
 				
@@ -407,7 +394,7 @@ class NetworkedDocumentListener implements DocumentListener {
 			
 			int off = event.getOffset();
 			int len = event.getLength();
-			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes());
+			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes("UTF-8"));
 			
 			String msg = "insert," + off + "," + len + "," + str;
 			STA.lastInsertsAndRemoves.add(msg);
@@ -503,66 +490,3 @@ class SyncTimer extends Timer {
 		SyncedLastInactive = false;
 	}
 }
-
-/**
- * Ask which version to keep, mine or theirs.
- */
-class WhoDialog extends JDialog {
-	private static final long serialVersionUID = 5219519601249391695L;
-	
-	boolean KeepMine = false;
-	
-	/**
-	 * Create the dialog.
-	 */
-	public WhoDialog() {
-		setModal(true);
-		setTitle("Out of sync...");
-		setLayout(new GridBagLayout());
-		
-		for (Component c : getComponents()) {
-			if (c instanceof AbstractButton)
-				c.getParent().remove(c);
-		}
-		
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.gridwidth = 2;
-		gbc.gridheight = 1;
-		gbc.fill = GridBagConstraints.BOTH;
-		add(new JLabel(
-				"<html>" +
-				"Your documents are out of sync, choose which version to take." +
-				"<br />" +
-				"Note: If different documents are chosen, this same warning will appear again." + 
-				"</html>"
-			), gbc);
-		
-		gbc.gridy = 1;
-		gbc.gridwidth = 1;
-		gbc.fill = GridBagConstraints.NONE;
-		JButton chooseMine = new JButton("Keep mine");
-		chooseMine.addActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent arg0) {
-				KeepMine = true;
-				setVisible(false);
-			}
-		});
-		add(chooseMine, gbc);
-		
-		gbc.gridx = 1;
-		JButton chooseTheirs = new JButton("Keep theirs");
-		chooseTheirs.addActionListener(new ActionListener() {
-			@Override public void actionPerformed(ActionEvent e) {
-				KeepMine = false;  
-				setVisible(false);
-			}
-		});
-		add(chooseTheirs, gbc);
-		
-		pack();
-	}
-};
