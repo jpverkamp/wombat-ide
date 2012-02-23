@@ -14,6 +14,8 @@ import wombat.scheme.util.InteropAPI;
  * Class to wrap Petite bindings.
  */
 public class Petite {
+	static final boolean DEBUG_INTEROP = false;
+	
 	/**
 	 * Run from the command line, providing a REPL.
 	 * @param args Ignored.
@@ -259,21 +261,21 @@ public class Petite {
 									String key = parts[0];
 									String val = (parts.length > 1 ? parts[1] : null);
 									
-									System.out.println("calling interop: " + key + " with " + val); // debug
+									if (DEBUG_INTEROP) System.out.println("calling interop: " + key + " with " + val); // debug
 									String result = InteropAPI.interop(key, val);
-									System.out.println("interop returns: " + (result.length() > 10 ? result.subSequence(0,  10) + "..." : result)); // debug
+									if (DEBUG_INTEROP) System.out.println("interop returns: " + (result.length() > 10 ? result.subSequence(0,  10) + "..." : result)); // debug
 									if (result != null) {
 										ToPetite.write(result + " ");
 										ToPetite.flush();
 									}
 									
-									System.out.println("exiting interop");
+									if (DEBUG_INTEROP) System.out.println("exiting interop");
 									Ready = true;
 										
 									InteropBuffer.delete(0, InteropBuffer.length());
 									InInterop = false;
 								} else {
-									System.out.println("entering interop"); // debug
+									if (DEBUG_INTEROP) System.out.println("entering interop"); // debug
 									
 									InInterop = true;
 								}
@@ -331,19 +333,22 @@ public class Petite {
 	 * Reset Petite's environment.
 	 */
 	public void reset() {
-		//sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
+		// Actually clear the environment
+		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
+		
+		// Make sure that the prompt is set as we want it
 		sendCommand("(waiter-prompt-string \"|`\")");
 		
-		// so that (eq? 'A 'a) => #t
+		// So that (eq? 'A 'a) => #t
 		sendCommand("(case-sensitive #f)");
 		
-		// so that gensyms look at least semi-sane (it's not like anyone will need them)
+		// So that gensyms look at least semi-sane (it's not like anyone will need them)
 		sendCommand("(print-gensym #f)");
 		
-		// to test infinite loops
+		// To test infinite loops
 		sendCommand("(define (omega) ((lambda (x) (x x)) (lambda (x) (x x))))");
 
-		// fix error message that give define/lambda names
+		// Fix error message that give define/lambda names
 		sendCommand("(import (wombat define))");
 	}
 	

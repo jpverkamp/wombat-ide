@@ -10,4 +10,7 @@
            (apply string-append
              (map (lambda (a) (format " ~a" a))
                (list a* ...))))
-         (read))])))
+         (let ([result (read)])
+           (if (and (not (null? result)) (eq? (car result) 'exception))
+               (apply error (cdr result))
+               result)))])))

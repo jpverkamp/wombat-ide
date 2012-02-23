@@ -19,8 +19,10 @@ public class InteropAPI {
 		key = key.toLowerCase();
 		
 		try {
-			
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Image API
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
+			
 			if ("read-image".equals(key)) {
 				ImageData img = null;
 				if (val == null)
@@ -28,10 +30,11 @@ public class InteropAPI {
 				else
 					img = ImageAPI.readImage(val);
 				
-				System.out.println("data length: " + img.Data.length);
-				
 				return "(" + img.Width + " " + img.Height + " \"" + Base64.encodeBytes(Conversion.int2byte(img.Data)) + "\")";
-			} else if ("write-image".equals(key)) {
+			} 
+			
+			// write images to file
+			else if ("write-image".equals(key)) {
 				String[] args = val.split(" ");
 				ImageData img = new ImageData(
 					Integer.parseInt(args[0]),
@@ -45,6 +48,32 @@ public class InteropAPI {
 					ImageAPI.writeImage(img, args[3]);
 			}
 			
+			// display images to the screen
+			else if ("draw-image".equals(key)) {
+				String[] args = val.split(" ");
+				ImageData img = new ImageData(
+					Integer.parseInt(args[0]),
+					Integer.parseInt(args[1]),
+					Conversion.byte2int(Base64.decode(args[2]))
+				);
+				
+				ImageAPI.displayImage(img);
+			}
+			
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
+			// Matrix API
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
+			
+			
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
+			// Tree API
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
+			
+			
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
+			// Test API
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
+			
 			// Test method.
 			else if ("fact".equals(key)) {
 				int n = Integer.parseInt(val);
@@ -54,7 +83,8 @@ public class InteropAPI {
 			}
 			
 		} catch(Exception e) {
-			return "Exception in " + key + ": " + e.getMessage();
+			e.printStackTrace();
+			return "(exception " + key + " \"" + e.getMessage() + "\")";
 		}
 		
 		return "()";

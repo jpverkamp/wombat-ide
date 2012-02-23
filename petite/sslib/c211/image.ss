@@ -47,7 +47,8 @@ Other:
    color? image?
    image-rows image-cols image-ref color-ref
    image-set!
-   read-image write-image draw-image)
+   read-image write-image draw-image
+   image-data)
 
   (import (except (chezscheme) lambda define))
 
@@ -123,7 +124,7 @@ Other:
   (define !check-integer (make-check integer? "integer"))
   (define !check-procedure (make-check procedure? "procedure"))
   (define !check-color (make-check color? "color"))
-  (define !check-image (make-check image? "color"))
+  (define !check-image (make-check image? "image"))
 
   (define !check-band
     (make-check
@@ -154,7 +155,23 @@ Other:
   (define (color-ref c b)
     (!check-color 'color-ref c)
     (!check-band 'color-ref b)
-    ((record-accessor :color (if (eq? b 'red) 0 (if (eq? b 'green) 1 2))) c))
+    ((record-accessor :color
+       (if (eq? b 'red) 0 (if (eq? b 'green) 1 (if (eq? b 'blue) 2 b)))) c))
+
+  ; set a band in a color
+  (define (color-set! c b v)
+    (!check-color 'color-set! c)
+    (!check-band 'color-set! b)
+    (let ([cr (color-ref c 'red)]
+          [cg (color-ref c 'green)]
+          [cb (color-ref c 'blue)])
+      (cond
+        [(memq b '(0 red))
+         (color v cg cb)]
+        [(memq b '(1 green))
+         (color cr v cb)]
+        [(memq b '(2 blue))
+         (color cr cg v)])))
 
   ; change a pixel in an image
   (define image-set!
@@ -167,40 +184,71 @@ Other:
        (!check-image 'image-set! i)
        (!check-bounds 'image-set! i r c)
        (!check-band 'image-set! b)
-       (matrix-set! (image-data i) r c v)]))
+       (color-set! (matrix-ref (image-data i) r c) b v)]
+      [others
+        (error 'image-set! "invalid argument count")]))
+
+  ; create an image from base64 data
+  (define (base64->image width height data)
+    (let ([img (make-image height width)]
+          [data (base64->string data)])
+      (define (ref i) (char->integer (string-ref data i)))
+      (let ^ ([i 0] [r 0] [c 0])
+        (cond
+          [(= r height) img]
+          [(= c width) (^ i (+ r 1) 0)]
+          [else
+           (image-set! img r c (color
+                                 (ref (+ i 0))
+                                 (ref (+ i 1))
+                                 (ref (+ i 2))))
+           (^ (+ i 4) r (+ c 1))]))))
+
+  ; create a base64 encoding from image data
+  (define (image->base64 img)
+    (let ([data (make-string (* 4 (image-rows img) (image-cols img)))])
+      (define (set i v) (string-set! data i (integer->char v)))
+      (let ^ ([i 0] [r 0] [c 0])
+        (cond
+          [(= r (image-rows img)) (string->base64 data)]
+          [(= c (image-cols img)) (^ i (+ r 1) 0)]
+          [else
+           (set (+ i 0) (image-ref img r c 'red))
+           (set (+ i 1) (image-ref img r c 'green))
+           (set (+ i 2) (image-ref img r c 'blue))
+           (set (+ i 3) 255) ; alpha channel
+           (^ (+ i 4) r (+ c 1))]))))
 
   ; read an image from a file
-  (define read-image
-    (case-lambda
-      [() (call-to-java read-image)]
-      [(fn) (call-to-java read-image fn)]))
+  (define (read-image . args)
+    (let ([response
+            (cond
+              [(null? args) (call-to-java read-image)]
+              [(null? (cdr args)) (call-to-java read-image (car args))]
+              [else (error 'read-image "incorrect argument count")])])
+      (if (= (length response) 3)
+          (apply base64->image response)
+          (error 'read-image "invalid data returned"))))
 
   ; write an image to a file
-  (define write-image
-    (let ([image->base64
-            (lambda (img)
-              (let ([sd (make-string (* 3 (image-rows img) (image-cols img)))])
-                (let ^ ([i 0] [r 0] [c 0])
-                  (cond
-                    [(= r (image-rows img)) sd]
-                    [(= c (image-cols img)) (^ i (+ r 1) 0)]
-                    [else
-                     (string-set! sd i
-                       (integer->char (image-ref img r c 0)))
-                     (string-set! sd (+ i 1)
-                       (integer->char (image-ref img r c 1)))
-                     (string-set! sd (+ i 2)
-                       (integer->char (image-ref img r c 2)))
-                     (^ (+ i 3) r (+ c 1))]))))])
-      (case-lambda
-        [(i) (call-to-java write-image
-               (image-rows i) (image-cols i) (image->base64 i))]
-        [(i fn) (call-to-java write-image
-                  (image-rows i) (image-cols i) (image->base64 i) fn)])))
+  (define (write-image img . args)
+    (let ([base64 (image->base64 img)])
+      (cond
+        [(null? args)
+         (call-to-java write-image
+           (image-cols img) (image-rows img) base64)]
+        [(null? (cdr args))
+         (call-to-java write-image
+           (image-cols img) (image-rows img) base64 (car args))]
+        [else
+         (error 'read-image "incorrect argument count")])
+      (void)))
 
   ; display the image in a Java window
-  (define (draw-image i)
-    #f)
+  (define (draw-image img)
+    (call-to-java draw-image
+      (image-cols img) (image-rows img) (image->base64 img))
+    (void))
 
   ; custom writer for images (show size, hide data)
   (record-writer :image

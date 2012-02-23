@@ -82,7 +82,7 @@ public class ImageAPI {
 		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
 		
 		File file = new File(filename);
-		String[] parts = file.getName().split(".");
+		String[] parts = file.getName().split("\\.");
 		ImageIO.write(ri, parts[parts.length - 1], file);
 	}
 	
@@ -95,7 +95,7 @@ public class ImageAPI {
 		System.out.println("display-image"); // debug
 		
 		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
-		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 2, img.Width);
+		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
 		
 		// TODO: make this zoomable and able to select pixels
 		
