@@ -30,7 +30,7 @@ public class InteropAPI {
 				
 				System.out.println("data length: " + img.Data.length);
 				
-				return img.Width + " " + img.Height + " \"" + Base64.encodeBytes(Conversion.int2byte(img.Data)) + "\"";
+				return "(" + img.Width + " " + img.Height + " \"" + Base64.encodeBytes(Conversion.int2byte(img.Data)) + "\")";
 			} else if ("write-image".equals(key)) {
 				String[] args = val.split(" ");
 				ImageData img = new ImageData(
@@ -50,13 +50,13 @@ public class InteropAPI {
 				int n = Integer.parseInt(val);
 				int a = 1;
 				for (int i = 2; i <= n; i++) a *= i;
-				return "" + a;
+				return "(" + a + ")";
 			}
 			
 		} catch(Exception e) {
 			return "Exception in " + key + ": " + e.getMessage();
 		}
 		
-		return null;
+		return "()";
 	}
 }

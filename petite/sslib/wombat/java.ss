@@ -6,7 +6,7 @@
     (syntax-rules ()
       [(_ n a* ...)
        (let ()
-         (format "~s~a" 'n
+         (printf "|!~s~a|!" 'n
            (apply string-append
              (map (lambda (a) (format " ~a" a))
                (list a* ...))))
