@@ -56,6 +56,10 @@ Other:
 
   (import (c211 matrix))
   (import (c211 base64))
+<<<<<<< HEAD
+=======
+  (import (c211 interop))
+>>>>>>> interop
 
   ; create the datatype (image data is stored as a matrix of colors)
   (define :color (make-record-type "color" '(r g b)))
@@ -171,6 +175,7 @@ Other:
 
   ; read an image from a file
   (define read-image
+<<<<<<< HEAD
     (let ([base64->image
             (lambda (rows cols data)
               (make-image rows cols))])
@@ -183,6 +188,51 @@ Other:
     (case-lambda
       [(img) #f]
       [(img fn) #f]))
+=======
+    (let ([process-response
+            (lambda ()
+              (let ([rs (read)]
+                    [cs (read)]
+                    [sd (base64->string (read))])
+                (let ([img (make-image rs cs)])
+                  (let ^ ([i 0] [r 0] [c 0])
+                    (cond
+                      [(or (= r rs) (= i (string-length sd))) img]
+                      [(= c cs) (^ i (+ r 1) 0)]
+                      [else
+                       (image-set! img r c
+                         (color
+                           (char->integer (string-ref sd i))
+                           (char->integer (string-ref sd (+ i 1)))
+                           (char->integer (string-ref sd (+ i 2)))))
+                       (^ (+ i 3) r (+ c 1))])))))])
+      (case-lambda
+        [() (call-to-java read-image) (process-response)]
+        [(fn) (call-to-java read-image fn) (process-response)])))
+
+  ; write an image to a file
+  (define write-image
+    (let ([image->base64
+            (lambda (img)
+              (let ([sd (make-string (* 3 (image-rows img) (image-cols img)))])
+                (let ^ ([i 0] [r 0] [c 0])
+                  (cond
+                    [(= r (image-rows img)) sd]
+                    [(= c (image-cols img)) (^ i (+ r 1) 0)]
+                    [else
+                     (string-set! sd i
+                       (integer->char (image-ref img r c 0)))
+                     (string-set! sd (+ i 1)
+                       (integer->char (image-ref img r c 1)))
+                     (string-set! sd (+ i 2)
+                       (integer->char (image-ref img r c 2)))
+                     (^ (+ i 3) r (+ c 1))]))))])
+      (case-lambda
+        [(i) (call-to-java write-image
+               (image-rows i) (image-cols i) (image->base64 i))]
+        [(i fn) (call-to-java write-image
+                  (image-rows i) (image-cols i) (image->base64 i) fn)])))
+>>>>>>> interop
 
   ; display the image in a Java window
   (define (draw-image i)

@@ -1,4 +1,4 @@
-package wombat.scheme.libraries;
+package wombat.scheme.util;
 
 public class Conversion {
 	private Conversion() {}

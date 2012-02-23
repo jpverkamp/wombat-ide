@@ -18,7 +18,7 @@ public class ImageAPI {
 	
 	/**
 	 * Show a dialog to allow the user to choose an image, then read it into a byte stream.
-	 * @return A stream of encoded img. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
+	 * @return A stream of encoded data. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
 	 * @throws IOException If we cannot read the file.
 	 */
 	public static ImageData readImage() throws IOException {
@@ -37,7 +37,7 @@ public class ImageAPI {
 	/**
 	 * Read an image into a bytestream.
 	 * @param filename The file to read.
-	 * @return A stream of encoded img. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
+	 * @return A stream of encoded data. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
 	 * @throws IOException If we cannot read the image.
 	 */
 	public static ImageData readImage(String filename) throws IOException {
