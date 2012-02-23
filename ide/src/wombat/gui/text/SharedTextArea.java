@@ -1,13 +1,9 @@
 package wombat.gui.text;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -31,6 +27,11 @@ public class SharedTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 2220038488909999007L;
 	
 	static final boolean NETWORKING_DEBUG = false;
+	static final char[][] BAD_CHARS = {
+		{'l', '('}, {'1', ')'},
+		{'o', '['}, {'O', ']'}, {'0', '*'}, 
+		{'/', '?'},
+	};
 	
 	String ID;
 	boolean Running = true;
@@ -97,7 +98,9 @@ public class SharedTextArea extends SchemeTextArea {
 		data[data.length - 1] = (byte) ((sta.Host.getLocalPort() % 256) - 128);
 		sta.ID = Base64.encodeBytes(data);
 		
-//		sta.ID = InetAddress.getLocalHost().getHostAddress() + ":" + sta.Host.getLocalPort();
+		// Convert bad characters
+		for (char[] badPair : BAD_CHARS) 
+			sta.ID = sta.ID.replace(badPair[0], badPair[1]);
 		
 		// Start a thread to get new clients.
 		Thread serverAcceptThread = new Thread() {
@@ -156,19 +159,20 @@ public class SharedTextArea extends SchemeTextArea {
 	 * @throws Exception If we can't get the server.
 	 */
 	public static SharedTextArea join(String connectTo) throws Exception {
+		final SharedTextArea sta = new SharedTextArea();
+		sta.ID = connectTo;
+		
+		// Unconvert bad characters
+		for (char[] badPair : BAD_CHARS) 
+			connectTo = connectTo.replace(badPair[1], badPair[0]);
+		
+		// Decode port and IP.
 		byte[] data = Base64.decode(connectTo);
 		byte[] addr = Arrays.copyOf(data, data.length - 2);
 		InetAddress ip = InetAddress.getByAddress(addr);
 		int lo = ((int) data[data.length - 2]) + 128;
 		int hi = ((int) data[data.length - 1]) + 128;
 		int port = lo * 256 + hi;
-		
-//		String[] parts = connectTo.split(":");
-//		InetAddress ip = InetAddress.getByName(parts[0]);
-//		int port = Integer.parseInt(parts[1]);
-		
-		final SharedTextArea sta = new SharedTextArea();
-		sta.ID = connectTo;
 		
 		// Create a socket for it.
 		sta.Server = new Client(new Socket(ip, port));
@@ -286,7 +290,6 @@ public class SharedTextArea extends SchemeTextArea {
 				return null;
 				
 			}
-			
 			
 		} catch(Exception ex) {
 			ex.printStackTrace();
