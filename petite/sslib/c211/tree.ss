@@ -78,5 +78,3 @@ Other:
         [else (format "~a\n" tr)]))
     (call-to-java draw-tree (export-tree tr))
     (void)))
-
-(import (c211 tree))

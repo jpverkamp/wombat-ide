@@ -101,13 +101,14 @@ public class ImageAPI {
 		
 		// TODO: make this zoomable and able to select pixels
 		
-		JFrame treeFrame = new JFrame("draw-image");
-		treeFrame.setLayout(new BorderLayout());
-		treeFrame.setResizable(false);
-		treeFrame.setLocationByPlatform(true);
-		treeFrame.add(new JLabel(new ImageIcon((Image) ri)));
-		treeFrame.pack();
-		treeFrame.setVisible(true);
+		JFrame imageFrame = new JFrame("draw-image");
+		imageFrame.setLayout(new BorderLayout());
+		imageFrame.setResizable(false);
+		imageFrame.setLocationByPlatform(true);
+		imageFrame.add(new JLabel(new ImageIcon((Image) ri)));
+		imageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		imageFrame.pack();
+		imageFrame.setVisible(true);
 	}
 }
 

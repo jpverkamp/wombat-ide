@@ -47,6 +47,7 @@ Parameters:
 
   (import (except (chezscheme) lambda define))
   (import (wombat define))
+  (import (wombat java))
 
   ; create the datatypes
   (define :matrix (make-record-type "matrix" '(rows cols data)))
@@ -140,7 +141,17 @@ Parameters:
 
   ; draw the matrix (uses the network connection to Java)
   (define (draw-matrix m)
-    #f)
+    (let ^ ([r 0] [c 0]
+            [s (format "~a\n~a\n" (matrix-rows m) (matrix-cols m))])
+      (cond
+        [(= r (matrix-rows m))
+         (call-to-java draw-matrix s)
+         (void)]
+        [(= c (matrix-cols m))
+         (^ (+ r 1) 0 s)]
+        [else
+          (^ r (+ c 1) (string-append s
+                         (format "~a\n" (matrix-ref m r c))))])))
 
   ; tweak how matricies are printed
   (record-writer :matrix

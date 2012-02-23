@@ -28,6 +28,7 @@ public class TreeAPI {
 		};
 		treeFrame.setSize(400, 400);
 		treeFrame.setLayout(new BorderLayout());
+		treeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		treeFrame.setVisible(true);
 	}
 }

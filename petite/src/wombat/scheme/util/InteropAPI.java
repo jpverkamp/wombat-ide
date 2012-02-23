@@ -65,7 +65,9 @@ public class InteropAPI {
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Matrix API
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
-			
+			else if ("draw-matrix".equals(key)) {
+				MatrixAPI.drawMatrix(val);
+			}
 			
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Tree API
