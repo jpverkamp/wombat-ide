@@ -6,6 +6,8 @@ import java.awt.GridLayout;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.swing.*;
 
@@ -18,6 +20,8 @@ import javax.swing.*;
  * - launch the newest version of Wombat 
  */
 public class Main {
+	static final int LauncherVersion = 2;
+	
 	static final String UpdateSite = "http://www.cs.indiana.edu/cgi-pub/c211/wombat/dev/";
 	static final URL UpdateVersionFile;
 	
@@ -37,7 +41,6 @@ public class Main {
 			
 			CurrentDir = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsoluteFile();
 			VersionFile = new File(CurrentDir, "version.txt");
-			
 			UpdateVersionFile = new URL(UpdateSite + "version.txt");
 			
 		} catch (MalformedURLException e) {
@@ -106,9 +109,26 @@ public class Main {
 				installAll();
 			}
 				
+			// Scan the file.
 			Scanner s = new Scanner(VersionFile);
-			while (s.hasNextLine())
-				Versions.add(new Version(s.nextLine()));
+			while (s.hasNextLine()) {
+				String line = s.nextLine().trim();
+				if ("".equals(line)) continue;
+				Version v = new Version(line);
+				if (v.Filename != null) Versions.add(v);
+			}
+			
+			// Check the launcher version.
+			if (Version.Constants.containsKey("Launcher")) {
+				Version myLauncherVersion = new Version("Launcher," + LauncherVersion);
+				if (myLauncherVersion.compareTo(Version.Constants.get("Launcher")) < 0)
+					JOptionPane.showMessageDialog(
+							null, 
+							"Your wombat launcher (wombat.jar) is out of date.\n" +
+									"Please download a new copy.",
+							"Wombat Launcher Error",
+							JOptionPane.INFORMATION_MESSAGE);
+			}
 			
 		} catch(Exception e) {
 			throw new Error("Unable to read version file:\n" + e.getMessage());
@@ -230,7 +250,7 @@ public class Main {
 					"The updates have been downloaded.\n" + 
 							"They will be automatically installed the next time you restart Wombat.", 
 					"Updates installed", 
-					JOptionPane.OK_OPTION);
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	
@@ -476,5 +496,44 @@ public class Main {
 
 		out.close();
 		in.close();
+		
+		// If it was a zip file unpack it in that same directory.
+		if (to.getCanonicalPath().endsWith("zip")) {
+			ZipFile zip = new ZipFile(to);
+			System.out.println("Unzip file: " + zip.getName());
+						    
+			@SuppressWarnings("unchecked")
+			Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+						    
+			while (entries.hasMoreElements()) {
+			    ZipEntry entry = entries.nextElement();
+							
+			    if (entry.isDirectory()) {
+			    	System.out.println("\tunzipping: " + entry.getName());
+			    	new File(to.getParentFile(), entry.getName()).getCanonicalFile().mkdirs();
+			    } else {
+			    	System.out.println("\tunzipping: " + entry.getName());
+			    	new File(to.getParentFile(), entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+							    
+				File targetFile = new File(to.getParentFile(), entry.getName());
+				InputStream zipin = zip.getInputStream(entry);
+				OutputStream zipout = new BufferedOutputStream(new FileOutputStream(targetFile));
+							    
+				byte[] buffer = new byte[1024];
+				int len;
+							    
+				while((len = zipin.read(buffer)) >= 0)
+					zipout.write(buffer, 0, len);
+							    
+				zipin.close();
+				zipout.close();
+							    
+				if (targetFile.getName().toLowerCase().startsWith("petite"))
+					targetFile.setExecutable(true);
+			    }
+			}
+						    
+			zip.close();
+		}
 	}
 }

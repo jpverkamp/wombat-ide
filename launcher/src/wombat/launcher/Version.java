@@ -12,6 +12,8 @@ public class Version implements Comparable<Version> {
 	String VersionString;
 	List<Integer> Version;
 	
+	static Map<String, Version> Constants = new HashMap<String, Version>();
+	
 	/**
 	 * Parse a version from a version line.
 	 * 
@@ -23,7 +25,8 @@ public class Version implements Comparable<Version> {
 	 */
 	public Version(String line) {
 		String[] parts = line.split(",");
-		if (!(parts.length == 3 || parts.length == 4))
+
+		if (parts.length < 2 || parts.length > 4)
 			throw new Error("Invalid version format: " + line);
 		
 		Name = parts[0];
@@ -46,6 +49,11 @@ public class Version implements Comparable<Version> {
 			} catch(Exception e) {
 				throw new Error("Invalid version specification: " + parts[1]);
 			}
+		}
+		
+		if (parts.length == 2) {
+			Filename = null;
+			Constants.put(Name, this);
 		}
 	}
 

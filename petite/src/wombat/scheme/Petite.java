@@ -26,7 +26,7 @@ public class Petite {
 			final Petite p = new Petite();
 			final Scanner s = new Scanner(System.in);
 			
-			Thread t = new Thread(new Runnable() {
+			Thread t = new Thread("Petite REPL") {
 				public void run() {
 					while (p.isRunning()) {
 						if (p.hasOutput()) {
@@ -37,7 +37,7 @@ public class Petite {
 						try { Thread.sleep(10); } catch (InterruptedException e) {}
 					}
 				}
-			});
+			};
 			t.setDaemon(true);
 			t.start();
 			
@@ -80,7 +80,6 @@ public class Petite {
     Process NativeProcess;
     
     Thread FromPetiteThread;
-	
 
 	    // The root is either this directory or a nested 'lib' directory.
     static File[] searchDirs;
@@ -107,7 +106,11 @@ public class Petite {
      */
 	public Petite() throws IOException, URISyntaxException {
 		 // Unzip the c211 library.
-		unzipC211Lib();
+		try {
+			unzipC211Lib();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 	    // Connect to an initial Petite session.
 	    connect();
@@ -234,7 +237,7 @@ public class Petite {
 		
 		// Create a listener thread.
 		if (FromPetiteThread == null) {
-			FromPetiteThread = new Thread() {
+			FromPetiteThread = new Thread("Petite IO") {
 				public void run() {
 					char c;
 					try {
@@ -242,11 +245,8 @@ public class Petite {
 							c = (char) FromPetite.read();
 							BufferLock.lock();
 							
-							// Close down on end of file.
-							if (c == (char) 65535) {
-								Running = false;
-								break;
-							}
+							// Ignore end of file characters.
+							if (c == (char) 65535) {}
 							
 							// Potential start of a prompt.
 							else if (c == Prompt1) {
@@ -324,6 +324,7 @@ public class Petite {
 					} catch(Exception e) {
 						System.err.println("Petite buffer is broken");
 						Buffer.append("\nException: Petite buffer is broken\n");
+						BufferLock.unlock();
 
 						// If we get here, Petite has collapsed.
 						// Destroy the connected process and restart.
@@ -335,7 +336,7 @@ public class Petite {
 			FromPetiteThread.start();
 		}
 		
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread("Petite Shutdown") {
 			public void run() {
 				NativeProcess.destroy();
 			}
@@ -349,9 +350,6 @@ public class Petite {
 		// Actually clear the environment
 		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
 		
-		// Make sure that the prompt is set as we want it
-		sendCommand("(waiter-prompt-string \"|`\")");
-		
 		// So that (eq? 'A 'a) => #t
 		sendCommand("(case-sensitive #f)");
 		
@@ -363,6 +361,9 @@ public class Petite {
 
 		// Fix error message that give define/lambda names
 		sendCommand("(import (wombat define))");
+		
+		// Make sure that the prompt is set as we want it
+		sendCommand("(waiter-prompt-string \"|`\")");
 	}
 	
 	/**
@@ -395,6 +396,11 @@ public class Petite {
 		Buffer.delete(0, Buffer.length());
 		BufferLock.unlock();
 	    NativeProcess.destroy();
+
+	    try {
+			NativeProcess.waitFor();
+		} catch (InterruptedException e) {
+		}
 	}
 
 	/** 
@@ -435,7 +441,6 @@ public class Petite {
 	 */
 	public void sendCommand(String cmd) {
 		try {
-			
 			// Swap out lambda character for string
 			cmd = cmd.replace("\u03BB", "lambda");
 			
