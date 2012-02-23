@@ -28,7 +28,7 @@ public class Petite {
 			
 			Thread t = new Thread(new Runnable() {
 				public void run() {
-					while (true) {
+					while (p.isRunning()) {
 						if (p.hasOutput()) {
 							System.out.println(p.getOutput());
 							System.out.print(">> ");
@@ -83,13 +83,21 @@ public class Petite {
 	
 
 	    // The root is either this directory or a nested 'lib' directory.
-    static final File[] searchDirs = new File[]{
-	new File("").getCanonicalFile(),
-	new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
-	new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
-	new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
-	new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
-	new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
+    static File[] searchDirs;
+    
+    static {
+    	try {
+    		searchDirs = new File[]{
+    				new File("").getCanonicalFile(),
+    				new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
+    				new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
+    				new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
+    				new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
+    				new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
+    		};
+    	} catch(IOException ex) {
+    	} catch (URISyntaxException e) {
+		}
     };
 
     /**
@@ -98,9 +106,9 @@ public class Petite {
      * @throws URISyntaxException If we have problems getting the path from a JAR file.
      */
 	public Petite() throws IOException, URISyntaxException {
-	    // Unzip the c211 library.
-	    unzipC211Lib();
-
+		 // Unzip the c211 library.
+		unzipC211Lib();
+		
 	    // Connect to an initial Petite session.
 	    connect();
 	}
@@ -209,7 +217,7 @@ public class Petite {
 				"-b", 
 				new File(pdir, "petite.boot").getAbsolutePath(),
 				"--libdirs",
-				"lib"
+				"lib;.;..;dist;dist/lib"
 			);
 		pb.directory(pdir.getParentFile().getParentFile());
 		pb.redirectErrorStream(true);
@@ -449,45 +457,62 @@ public class Petite {
     /**
      * Unpack the C211 library.
      */
-    void unzipC211Lib() {
-	File libZip;
-	for (File dir : searchDirs) {
-	    if (dir.
+    static void unzipC211Lib() {
+    	File libZip = null;
+    	File undir = null;
+    	for (File dir : searchDirs) {
+    		if (dir.exists() && dir.isDirectory()) {
+    			for (String name : dir.list()) {
+    				if (name.startsWith("c211-lib") && name.endsWith("zip")) {
+    					libZip = new File(dir, name);
+    					undir = dir;
+    					break;
+    				}
+    			}
+    		}
+    		if (libZip != null) 
+    			break;
+    	}
+    	
+    	if (libZip == null)
+    		throw new RuntimeException("Unable to unpack c211 library.");
 
-	ZipFile zip = new ZipFile(new File(dir, path));
-	System.out.println("Found: " + zip);
-				    
-	@SuppressWarnings("unchecked")
-	    Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
-				    
-	while (entries.hasMoreElements()) {
-	    ZipEntry entry = entries.nextElement();
-					
-	    if (entry.isDirectory()) {
-		System.out.println("\tunzipping: " + entry.getName());
-		new File(dir, entry.getName()).getCanonicalFile().mkdirs();
-	    } else {
-		System.out.println("\tunzipping: " + entry.getName());
-		new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
-					    
-		File targetFile = new File(dir, entry.getName());
-		InputStream in = zip.getInputStream(entry);
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
-					    
-		byte[] buffer = new byte[1024];
-		int len;
-					    
-		while((len = in.read(buffer)) >= 0)
-		    out.write(buffer, 0, len);
-					    
-		in.close();
-		out.close();
-					    
-		targetFile.setExecutable(true);
-	    }
-	}
-				    
-	zip.close();
-
+    	try {
+			ZipFile zip = new ZipFile(libZip);
+			System.out.println("Found c211 library: " + zip);
+						    
+			@SuppressWarnings("unchecked") Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+						    
+			while (entries.hasMoreElements()) {
+			    ZipEntry entry = entries.nextElement();
+							
+			    if (entry.isDirectory()) {
+			    	System.out.println("\tunzipping: " + entry.getName());
+			    	new File(undir, entry.getName()).getCanonicalFile().mkdirs();
+			    } else {
+			    	System.out.println("\tunzipping: " + entry.getName());
+			    	new File(undir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+							    
+				File targetFile = new File(undir, entry.getName());
+				InputStream in = zip.getInputStream(entry);
+				OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
+							    
+				byte[] buffer = new byte[1024];
+				int len;
+							    
+				while((len = in.read(buffer)) >= 0)
+				    out.write(buffer, 0, len);
+							    
+				in.close();
+				out.close();
+							    
+				targetFile.setExecutable(true);
+			    }
+			}
+						    
+			zip.close();
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	}
     }
 }

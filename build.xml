@@ -13,11 +13,13 @@
 		<property name="jar-name" value="wombat-ide-${ide-version}.jar" />
 		<property name="petite-version" value="8.4" />
 		<property name="petite-bindings" value="${petite-version}.3" />
+		<property name="c211-lib-version" value="0.9" />
 		
 		<echo>Versions:
 		IDE: ${ide-version}
 		Petite: ${petite-version}
-		Petite bindings: ${petite-bindings}</echo>
+		Petite bindings: ${petite-bindings}
+		C211 libraries: ${c211-lib-version}</echo>
 	</target>
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
@@ -49,7 +51,7 @@ Petite Bindings,${petite-bindings},lib/petite-${petite-bindings}.jar
 Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
 Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
 Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
-C211 Libraries,0.9,lib/c211-lib.zip
+C211 Libraries,0.9,lib/c211-lib-${c211-lib-version}.zip
 </echo>
 	  
 	  <copy todir="${dist-dir}" file="version.txt" />
