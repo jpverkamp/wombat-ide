@@ -81,13 +81,28 @@ public class Petite {
     
     Thread FromPetiteThread;
 	
+
+	    // The root is either this directory or a nested 'lib' directory.
+    static final File[] searchDirs = new File[]{
+	new File("").getCanonicalFile(),
+	new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
+	new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
+	new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
+	new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
+	new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
+    };
+
     /**
      * Create a new Petite thread.
      * @throws IOException If we fail to access the Petite process.
      * @throws URISyntaxException If we have problems getting the path from a JAR file.
      */
 	public Petite() throws IOException, URISyntaxException {
-		connect();
+	    // Unzip the c211 library.
+	    unzipC211Lib();
+
+	    // Connect to an initial Petite session.
+	    connect();
 	}
 	
 	/**
@@ -96,11 +111,11 @@ public class Petite {
 	 * @throws URISyntaxException If we have problems getting the path from a JAR file.
 	 */
 	private void connect() throws IOException, URISyntaxException {
-		System.err.println("Petite connecting");
+	    System.err.println("Petite connecting");
 		
 	    // Reset the wrapper state (necessary in the case of a reconnect).
-		Starting = true;
-		SeenPrompt1 = false;
+	    Starting = true;
+	    SeenPrompt1 = false;
 	    Ready = false;
 	    Running = true;
 	    InInterop = false;
@@ -116,16 +131,6 @@ public class Petite {
 	    	InteropBuffer.delete(0,  InteropBuffer.length());
 	    
 	    BufferLock = new ReentrantLock();
-
-	    // The root is either this directory or a nested 'lib' directory.
-	    File[] searchDirs = new File[]{
-	    		new File("").getCanonicalFile(),
-	    		new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
-	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
-	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()), "lib").getCanonicalFile(),
-	    		new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
-	    		new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(),
-	    };
 	    
 	    // Find the correct Petite directory.
 		File pdir = null;
@@ -440,4 +445,49 @@ public class Petite {
 			Buffer.append("\nException: Unable to execute command\n");
 		}
 	}
+
+    /**
+     * Unpack the C211 library.
+     */
+    void unzipC211Lib() {
+	File libZip;
+	for (File dir : searchDirs) {
+	    if (dir.
+
+	ZipFile zip = new ZipFile(new File(dir, path));
+	System.out.println("Found: " + zip);
+				    
+	@SuppressWarnings("unchecked")
+	    Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
+				    
+	while (entries.hasMoreElements()) {
+	    ZipEntry entry = entries.nextElement();
+					
+	    if (entry.isDirectory()) {
+		System.out.println("\tunzipping: " + entry.getName());
+		new File(dir, entry.getName()).getCanonicalFile().mkdirs();
+	    } else {
+		System.out.println("\tunzipping: " + entry.getName());
+		new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+					    
+		File targetFile = new File(dir, entry.getName());
+		InputStream in = zip.getInputStream(entry);
+		OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
+					    
+		byte[] buffer = new byte[1024];
+		int len;
+					    
+		while((len = in.read(buffer)) >= 0)
+		    out.write(buffer, 0, len);
+					    
+		in.close();
+		out.close();
+					    
+		targetFile.setExecutable(true);
+	    }
+	}
+				    
+	zip.close();
+
+    }
 }

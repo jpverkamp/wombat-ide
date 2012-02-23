@@ -11,7 +11,8 @@
 	<property name="sslib-dir" location="sslib" />
 	
 	<property name="petite-version" value="8.4" />
-	<property name="petite-bindings" value="${petite-version}.2" />
+	<property name="petite-bindings" value="${petite-version}.3" />
+	<property name="c211-lib-version" value="0.9" />
 	
 	<property name="petite-jar-name" value="petite-${petite-bindings}.jar" />
 	
@@ -35,15 +36,13 @@
 				<attribute name="Main-Class" value="wombat.scheme.Petite" />
 			</manifest>
 		</jar>
+
+		<zip destfile="${jar-dir}/c211-lib-${c211-lib-version}.zip"
+		     basedir="${sslib-dir}" />
 		
 		<copy todir="${jar-dir}">
 			<fileset dir="${lib-dir}">
 				<include name="petite-${petite-version}-*.zip" />
-			</fileset>
-			
-			<fileset dir="${sslib-dir}">
-				<include name="*" />
-				<include name="*/*" />
 			</fileset>
 		</copy>
 	</target>
