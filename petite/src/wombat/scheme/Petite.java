@@ -26,7 +26,7 @@ public class Petite {
 			final Petite p = new Petite();
 			final Scanner s = new Scanner(System.in);
 			
-			Thread t = new Thread(new Runnable() {
+			Thread t = new Thread("Petite REPL") {
 				public void run() {
 					while (p.isRunning()) {
 						if (p.hasOutput()) {
@@ -37,7 +37,7 @@ public class Petite {
 						try { Thread.sleep(10); } catch (InterruptedException e) {}
 					}
 				}
-			});
+			};
 			t.setDaemon(true);
 			t.start();
 			
@@ -80,7 +80,6 @@ public class Petite {
     Process NativeProcess;
     
     Thread FromPetiteThread;
-	
 
 	    // The root is either this directory or a nested 'lib' directory.
     static File[] searchDirs;
@@ -234,7 +233,7 @@ public class Petite {
 		
 		// Create a listener thread.
 		if (FromPetiteThread == null) {
-			FromPetiteThread = new Thread() {
+			FromPetiteThread = new Thread("Petite IO") {
 				public void run() {
 					char c;
 					try {
@@ -335,7 +334,7 @@ public class Petite {
 			FromPetiteThread.start();
 		}
 		
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread("Petite Shutdown") {
 			public void run() {
 				NativeProcess.destroy();
 			}

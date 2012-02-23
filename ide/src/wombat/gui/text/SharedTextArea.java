@@ -103,7 +103,7 @@ public class SharedTextArea extends SchemeTextArea {
 			sta.ID = sta.ID.replace(badPair[0], badPair[1]);
 		
 		// Start a thread to get new clients.
-		Thread serverAcceptThread = new Thread() {
+		Thread serverAcceptThread = new Thread("STA Host Server") {
 			public void run() {
 				while (sta.Running)
 					try {
@@ -112,7 +112,7 @@ public class SharedTextArea extends SchemeTextArea {
 						c.send("hello");
 						sta.Clients.add(c);
 						
-						Thread clientThread = new Thread() {
+						Thread clientThread = new Thread("STA Host Client") {
 							public void run() {
 								while (sta.Running) {
 									try { Thread.sleep(50); } catch(InterruptedException ex) {}
@@ -179,7 +179,7 @@ public class SharedTextArea extends SchemeTextArea {
 		sta.Server.send("hello");
 		
 		// Set up a listening thread.
-		Thread fromServerThread = new Thread() {
+		Thread fromServerThread = new Thread("STA Join") {
 			public void run() {
 				while (sta.Running) {
 					try { Thread.sleep(50); } catch(InterruptedException ex) {}

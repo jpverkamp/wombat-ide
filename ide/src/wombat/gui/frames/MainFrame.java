@@ -202,35 +202,44 @@ public class MainFrame extends JFrame {
         // Connect to Petite.
         try {
 			Petite = new Petite();
+			
+			Thread petiteOutputThread = new Thread("Petite Output") {
+	        	public void run() {
+	        		while (true) {
+	        			if (Petite.hasOutput()) {
+	        				String output = Petite.getOutput();
+	        				History.append(output);
+	        				History.goToEnd();
+	        			}
+	        			
+	        			if ((Running && Petite.isReady())
+	        					|| (!Running && !Petite.isReady())) {
+	        				Running = !Petite.isReady();
+	            			
+	            			MenuManager.itemForName("Run").setEnabled(!Running);
+	            			ToolBarRun.setEnabled(!Running);
+	            	    	
+	            			MenuManager.itemForName("Stop").setEnabled(Running);
+	            			ToolBarStop.setEnabled(Running);
+	        			}
+	    				
+	        			try { Thread.sleep(20); } catch (InterruptedException e) { }
+	        		}
+	        	}
+	        };
+	        petiteOutputThread.setDaemon(true);
+	        petiteOutputThread.start();
+	        
 		} catch (Exception e1) {
+			JOptionPane.showMessageDialog(
+					this, 
+					"Unable to start Petite process:\n" 
+							+ e1.getMessage() 
+							+ "\n\nPlease report this error to the developers.", 
+					"Error starting Petite", 
+					JOptionPane.ERROR_MESSAGE);
 			ErrorManager.logError(e1.getMessage());
 		}
-        Thread petiteOutputThread = new Thread(new Runnable() {
-        	public void run() {
-        		while (true) {
-        			if (Petite.hasOutput()) {
-        				String output = Petite.getOutput();
-        				History.append(output);
-        				History.goToEnd();
-        			}
-        			
-        			if ((Running && Petite.isReady())
-        					|| (!Running && !Petite.isReady())) {
-        				Running = !Petite.isReady();
-            			
-            			MenuManager.itemForName("Run").setEnabled(!Running);
-            			ToolBarRun.setEnabled(!Running);
-            	    	
-            			MenuManager.itemForName("Stop").setEnabled(Running);
-            			ToolBarStop.setEnabled(Running);
-        			}
-    				
-        			try { Thread.sleep(20); } catch (InterruptedException e) { }
-        		}
-        	}
-        });
-        petiteOutputThread.setDaemon(true);
-        petiteOutputThread.start();
     }
 
 	/**
