@@ -36,7 +36,7 @@ Other:
     - if file is given, read that image; otherwise display a dialog (uses Java)
   (write-image i [file])
     - write the image i to a file; if not specified display a dialog (uses Java)
-  (draw-iamge i)
+  (draw-image i)
     - display the image to the user (uses Java)
 |#
 
@@ -49,10 +49,13 @@ Other:
    image-set!
    read-image write-image draw-image)
 
-  (import (chezscheme))
+  (import (except (chezscheme) lambda define))
+
+  (import (wombat define))
+  (import (wombat java))
+
   (import (c211 matrix))
   (import (c211 base64))
-  (import (c211 interop))
 
   ; create the datatype (image data is stored as a matrix of colors)
   (define :color (make-record-type "color" '(r g b)))
@@ -154,56 +157,32 @@ Other:
     ((record-accessor :color (if (eq? b 'red) 0 (if (eq? b 'green) 1 2))) c))
 
   ; change a pixel in an image
-  (define (image-set! i r c v)
-    (!check-image 'image-set! i)
-    (!check-bounds 'image-set! i r c)
-    (matrix-set! (image-data i) r c v))
+  (define image-set!
+    (case-lambda
+      [(i r c v)
+       (!check-image 'image-set! i)
+       (!check-bounds 'image-set! i r c)
+       (matrix-set! (image-data i) r c v)]
+      [(i r c b v)
+       (!check-image 'image-set! i)
+       (!check-bounds 'image-set! i r c)
+       (!check-band 'image-set! b)
+       (matrix-set! (image-data i) r c v)]))
 
   ; read an image from a file
   (define read-image
-    (let ([process-response
-            (lambda ()
-              (let ([rs (read)]
-                    [cs (read)]
-                    [sd (base64->string (read))])
-                (let ([img (make-image rs cs)])
-                  (let ^ ([i 0] [r 0] [c 0])
-                    (cond
-                      [(or (= r rs) (= i (string-length sd))) img]
-                      [(= c cs) (^ i (+ r 1) 0)]
-                      [else
-                       (image-set! img r c
-                         (color
-                           (char->integer (string-ref sd i))
-                           (char->integer (string-ref sd (+ i 1)))
-                           (char->integer (string-ref sd (+ i 2)))))
-                       (^ (+ i 3) r (+ c 1))])))))])
+    (let ([base64->image
+            (lambda (rows cols data)
+              (make-image rows cols))])
       (case-lambda
-        [() (call-to-java read-image) (process-response)]
-        [(fn) (call-to-java read-image fn) (process-response)])))
+        [() (call-to-java read-image)]
+        [(fn) (call-to-java read-image fn)])))
 
   ; write an image to a file
   (define write-image
-    (let ([image->base64
-            (lambda (img)
-              (let ([sd (make-string (* 3 (image-rows img) (image-cols img)))])
-                (let ^ ([i 0] [r 0] [c 0])
-                  (cond
-                    [(= r (image-rows img)) sd]
-                    [(= c (image-cols img)) (^ i (+ r 1) 0)]
-                    [else
-                     (string-set! sd i
-                       (integer->char (image-ref img r c 0)))
-                     (string-set! sd (+ i 1)
-                       (integer->char (image-ref img r c 1)))
-                     (string-set! sd (+ i 2)
-                       (integer->char (image-ref img r c 2)))
-                     (^ (+ i 3) r (+ c 1))]))))])
-      (case-lambda
-        [(i) (call-to-java write-image
-               (image-rows i) (image-cols i) (image->base64 i))]
-        [(i fn) (call-to-java write-image
-                  (image-rows i) (image-cols i) (image->base64 i) fn)])))
+    (case-lambda
+      [(img) #f]
+      [(img fn) #f]))
 
   ; display the image in a Java window
   (define (draw-image i)

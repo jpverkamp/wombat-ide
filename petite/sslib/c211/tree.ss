@@ -38,7 +38,8 @@ Other:
     root-value left-subtree right-subtree
     draw-tree)
 
-  (import (chezscheme))
+  (import (except (chezscheme) lambda define))
+  (import (wombat define))
 
   ; create the datatypes
   (define :tree (make-record-type "tree" '(value left right)))

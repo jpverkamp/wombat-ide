@@ -58,17 +58,13 @@ public class Petite {
     
     static final char Prompt1 = '|';
     static final char Prompt2 = '`';
-    static final char Interop = '!';
     
     boolean Running;
     boolean Starting;
     boolean SeenPrompt1;
     boolean Ready;
     
-    boolean InInterop;
-    
     StringBuffer Buffer;
-    StringBuffer InteropBuffer;
     Lock BufferLock;
     
     Writer ToPetite;
@@ -99,17 +95,11 @@ public class Petite {
 		SeenPrompt1 = false;
 	    Ready = false;
 	    Running = true;
-	    InInterop = false;
 	    
 	    if (Buffer == null)
 	    	Buffer = new StringBuffer();
 	    else 
 	    	Buffer.delete(0, Buffer.length());
-	    
-	    if (InteropBuffer == null)
-	    	InteropBuffer = new StringBuffer();
-	    else
-	    	InteropBuffer.delete(0,  InteropBuffer.length());
 	    
 	    BufferLock = new ReentrantLock();
 
@@ -198,9 +188,11 @@ public class Petite {
 		ProcessBuilder pb = new ProcessBuilder(
 				new File(pdir, (IsWindows ? "petite.exe" : "petite")).getAbsolutePath(), 
 				"-b", 
-				new File(pdir, "petite.boot").getAbsolutePath()
+				new File(pdir, "petite.boot").getAbsolutePath(),
+				"--libdirs",
+				"lib"
 			);
-		pb.directory(pdir);
+		pb.directory(pdir.getParentFile().getParentFile());
 		pb.redirectErrorStream(true);
 		
 		// Start the process.
@@ -246,58 +238,18 @@ public class Petite {
 								Ready = true;
 							} 
 							
-							// Switch to interop mode on Prompt1 + Interop
-							else if (SeenPrompt1 && c == Interop) {
-								SeenPrompt1 = false;
-								
-								if (InInterop) {
-									String[] parts = InteropBuffer.toString().split(" ", 2);
-									String key = parts[0];
-									String val = (parts.length > 1 ? parts[1] : null);
-									
-									System.out.println("calling interop: " + key + " with " + val); // debug
-									String result = InteropAPI.interop(key, val);
-									System.out.println("interop returns: " + (result.length() > 10 ? result.subSequence(0,  10) + "..." : result)); // debug
-									if (result != null) {
-										ToPetite.write(result + " ");
-										ToPetite.flush();
-									}
-									
-									System.out.println("exiting interop");
-									Ready = true;
-										
-									InteropBuffer.delete(0, InteropBuffer.length());
-									InInterop = false;
-								} else {
-									System.out.println("entering interop"); // debug
-									
-									InInterop = true;
-								}
-								
-							}
-							
 							// Thought it was a prompt, but we were wrong.
 							// Remember to store the first half of the prompt.
 							else if (SeenPrompt1) {
 								SeenPrompt1 = false;
-								
-								
-								if (InInterop) {
-									InteropBuffer.append(Prompt1);
-									InteropBuffer.append(c);
-								} else {
-									Buffer.append(Prompt1);
-									Buffer.append(c);
-								}
+
+								Buffer.append(Prompt1);
+								Buffer.append(c);
 							}
 							
 							// Normal case, no new characters.
 							else {
-								if (InInterop) {
-									InteropBuffer.append(c);
-								} else {
-									Buffer.append(c);
-								}
+								Buffer.append(c);
 							}
 							
 							BufferLock.unlock();
@@ -328,12 +280,20 @@ public class Petite {
 	 * Reset Petite's environment.
 	 */
 	public void reset() {
-		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
+		//sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
 		sendCommand("(waiter-prompt-string \"|`\")");
+		
+		// so that (eq? 'A 'a) => #t
 		sendCommand("(case-sensitive #f)");
-		sendCommand("(library-directories `((\"..\" . \"..\") . ,(library-directories)))");
+		
+		// so that gensyms look at least semi-sane (it's not like anyone will need them)
 		sendCommand("(print-gensym #f)");
+		
+		// to test infinite loops
 		sendCommand("(define (omega) ((lambda (x) (x x)) (lambda (x) (x x))))");
+		
+		// fix error message that give define/lambda names
+		sendCommand("(import (wombat define))");
 	}
 	
 	/**

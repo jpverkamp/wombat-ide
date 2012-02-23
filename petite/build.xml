@@ -8,6 +8,7 @@
 	<property name="bin-dir" location="bin" />
 	<property name="jar-dir" location="dist" />
 	<property name="lib-dir" location="lib" />
+	<property name="sslib-dir" location="sslib" />
 	
 	<property name="petite-version" value="8.4" />
 	<property name="petite-bindings" value="${petite-version}.2" />
@@ -22,10 +23,6 @@
 
 		<copy todir="${bin-dir}">
 			<fileset dir="${src-dir}" />
-		</copy>
-		
-		<copy todir="${jar-dir}/c211">
-			<fileset dir="c211" />
 		</copy>
 	</target>
 
@@ -42,6 +39,11 @@
 		<copy todir="${jar-dir}">
 			<fileset dir="${lib-dir}">
 				<include name="petite-${petite-version}-*.zip" />
+			</fileset>
+			
+			<fileset dir="${sslib-dir}">
+				<include name="*" />
+				<include name="*/*" />
 			</fileset>
 		</copy>
 	</target>

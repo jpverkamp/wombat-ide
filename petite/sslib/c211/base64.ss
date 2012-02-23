@@ -6,7 +6,8 @@
     bytevector->base64
     base64->bytevector)
 
-  (import (chezscheme))
+  (import (except (chezscheme) lambda define))
+  (import (wombat define))
 
   (define >> bitwise-arithmetic-shift-right)
   (define << bitwise-arithmetic-shift-left)

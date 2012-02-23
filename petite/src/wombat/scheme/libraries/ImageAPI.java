@@ -18,7 +18,7 @@ public class ImageAPI {
 	
 	/**
 	 * Show a dialog to allow the user to choose an image, then read it into a byte stream.
-	 * @return A stream of encoded data. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
+	 * @return A stream of encoded img. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
 	 * @throws IOException If we cannot read the file.
 	 */
 	public static ImageData readImage() throws IOException {
@@ -26,7 +26,6 @@ public class ImageAPI {
 		
 		FileDialog fc = new FileDialog((java.awt.Frame) null, "read-image", FileDialog.LOAD);
         fc.setVisible(true);
-
         if (fc.getFile() == null)
         	throw new IllegalArgumentException("Error in read-image: no image chosen.");
 
@@ -38,7 +37,7 @@ public class ImageAPI {
 	/**
 	 * Read an image into a bytestream.
 	 * @param filename The file to read.
-	 * @return A stream of encoded data. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
+	 * @return A stream of encoded img. The first two values are rows then columns, then the sequence is [r,g,b,a] across rows then down.
 	 * @throws IOException If we cannot read the image.
 	 */
 	public static ImageData readImage(String filename) throws IOException {
@@ -49,14 +48,7 @@ public class ImageAPI {
 		int[] data = new int[bi.getWidth() * bi.getHeight()];
 		bi.getRGB(0, 0, bi.getWidth(), bi.getHeight(), data, 0, bi.getWidth());
 		
-		ImageData result = new ImageData(bi.getWidth(), bi.getHeight());
-		for (int i = 0; i < data.length; i++) {
-			result.Data[3 * i + 0] = (byte) ((data[i] >> 16) - 128);
-			result.Data[3 * i + 1] = (byte) (((data[i] >> 8) & 0xFF) - 128);
-			result.Data[3 * i + 2] = (byte) ((data[i] & 0xFF) - 128);
-		}
-		
-		return result;
+		return new ImageData(bi.getWidth(), bi.getHeight(), data);
 	}
 	
 	/**
@@ -64,7 +56,7 @@ public class ImageAPI {
 	 * @param data The image to write. The first two values are the width and height.
 	 * @throws IOException If we cannot write the image.
 	 */
-	public static void writeImage(ImageData data) throws IOException {
+	public static void writeImage(ImageData img) throws IOException {
 		System.out.println("write-image"); // debug
 		
 		FileDialog fc = new FileDialog((java.awt.Frame) null, "write-image", FileDialog.SAVE);
@@ -74,7 +66,7 @@ public class ImageAPI {
         	throw new IllegalArgumentException("Error in read-image: no image chosen.");
 
         File file = new File(fc.getDirectory(), fc.getFile());
-		writeImage(data, file.getCanonicalPath());
+		writeImage(img, file.getCanonicalPath());
 	}
 	
 	/**
@@ -83,18 +75,15 @@ public class ImageAPI {
 	 * @param filename The file to write to.
 	 * @throws IOException If we cannot write the image.
 	 */
-	public static void writeImage(ImageData data, String filename) throws IOException {
+	public static void writeImage(ImageData img, String filename) throws IOException {
 		System.out.println("write-image " + filename); // debug
 		
-//		int width = data[0];
-//		int height = data[1];
-//		
-//		RenderedImage ri = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-//		((BufferedImage) ri).setRGB(0, 0, width, height, data, 2, width);
-//		
-//		File file = new File(filename);
-//		String[] parts = file.getName().split(".");
-//		ImageIO.write(ri, parts[parts.length - 1], file);
+		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
+		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
+		
+		File file = new File(filename);
+		String[] parts = file.getName().split(".");
+		ImageIO.write(ri, parts[parts.length - 1], file);
 	}
 	
 	/**
@@ -102,24 +91,21 @@ public class ImageAPI {
 	 * @param data The image to write. The first two values are the width and height.
 	 * @throws IOException If we cannot write the image.
 	 */
-	public static void displayImage(ImageData data) {
+	public static void displayImage(ImageData img) {
 		System.out.println("display-image"); // debug
 		
-//		int width = data[0];
-//		int height = data[1];
-//		
-//		RenderedImage ri = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-//		((BufferedImage) ri).setRGB(0, 0, width, height, data, 2, width);
-//		
-//		// TODO: make this zoomable and able to select pixels
-//		
-//		JFrame treeFrame = new JFrame("draw-image");
-//		treeFrame.setLayout(new BorderLayout());
-//		treeFrame.setResizable(false);
-//		treeFrame.setLocationByPlatform(true);
-//		treeFrame.add(new JLabel(new ImageIcon((Image) ri)));
-//		treeFrame.pack();
-//		treeFrame.setVisible(true);
+		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
+		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 2, img.Width);
+		
+		// TODO: make this zoomable and able to select pixels
+		
+		JFrame treeFrame = new JFrame("draw-image");
+		treeFrame.setLayout(new BorderLayout());
+		treeFrame.setResizable(false);
+		treeFrame.setLocationByPlatform(true);
+		treeFrame.add(new JLabel(new ImageIcon((Image) ri)));
+		treeFrame.pack();
+		treeFrame.setVisible(true);
 	}
 }
 

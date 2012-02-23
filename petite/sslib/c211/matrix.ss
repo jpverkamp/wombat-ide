@@ -45,7 +45,8 @@ Parameters:
     print-matrix draw-matrix
     print-matrix-rows print-matrix-cols print-matrix-width)
 
-  (import (chezscheme))
+  (import (except (chezscheme) lambda define))
+  (import (wombat define))
 
   ; create the datatypes
   (define :matrix (make-record-type "matrix" '(rows cols data)))
