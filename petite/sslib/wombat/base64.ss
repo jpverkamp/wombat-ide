@@ -1,5 +1,5 @@
 (library
-  (c211 base64)
+  (wombat base64)
   (export
     string->base64
     base64->string

@@ -52,11 +52,11 @@ Other:
 
   (import (except (chezscheme) lambda define))
 
+  (import (wombat base64))
   (import (wombat define))
   (import (wombat java))
 
   (import (c211 matrix))
-  (import (c211 base64))
 
   ; create the datatype (image data is stored as a matrix of colors)
   (define :color (make-record-type "color" '(r g b)))

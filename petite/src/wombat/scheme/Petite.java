@@ -105,13 +105,6 @@ public class Petite {
      * @throws URISyntaxException If we have problems getting the path from a JAR file.
      */
 	public Petite() throws IOException, URISyntaxException {
-		 // Unzip the c211 library.
-		try {
-			unzipC211Lib();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
 	    // Connect to an initial Petite session.
 	    connect();
 	}
@@ -458,66 +451,4 @@ public class Petite {
 			Buffer.append("\nException: Unable to execute command\n");
 		}
 	}
-
-    /**
-     * Unpack the C211 library.
-     */
-    static void unzipC211Lib() {
-    	File libZip = null;
-    	File undir = null;
-    	for (File dir : searchDirs) {
-    		if (dir.exists() && dir.isDirectory()) {
-    			for (String name : dir.list()) {
-    				if (name.startsWith("c211-lib") && name.endsWith("zip")) {
-    					libZip = new File(dir, name);
-    					undir = dir;
-    					break;
-    				}
-    			}
-    		}
-    		if (libZip != null) 
-    			break;
-    	}
-    	
-    	if (libZip == null)
-    		throw new RuntimeException("Unable to unpack c211 library.");
-
-    	try {
-			ZipFile zip = new ZipFile(libZip);
-			System.out.println("Found c211 library: " + zip);
-						    
-			@SuppressWarnings("unchecked") Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
-						    
-			while (entries.hasMoreElements()) {
-			    ZipEntry entry = entries.nextElement();
-							
-			    if (entry.isDirectory()) {
-			    	System.out.println("\tunzipping: " + entry.getName());
-			    	new File(undir, entry.getName()).getCanonicalFile().mkdirs();
-			    } else {
-			    	System.out.println("\tunzipping: " + entry.getName());
-			    	new File(undir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
-							    
-				File targetFile = new File(undir, entry.getName());
-				InputStream in = zip.getInputStream(entry);
-				OutputStream out = new BufferedOutputStream(new FileOutputStream(targetFile));
-							    
-				byte[] buffer = new byte[1024];
-				int len;
-							    
-				while((len = in.read(buffer)) >= 0)
-				    out.write(buffer, 0, len);
-							    
-				in.close();
-				out.close();
-							    
-				targetFile.setExecutable(true);
-			    }
-			}
-						    
-			zip.close();
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    	}
-    }
 }

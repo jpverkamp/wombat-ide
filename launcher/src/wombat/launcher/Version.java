@@ -24,10 +24,14 @@ public class Version implements Comparable<Version> {
 	 *  version is a version string (a sequence of dot delimited numbers) 
 	 */
 	public Version(String line) {
+	    if ("".equals(line.trim())) return;
+	    
 		String[] parts = line.split(",");
-
-		if (parts.length < 2 || parts.length > 4)
-			throw new Error("Invalid version format: " + line);
+		
+		if (parts.length < 2 || parts.length > 4) {
+		    System.err.println("Invalid version format: " + line);
+		    return;
+		}
 		
 		Name = parts[0];
 		Filename = parts[parts.length - 1];
