@@ -40,6 +40,7 @@ Other:
 
   (import (except (chezscheme) lambda define))
   (import (wombat define))
+  (import (wombat java))
 
   ; create the datatypes
   (define :tree (make-record-type "tree" '(value left right)))
@@ -65,12 +66,17 @@ Other:
          (empty-tree? (right-subtree tr))))
   (define empty-tree? (record-predicate :empty-tree))
 
-  ; helper to export a tree to a string
-  (define (export-tree tr)
-    (with-output-to-string
-      (lambda ()
-        (write tr))))
+  ; draw a tree
+  (define (draw-tree tr)
+    (define (export-tree tr)
+      (cond
+        [(empty-tree? tr) "#!empty-tree\n"]
+        [(tree? tr) (string-append
+                      (format "#!tree ~a" (root-value tr)) "\n"
+                      (export-tree (left-subtree tr))
+                      (export-tree (right-subtree tr)))]
+        [else (format "~a\n" tr)]))
+    (call-to-java draw-tree (export-tree tr))
+    (void)))
 
-; draw a tree
- (define (draw-tree tr)
-   #f))
+(import (c211 tree))

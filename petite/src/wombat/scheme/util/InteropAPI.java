@@ -2,6 +2,7 @@ package wombat.scheme.util;
 
 import wombat.scheme.libraries.*;
 import wombat.scheme.libraries.types.ImageData;
+import wombat.scheme.libraries.types.TreeData;
 import wombat.util.Base64;
 
 /**
@@ -69,7 +70,9 @@ public class InteropAPI {
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Tree API
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
-			
+			else if ("draw-tree".equals(key)) {
+				TreeAPI.drawTree(TreeData.decode(val));
+			}
 			
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Test API
