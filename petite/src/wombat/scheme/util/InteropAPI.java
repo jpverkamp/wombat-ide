@@ -1,6 +1,7 @@
 package wombat.scheme.util;
 
 import wombat.scheme.libraries.*;
+import wombat.scheme.libraries.types.ImageData;
 import wombat.util.Base64;
 
 /**

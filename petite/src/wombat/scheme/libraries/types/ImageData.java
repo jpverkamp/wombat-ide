@@ -1,4 +1,4 @@
-package wombat.scheme.libraries;
+package wombat.scheme.libraries.types;
 
 /**
  * Store image data.
