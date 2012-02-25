@@ -315,8 +315,12 @@ public final class DocumentManager implements FocusListener {
         	}
         }
 
-        me.Main.doCommand("(load \"" + me.activeDocument.myFile.getAbsolutePath().replace("\\", "/")  + "\")");
-        me.Main.focusREPL();
+        try {
+			me.Main.doCommand("(load \"" + me.activeDocument.myFile.getCanonicalPath().replace("\\", "/")  + "\")");
+			me.Main.focusREPL();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         
         return true;
     }

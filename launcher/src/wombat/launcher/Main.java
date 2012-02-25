@@ -6,10 +6,12 @@ import java.awt.GridLayout;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.logging.*;
+import java.util.zip.*;
 
 import javax.swing.*;
+
+import wombat.util.errorlog.*;
 
 /**
  * Main entry point for Wombat launcher. 
@@ -20,7 +22,7 @@ import javax.swing.*;
  * - launch the newest version of Wombat 
  */
 public class Main {
-	static final int LauncherVersion = 2;
+	static final int LauncherVersion = 3;
 	
 	static final String UpdateSite = "http://www.cs.indiana.edu/cgi-pub/c211/wombat/dev/";
 	static final URL UpdateVersionFile;
@@ -65,7 +67,47 @@ public class Main {
 	 * @param args Ignored.
 	 */
 	public static void main(String[] args) {
+		try {
+			/**
+			 * For this try
+			 * 
+			 * LICENSE:
+			 * https://blogs.oracle.com/nickstephen/entry/java_redirecting_system_out_and
+			 * 
+			 * The code in this article is free for any use. I'd appreciate having a back-reference
+			 * URL to the blog article in a comment in the code, but that's all. Thanks for the question! [ Nick ]
+			 */
 
+			// Initialize logging to go to rolling log file
+	        LogManager logManager = LogManager.getLogManager();
+	        logManager.reset();
+
+	        // log file max size 10K, 3 rolling files, append-on-open
+	        Handler fileHandler = new FileHandler("log", 10000, 3, true);
+	        fileHandler.setFormatter(new SimpleFormatter());
+	        Logger.getLogger("").addHandler(fileHandler);	
+	        
+	        // Preserve old stdout/stderr streams in case they might be useful      
+//	        PrintStream stdout = System.out;                                        
+//	        PrintStream stderr = System.err;                                        
+
+	        // Now rebind stdout/stderr to logger                                   
+	        Logger logger;             
+	        LoggingOutputStream los;                                                
+
+	        logger = Logger.getLogger("stdout");                                    
+	        los = new LoggingOutputStream(logger, StdOutErrLevel.STDOUT);           
+	        System.setOut(new PrintStream(los, true));                              
+
+	        logger = Logger.getLogger("stderr");                                    
+	        los= new LoggingOutputStream(logger, StdOutErrLevel.STDERR);            
+	        System.setErr(new PrintStream(los, true));                              
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+        // Verify installation, then launch.
 		try {
 			loadVersionFile();
 			verifyFiles();
@@ -80,6 +122,7 @@ public class Main {
 			System.exit(0);
 		}
 		
+		// Check for updates seperately, Wombat should work even if this fails.
 		try {
 			checkForUpdates();
 		} catch(Exception e) {

@@ -46,14 +46,14 @@
 	  
 	  <echo> ----- Creating version file ----- </echo>
 	  <echo file="${dist-dir}/version.txt">
-Launcher,2
+Launcher,3
 Wombat,${ide-version},lib/wombat-ide-${ide-version}.jar
 Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
 Petite Bindings,${petite-bindings},lib/petite-${petite-bindings}.jar
 Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
 Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
 Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
-C211 Libraries,0.9,lib/c211-lib-${c211-lib-version}.zip
+C211 Libraries,${c211-lib-version},lib/c211-lib-${c211-lib-version}.zip
 </echo>
 	  
 	  <copy todir="${dist-dir}" file="version.txt" />
@@ -70,6 +70,8 @@ C211 Libraries,0.9,lib/c211-lib-${c211-lib-version}.zip
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="run" depends="version,recur" description="run Wombat">
+		<unzip src="${dist-dir}/lib/c211-lib-${c211-lib-version}.zip" dest="${dist-dir}/lib" />
+	
 		<java 
 			dir="${dist-dir}" 
 			jar="${dist-dir}/wombat.jar" 
