@@ -86,21 +86,17 @@ public class Main {
 	        Handler fileHandler = new FileHandler("log", 10000, 3, true);
 	        fileHandler.setFormatter(new SimpleFormatter());
 	        Logger.getLogger("").addHandler(fileHandler);	
-	        
-	        // Preserve old stdout/stderr streams in case they might be useful      
-//	        PrintStream stdout = System.out;                                        
-//	        PrintStream stderr = System.err;                                        
 
 	        // Now rebind stdout/stderr to logger                                   
 	        Logger logger;             
 	        LoggingOutputStream los;                                                
 
 	        logger = Logger.getLogger("stdout");                                    
-	        los = new LoggingOutputStream(logger, StdOutErrLevel.STDOUT);           
+	        los = new LoggingOutputStream(logger, StdOutErrLevel.STDOUT, System.out);           
 	        System.setOut(new PrintStream(los, true));                              
 
 	        logger = Logger.getLogger("stderr");                                    
-	        los= new LoggingOutputStream(logger, StdOutErrLevel.STDERR);            
+	        los= new LoggingOutputStream(logger, StdOutErrLevel.STDERR, System.err);            
 	        System.setErr(new PrintStream(los, true));                              
 
 		} catch(Exception e) {

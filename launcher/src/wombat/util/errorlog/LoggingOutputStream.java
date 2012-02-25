@@ -2,6 +2,7 @@ package wombat.util.errorlog;
 
 import java.io.ByteArrayOutputStream; 
 import java.io.IOException; 
+import java.io.PrintStream;
 import java.util.logging.Level; 
 import java.util.logging.Logger; 
  
@@ -22,6 +23,7 @@ public class LoggingOutputStream extends ByteArrayOutputStream {
  
     private Logger logger; 
     private Level level; 
+    private PrintStream CopyTo;
  
     /** 
      * Constructor 
@@ -29,11 +31,16 @@ public class LoggingOutputStream extends ByteArrayOutputStream {
      * @param level Level at which to write the log message 
      */ 
     public LoggingOutputStream(Logger logger, Level level) { 
-        super(); 
+         this(logger, level, null);
+    }
+    
+    public LoggingOutputStream(Logger logger, Level level, PrintStream copyTo) {
+    	super(); 
         this.logger = logger; 
         this.level = level; 
-        lineSeparator = System.getProperty("line.separator"); 
-    } 
+        lineSeparator = System.getProperty("line.separator");
+        CopyTo = copyTo;
+    }
  
     /** 
      * upon flush() write the existing contents of the OutputStream
@@ -54,6 +61,10 @@ public class LoggingOutputStream extends ByteArrayOutputStream {
             } 
  
             logger.logp(level, "", "", record); 
+            if (CopyTo != null) {
+            	CopyTo.println(record);
+            	CopyTo.flush();
+            }
         } 
     } 
 } 

@@ -70,8 +70,8 @@ public class REPLTextArea extends SchemeTextArea {
         
         // When the user hits the up arrow, it they are on the first line, reload the previous command.
         code.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent arg0) {
-				if (arg0.getKeyCode() == KeyEvent.VK_UP) {
+			public void keyPressed(KeyEvent event) {
+				if (event.getKeyCode() == KeyEvent.VK_UP) {
 					if (getText().lastIndexOf("\n", code.getCaretPosition() - 1) == -1) {
 						if (currentCommand == commandHistory.size())
 							if (!getText().isEmpty())
@@ -82,11 +82,14 @@ public class REPLTextArea extends SchemeTextArea {
 						
 						currentCommand--;
 						setText(commandHistory.get(currentCommand));
-						code.setCaretPosition(code.getText().length());
+						code.setCaretPosition(code.getDocument().getLength());
+						
+						// Don't actually go up. That would be silly.
+						event.consume();
 					}
 				}
 				
-				if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
+				if (event.getKeyCode() == KeyEvent.VK_DOWN) {
 					if (getText().indexOf("\n", code.getCaretPosition()) == -1) {
 						if (currentCommand == commandHistory.size()) {
 							return;
@@ -95,7 +98,10 @@ public class REPLTextArea extends SchemeTextArea {
 						} else {
 							currentCommand++;
 							setText(commandHistory.get(currentCommand));
-							code.setCaretPosition(getText().length());
+							code.setCaretPosition(code.getDocument().getLength());
+							
+							// Not really necessary because you won't be able to go down anyways, but gogoparallel.
+							event.consume();
 						}
 					}
 				}
