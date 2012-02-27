@@ -40,7 +40,13 @@
 		<copy file="${src-dir}/wombat/Wombat.java" tofile="Wombat.java.bak" />
 		<replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${ide-version}" />
 
-		<javac srcdir="${src-dir}" destdir="${bin-dir}" classpathref="classpath" includeantruntime="false" />
+		<javac srcdir="${src-dir}" 
+		       destdir="${bin-dir}" 
+		       classpathref="classpath" 
+		       includeantruntime="false" 
+		       debug="on"
+		       debuglevel="lines,vars,source"
+		       />
 
 		<copy todir="${bin-dir}">
 			<fileset dir="${src-dir}" />

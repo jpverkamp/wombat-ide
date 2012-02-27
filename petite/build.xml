@@ -20,7 +20,12 @@
 	<target name="build" description="build the source ">
 		<mkdir dir="${bin-dir}" />
 
-		<javac srcdir="${src-dir}" destdir="${bin-dir}" includeantruntime="false" />
+		<javac srcdir="${src-dir}" 
+		       destdir="${bin-dir}" 
+		       includeantruntime="false" 
+		       debug="on"
+		       debuglevel="lines,vars,source"
+		       />
 
 		<copy todir="${bin-dir}">
 			<fileset dir="${src-dir}" />
