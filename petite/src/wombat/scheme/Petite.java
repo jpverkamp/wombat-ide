@@ -74,6 +74,7 @@ public class Petite {
 	static final char Prompt2 = '`';
 	static final char Interop = '!';
 
+	boolean RestartOnCollapse;
 	boolean Running;
 	boolean Starting;
 	boolean SeenPrompt1;
@@ -149,6 +150,7 @@ public class Petite {
 		Ready = false;
 		Running = true;
 		InInterop = false;
+		RestartOnCollapse = true;
 
 		if (Buffer == null)
 			Buffer = new StringBuffer();
@@ -357,6 +359,7 @@ public class Petite {
 		System.err.println("Petite stopping");
 
 		// Shut down the old connection.
+		RestartOnCollapse = false;
 		Ready = false;
 		BufferLock.lock();
 		Buffer.delete(0, Buffer.length());
@@ -531,9 +534,11 @@ public class Petite {
 
 				// If we get here, Petite has collapsed.
 				// Destroy the connected process and restart.
-				try {
-					restart();
-				} catch (Exception e2) {
+				if (RestartOnCollapse) {
+					try {
+						restart();
+					} catch (Exception e2) {
+					}
 				}
 			}
 		}
