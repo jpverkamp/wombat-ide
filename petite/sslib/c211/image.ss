@@ -199,9 +199,9 @@ Other:
           [(= c width) (^ i (+ r 1) 0)]
           [else
            (image-set! img r c (color
-                                 (ref (+ i 0))
+                                 (ref (+ i 2))
                                  (ref (+ i 1))
-                                 (ref (+ i 2))))
+                                 (ref (+ i 0))))
            (^ (+ i 4) r (+ c 1))]))))
 
   ; create a base64 encoding from image data
@@ -213,9 +213,9 @@ Other:
           [(= r (image-rows img)) (string->base64 data)]
           [(= c (image-cols img)) (^ i (+ r 1) 0)]
           [else
-           (set (+ i 0) (image-ref img r c 'red))
+           (set (+ i 2) (image-ref img r c 'red))
            (set (+ i 1) (image-ref img r c 'green))
-           (set (+ i 2) (image-ref img r c 'blue))
+           (set (+ i 0) (image-ref img r c 'blue))
            (set (+ i 3) 255) ; alpha channel
            (^ (+ i 4) r (+ c 1))]))))
 
