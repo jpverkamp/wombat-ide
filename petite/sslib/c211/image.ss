@@ -38,6 +38,8 @@ Other:
     - write the image i to a file; if not specified display a dialog (uses Java)
   (draw-image i)
     - display the image to the user (uses Java)
+  black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
+    - predefined colors
 |#
 
 (library
@@ -48,7 +50,9 @@ Other:
    image-rows image-cols image-ref color-ref
    image-set!
    read-image write-image draw-image
-   image-data)
+   image-data
+   black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
+   )
 
   (import (except (chezscheme) lambda define))
 
@@ -249,6 +253,21 @@ Other:
     (call-to-java draw-image
       (image-cols img) (image-rows img) (image->base64 img))
     (void))
+  
+    ; predefined colors
+  (define black (color 0 0 0))
+  (define darkgray (color 84 84 84))
+  (define gray (color 192 192 192))
+  (define lightgray (color 205 205 205))
+  (define white (color 255 255 255))
+  (define red (color 255 0 0))
+  (define green (color 0 255 0))
+  (define blue (color 0 0 255))
+  (define yellow (color 255 255 0))
+  (define cyan (color 0 255 255))
+  (define magenta (color 255 0 255))
+  (define orange (color 255 127 0))
+  (define pink (color 188 143 143))
 
   ; custom writer for images (show size, hide data)
   (record-writer :image
