@@ -30,8 +30,10 @@ public class ImagePanel extends JPanel implements MouseMotionListener {
 	double Scale = 1.0;
 	boolean Debug = true;
 	
-	int MouseX = -1;
-	int MouseY = -1;
+	int ImageX = -1;
+	int ImageY = -1;
+	int ScreenX = -1;
+	int ScreenY = -1;
 
 	static final int ROW_HEIGHT = 14;
 	static final DecimalFormat FORMAT = new DecimalFormat("#.##");
@@ -97,13 +99,13 @@ public class ImagePanel extends JPanel implements MouseMotionListener {
 				ROW_HEIGHT, 3 * ROW_HEIGHT);
 			
 			if (MyRobot != null 
-					&& MouseX >= left && MouseX <= left + scaleWidth 
-					&& MouseY >= top && MouseY <= top + scaleHeight) {
+					&& ImageX >= left && ImageX <= left + scaleWidth 
+					&& ImageY >= top && ImageY <= top + scaleHeight) {
 				
-				int displayX = (int) ((MouseX - left) / Scale);
-				int displayY = (int) ((MouseY - top) / Scale);
+				int displayX = (int) ((ImageX - left) / Scale);
+				int displayY = (int) ((ImageY - top) / Scale);
 				
-				Color c = MyRobot.getPixelColor(MouseX, MouseY);
+				Color c = MyRobot.getPixelColor(ScreenX, ScreenY);
 				g.drawString(
 					"Color at " + 
 						"row " + displayY + " / column " + displayX + ": " +
@@ -128,8 +130,10 @@ public class ImagePanel extends JPanel implements MouseMotionListener {
 	 * @param event Details
 	 */
 	@Override public void mouseMoved(MouseEvent event) {
-		MouseX = event.getX();
-		MouseY = event.getY();
+		ImageX = event.getX();
+		ImageY = event.getY();
+		ScreenX = event.getXOnScreen();
+		ScreenY = event.getYOnScreen();
 		repaint();
 	}
 }
