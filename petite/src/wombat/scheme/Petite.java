@@ -67,8 +67,8 @@ public class Petite {
 	static final String os = System.getProperty("os.name").toLowerCase();
 	static final boolean IsWindows = os.indexOf("win") != -1;
 	static final boolean IsOSX = os.indexOf("mac") != -1;
-	static final boolean IsLinux = (os.indexOf("nux") != -1)
-			|| (os.indexOf("nix") != -1);
+	static final boolean IsLinux = (os.indexOf("nux") != -1) || (os.indexOf("nix") != -1);
+	static final boolean Is64Bit = System.getProperty("os.arch").indexOf("64") != -1;        
 
 	static final char Prompt1 = '|';
 	static final char Prompt2 = '`';
@@ -248,10 +248,30 @@ public class Petite {
 		if (pdir == null)
 			throw new IOException("Unable to find Petite directory.");
 
+
+		String petiteBinary = null;
+		String petiteBoot = null;
+		if (IsWindows) {
+		    petiteBinary = "petite.exe";
+		    petiteBoot = "petite.boot";
+		} else {
+		    if (Is64Bit) {
+			petiteBinary = "petite64";
+			petiteBoot = "petite64.boot";
+		    } else {
+			petiteBinary = "petite";
+			petiteBoot = "petite.boot";
+		    }
+		}
+
+		System.out.println("Binary: " + petiteBinary + ", Boot: " + petiteBoot);
+
 		// Create the process builder.
-		ProcessBuilder pb = new ProcessBuilder(new File(pdir,
-				(IsWindows ? "petite.exe" : "petite")).getCanonicalPath(), 
-				"-b", new File(pdir, "petite.boot").getCanonicalPath());
+		ProcessBuilder pb = new ProcessBuilder(
+		    new File(pdir, petiteBinary).getCanonicalPath(), 
+		    "-b", 
+		    new File(pdir, petiteBoot).getCanonicalPath()
+		);
 		pb.directory(pdir.getParentFile().getParentFile());
 		pb.redirectErrorStream(true);
 
@@ -505,6 +525,7 @@ public class Petite {
 			} catch (Exception e) {
 				System.err.println("Petite buffer is broken");
 				Buffer.append("\nException: Petite buffer is broken\n");
+				e.printStackTrace();
 				if (BufferLock.tryLock())
 					BufferLock.unlock();
 
