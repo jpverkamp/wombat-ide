@@ -13,7 +13,7 @@
 		<property name="jar-name" value="wombat-ide-${ide-version}.jar" />
 		<property name="petite-version" value="8.4" />
 		<property name="petite-bindings" value="${petite-version}.5" />
-		<property name="c211-lib-version" value="1.0" />
+		<property name="c211-lib-version" value="1.0.1" />
 		
 		<echo>Versions:
 		IDE: ${ide-version}
@@ -46,7 +46,7 @@
 	  
 	  <echo> ----- Creating version file ----- </echo>
 	  <echo file="${dist-dir}/version.txt">
-Launcher,2
+Launcher,3
 Wombat,${ide-version},lib/wombat-ide-${ide-version}.jar
 Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
 Petite Bindings,${petite-bindings},lib/petite-${petite-bindings}.jar
@@ -70,6 +70,8 @@ C211 Libraries,${c211-lib-version},lib/c211-lib-${c211-lib-version}.zip
 	
 	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
 	<target name="run" depends="version,recur" description="run Wombat">
+		<unzip src="${dist-dir}/lib/c211-lib-${c211-lib-version}.zip" dest="${dist-dir}/lib" />
+	
 		<java 
 			dir="${dist-dir}" 
 			jar="${dist-dir}/wombat.jar" 

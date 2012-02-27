@@ -3,8 +3,9 @@
   (export
     string->base64
     base64->string
-    bytevector->base64
-    base64->bytevector)
+    ;bytevector->base64
+    ;base64->bytevector
+)
 
   (import (except (chezscheme) lambda define))
   (import (wombat define))
@@ -56,10 +57,10 @@
         (list->string (map
                         (lambda (i) (string-ref base64-alpha i))
                         (reverse ls))))))
-
+#|
   (define (bytevector->base64 bv)
     (string->base64 (multibyte->string 'cp-utf8 bv)))
-
+|#
   (define (base64->string str)
     (define (^ i ls)
       (if (>= i (string-length str))
@@ -80,6 +81,8 @@
       (list->string (map
                       (lambda (i) (integer->char i))
                     (reverse ls)))))
-
+#|
   (define (base64->bytevector str)
-    (string->multibyte 'cp-utf8 (base64->string str))))
+    (string->multibyte 'cp-utf8 (base64->string str)))
+|#
+)
