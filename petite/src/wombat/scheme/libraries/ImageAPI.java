@@ -10,6 +10,7 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
+import wombat.scheme.libraries.gui.ImagePanel;
 import wombat.scheme.libraries.types.ImageData;
 
 /**
@@ -24,8 +25,6 @@ public class ImageAPI {
 	 * @throws IOException If we cannot read the file.
 	 */
 	public static ImageData readImage() throws IOException {
-		System.out.println("read-image"); // debug
-		
 		FileDialog fc = new FileDialog((java.awt.Frame) null, "read-image", FileDialog.LOAD);
         fc.setVisible(true);
         if (fc.getFile() == null)
@@ -43,8 +42,6 @@ public class ImageAPI {
 	 * @throws IOException If we cannot read the image.
 	 */
 	public static ImageData readImage(String filename) throws IOException {
-		System.out.println("read-image " + filename); // debug
-		
 		BufferedImage bi = ImageIO.read(new File(filename));
 		
 		int[] data = new int[bi.getWidth() * bi.getHeight()];
@@ -59,8 +56,6 @@ public class ImageAPI {
 	 * @throws IOException If we cannot write the image.
 	 */
 	public static void writeImage(ImageData img) throws IOException {
-		System.out.println("write-image"); // debug
-		
 		FileDialog fc = new FileDialog((java.awt.Frame) null, "write-image", FileDialog.SAVE);
         fc.setVisible(true);
 
@@ -78,8 +73,6 @@ public class ImageAPI {
 	 * @throws IOException If we cannot write the image.
 	 */
 	public static void writeImage(ImageData img, String filename) throws IOException {
-		System.out.println("write-image " + filename); // debug
-		
 		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
 		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
 		
@@ -94,20 +87,16 @@ public class ImageAPI {
 	 * @throws IOException If we cannot write the image.
 	 */
 	public static void displayImage(ImageData img) {
-		System.out.println("display-image"); // debug
-		
-		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
+		final RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
 		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
 		
-		// TODO: make this zoomable and able to select pixels
-		
+		// Create the basic frame.
 		JFrame imageFrame = new JFrame("draw-image");
 		imageFrame.setLayout(new BorderLayout());
-		imageFrame.setResizable(false);
 		imageFrame.setLocationByPlatform(true);
-		imageFrame.add(new JLabel(new ImageIcon((Image) ri)));
 		imageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		imageFrame.pack();
+		imageFrame.setSize(400, 400);
+		imageFrame.add(new ImagePanel((Image) ri));
 		imageFrame.setVisible(true);
 	}
 }
