@@ -98,23 +98,13 @@ public class Petite {
 	static {
 		try {
 			searchDirs = new File[] {
-					new File("").getCanonicalFile(),
-					new File(new File("").getCanonicalFile(), "lib")
-							.getCanonicalFile(),
-					new File(Petite.class.getProtectionDomain().getCodeSource()
-							.getLocation().toURI().getPath())
-							.getCanonicalFile(),
-					new File(new File(Petite.class.getProtectionDomain()
-							.getCodeSource().getLocation().toURI().getPath()),
-							"lib").getCanonicalFile(),
-					new File(Petite.class.getProtectionDomain().getCodeSource()
-							.getLocation().toURI().getPath()).getParentFile()
-							.getCanonicalFile(),
-					new File(
-							new File(Petite.class.getProtectionDomain()
-									.getCodeSource().getLocation().toURI()
-									.getPath()).getParentFile(), "lib")
-							.getCanonicalFile(), };
+				new File("").getCanonicalFile(),
+				new File(new File("").getCanonicalFile(), "lib").getCanonicalFile(),
+				new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getCanonicalFile(),
+				new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()),"lib").getCanonicalFile(),
+				new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getCanonicalFile(),
+				new File(new File(Petite.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile(), "lib").getCanonicalFile(), 
+			};
 		} catch (IOException ex) {
 		} catch (URISyntaxException e) {
 		}
@@ -205,34 +195,29 @@ public class Petite {
 								ZipEntry entry = entries.nextElement();
 
 								if (entry.isDirectory()) {
-									System.out.println("\tunzipping: "
-											+ entry.getName());
-									new File(dir, entry.getName())
-											.getCanonicalFile().mkdirs();
+									System.out.println("\tunzipping: " + entry.getName());
+									new File(dir, entry.getName()).getCanonicalFile().mkdirs();
 								} else {
-									System.out.println("\tunzipping: "
-											+ entry.getName());
-									new File(dir, entry.getName())
-											.getCanonicalFile().getParentFile()
-											.mkdirs();
-
-									File targetFile = new File(dir,
-											entry.getName());
-									InputStream in = zip.getInputStream(entry);
-									OutputStream out = new BufferedOutputStream(
-											new FileOutputStream(targetFile));
-
+							    	System.out.println("\tunzipping: " + entry.getName());
+							    	new File(dir, entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+							    
+									File targetFile = new File(dir, entry.getName());
+									InputStream zipin = zip.getInputStream(entry);
+									OutputStream zipout = new BufferedOutputStream(new FileOutputStream(targetFile));
+												    
 									byte[] buffer = new byte[1024];
 									int len;
-
-									while ((len = in.read(buffer)) >= 0)
-										out.write(buffer, 0, len);
-
-									in.close();
-									out.close();
-
-									targetFile.setExecutable(true);
-								}
+												    
+									while((len = zipin.read(buffer)) >= 0)
+										zipout.write(buffer, 0, len);
+											    
+									zipin.close();
+									zipout.close();
+									
+									if (targetFile.getName().toLowerCase().startsWith("petite")) {
+										targetFile.setExecutable(true);
+								    }
+							    }
 							}
 
 							zip.close();
@@ -432,6 +417,7 @@ public class Petite {
 		} catch (Exception e) {
 			System.err.println("Unable to execute command");
 			Buffer.append("\nException: Unable to execute command\n");
+			e.printStackTrace();
 		}
 	}
 	

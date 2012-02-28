@@ -1,6 +1,5 @@
 package wombat.scheme.libraries;
 
-import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -8,9 +7,8 @@ import java.awt.image.RenderedImage;
 
 import java.io.*;
 import javax.imageio.*;
-import javax.swing.*;
 
-import wombat.scheme.libraries.gui.ImagePanel;
+import wombat.scheme.libraries.gui.ImageFrame;
 import wombat.scheme.libraries.types.ImageData;
 
 /**
@@ -91,13 +89,7 @@ public class ImageAPI {
 		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
 		
 		// Create the basic frame.
-		JFrame imageFrame = new JFrame("draw-image");
-		imageFrame.setLayout(new BorderLayout());
-		imageFrame.setLocationByPlatform(true);
-		imageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		imageFrame.setSize(400, 400);
-		imageFrame.add(new ImagePanel((Image) ri));
-		imageFrame.setVisible(true);
+		new ImageFrame((Image) ri).setVisible(true);
 	}
 }
 
