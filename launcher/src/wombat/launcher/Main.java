@@ -109,6 +109,7 @@ public class Main {
 			verifyFiles();
 			launch();
 		} catch(Exception e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(
 					null, 
 					"Unable to launch Wombat, please try again in a few minutes.\n" +
@@ -558,22 +559,23 @@ public class Main {
 			    } else {
 			    	System.out.println("\tunzipping: " + entry.getName());
 			    	new File(to.getParentFile(), entry.getName()).getCanonicalFile().getParentFile().mkdirs();
+			    
+					File targetFile = new File(to.getParentFile(), entry.getName());
+					InputStream zipin = zip.getInputStream(entry);
+					OutputStream zipout = new BufferedOutputStream(new FileOutputStream(targetFile));
+								    
+					byte[] buffer = new byte[1024];
+					int len;
+								    
+					while((len = zipin.read(buffer)) >= 0)
+						zipout.write(buffer, 0, len);
 							    
-				File targetFile = new File(to.getParentFile(), entry.getName());
-				InputStream zipin = zip.getInputStream(entry);
-				OutputStream zipout = new BufferedOutputStream(new FileOutputStream(targetFile));
-							    
-				byte[] buffer = new byte[1024];
-				int len;
-							    
-				while((len = zipin.read(buffer)) >= 0)
-					zipout.write(buffer, 0, len);
-							    
-				zipin.close();
-				zipout.close();
-							    
-				if (targetFile.getName().toLowerCase().startsWith("petite"))
-					targetFile.setExecutable(true);
+					zipin.close();
+					zipout.close();
+					
+					if (targetFile.getName().toLowerCase().startsWith("petite")) {
+						targetFile.setExecutable(true);
+				    }
 			    }
 			}
 						    

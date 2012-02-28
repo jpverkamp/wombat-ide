@@ -240,6 +240,7 @@ public class MainFrame extends JFrame {
 					"Error starting Petite", 
 					JOptionPane.ERROR_MESSAGE);
 			ErrorManager.logError(e1.getMessage());
+			e1.printStackTrace();
 		}
     }
 
@@ -366,6 +367,7 @@ public class MainFrame extends JFrame {
 						}
 					} catch (Exception e) {
 						ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
+						e.printStackTrace();
 					}
 				}
 			};
