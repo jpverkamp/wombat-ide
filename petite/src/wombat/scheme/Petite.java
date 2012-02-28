@@ -512,15 +512,13 @@ public class Petite {
 				}
 
 			} catch (Exception e) {
-				System.err.println("Petite buffer is broken");
-				Buffer.append("\nException: Petite buffer is broken\n");
-				e.printStackTrace();
-				if (BufferLock.tryLock())
-					BufferLock.unlock();
+				if (RestartOnCollapse) { 
+					System.err.println("Petite buffer is broken");
+					Buffer.append("\nException: Petite buffer is broken\n");
+					e.printStackTrace();
+					if (BufferLock.tryLock())
+						BufferLock.unlock();
 
-				// If we get here, Petite has collapsed.
-				// Destroy the connected process and restart.
-				if (RestartOnCollapse) {
 					try {
 						restart();
 					} catch (Exception e2) {
