@@ -77,7 +77,7 @@ public class SchemeTextArea extends JPanel {
         if (Options.LambdaMode) text = text.replace("lambda", "\u03BB");
         
         setText(text);
-        SavedHash = getText().hashCode();
+        SavedHash = text.hashCode();
     }
     
     /**
@@ -88,24 +88,20 @@ public class SchemeTextArea extends JPanel {
     	if (myFile == null) throw new FileNotFoundException("No file set");
     	
     	String text = getText();
-    	boolean changed = false;
     	
     	// Remove extra whitespace at the ends of lines.
     	if (WhitespaceEOL.matcher(text).find()) {
     		text = WhitespaceEOL.matcher(text).replaceAll("\n");
-    		changed = true;
     	}
     	
     	// Remove extra whitespace at the end of the file.
     	if (text.length() > 0 && Character.isWhitespace(text.charAt(text.length() - 1))) {
-	    	text = getText().replaceAll("\\s+$", "");
-	    	changed = true;
+	    	text = text.replaceAll("\\s+$", "");
     	}
 
     	// Replace lambda character with lambda string
     	if (text.contains("\u03BB")) {
     		text = text.replace("\u03BB", "lambda");
-    		changed = true;
     	}
     	
     	// Write to file.
@@ -114,16 +110,6 @@ public class SchemeTextArea extends JPanel {
         out.flush();
         out.close();
         SavedHash = text.hashCode();
-
-        
-        // Put the lambdas back in lambda mode.
-        if (Options.LambdaMode)  text = text.replace("lambda", "\u03BB");
-        
-    	// If anything changed, update the file.
-        
-    	if (changed) {
-    		setText(text);
-    	}
     }
     
     /**
@@ -266,16 +252,22 @@ public class SchemeTextArea extends JPanel {
             for (int i = indentNow; i < indentTo; i++)
                 toInsert += " ";
 
-            setText(text.substring(0, insertAt) + toInsert + text.substring(insertAt));
-            code.setCaretPosition(pos + (indentTo - indentNow));
+            try {
+				code.getDocument().insertString(insertAt, toInsert, null);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
             
             return (indentTo - indentNow);
         }
 
         // Or remove it, if we need to.
         else if (indentNow > indentTo) {
-            setText(text.substring(0, insertAt) + text.substring(insertAt + (indentNow - indentTo)));
-        	code.setCaretPosition(Math.min(text.length(), Math.max(0, pos - (indentNow - indentTo))));
+        	try {
+				code.getDocument().remove(insertAt, indentNow - indentTo);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
         	
         	return -1 * (indentTo - indentNow);
         }

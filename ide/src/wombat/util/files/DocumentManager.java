@@ -88,6 +88,7 @@ public final class DocumentManager implements FocusListener {
         
         me.Views.addView(id, new View("<new document>", null, ss));
         ss.myView = me.Views.getView(id);
+        ss.myView.addListener(new ViewCloseListener(ss));
         
         me.Documents.addTab(me.Views.getView(id));
         
@@ -160,6 +161,7 @@ public final class DocumentManager implements FocusListener {
 
             me.Views.addView(id, new View(filename, null, ss));
             ss.myView = me.Views.getView(id);
+            ss.myView.addListener(new ViewCloseListener(ss));
 
             me.Documents.addTab(me.Views.getView(id));
             
@@ -252,9 +254,11 @@ public final class DocumentManager implements FocusListener {
             }
         }
         
-        me.activeDocument.close();
         me.allDocuments.remove(me.activeDocument);
+        me.activeDocument.close();
         me.activeDocument.myView.close();
+        
+        System.out.println("currently opened documents: " + me.allDocuments.size());
         	        
         return true;
     }
@@ -297,24 +301,25 @@ public final class DocumentManager implements FocusListener {
     	
         if (me.activeDocument == null)
             return false;
-
+        
         String name = me.activeDocument.myView.getViewProperties().getTitle();
-        if (me.activeDocument.isDirty()) {
+        if (me.activeDocument.myFile == null || me.activeDocument.isDirty()) {
         	if (Options.ConfirmOnRun) {
         		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 	                    me.activeDocument,
 	                    "Save " + name + " before running?\n\n(You must save your code to run it.)",
 	                    "Save...",
 	                    JOptionPane.YES_NO_OPTION)) {
-        			Save();
+        			if (!Save())
+        				return false;
         		} else {
         			return false;
         		}
         	} else {
-        		Save();
+        		if (!Save()) return false;
         	}
         }
-
+        
         try {
 			me.Main.doCommand("(load \"" + me.activeDocument.myFile.getCanonicalPath().replace("\\", "/")  + "\")");
 			me.Main.focusREPL();
@@ -506,4 +511,41 @@ public final class DocumentManager implements FocusListener {
 		else 
 			return me.activeDocument.myFile;
 	}
+}
+
+/**
+ * Remove documents from the scheme text area when they're closed. 
+ */
+class ViewCloseListener implements DockingWindowListener {
+	SchemeTextArea SS;
+		
+	public ViewCloseListener(SchemeTextArea ss) {
+		SS = ss;
+	}
+
+	/**
+	 * When the window is closed.
+	 * @param event Event parameters.
+	 */
+	@Override public void windowClosed(DockingWindow event) {
+		SS.close();
+		DocumentManager.me.allDocuments.remove(SS);
+	}
+	
+	@Override public void windowUndocking(DockingWindow event) throws OperationAbortedException {}
+	@Override public void windowUndocked(DockingWindow event) {}
+	@Override public void windowShown(DockingWindow event) {}
+	@Override public void windowRestoring(DockingWindow event) throws OperationAbortedException {}
+	@Override public void windowRestored(DockingWindow event) {}
+	@Override public void windowRemoved(DockingWindow event, DockingWindow arg1) {}
+	@Override public void windowMinimizing(DockingWindow event) throws OperationAbortedException {}
+	@Override public void windowMinimized(DockingWindow event) {}
+	@Override public void windowMaximizing(DockingWindow event) throws OperationAbortedException {}
+	@Override public void windowMaximized(DockingWindow event) {}
+	@Override public void windowHidden(DockingWindow event) {}
+	@Override public void windowDocking(DockingWindow event) throws OperationAbortedException {}
+	@Override public void windowDocked(DockingWindow event) {}
+	@Override public void windowClosing(DockingWindow event) throws OperationAbortedException {}
+	@Override public void windowAdded(DockingWindow event, DockingWindow arg1) {}
+	@Override public void viewFocusChanged(View event, View arg1) {}
 }

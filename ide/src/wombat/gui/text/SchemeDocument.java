@@ -1,5 +1,6 @@
 package wombat.gui.text;
 
+import javax.swing.SwingUtilities;
 import javax.swing.text.*;
 
 import wombat.util.Options;
@@ -336,15 +337,25 @@ public class SchemeDocument extends DefaultStyledDocument {
 
         String token = content.substring(startOffset, endOfToken);
         
-        try {
-	        if (Options.LambdaMode && "lambda".equals(token)) {
-	        	remove(startOffset, endOfToken - startOffset);
-	        	insertString(startOffset, "\u03BB", null);
-	        } else if (!Options.LambdaMode && "\u03BB".equals(token)) {
-	        	remove(startOffset, endOfToken - startOffset);
-	        	insertString(startOffset, "lambda", null);
-	        }
-        } catch(BadLocationException ble) {
+        // When we see a lambda, remember later to fix it for lambda mode.  
+        final SchemeDocument me = this;
+        if ((Options.LambdaMode && "lambda".equals(token)) || (!Options.LambdaMode && "\u03BB".equals(token))) {
+        	SwingUtilities.invokeLater(new Runnable() {
+				@Override public void run() {
+					final String from = Options.LambdaMode ? "lambda" : "\u03BB";
+					final String to = Options.LambdaMode ? "\u03BB" : "lambda";
+					
+					int i = -1;
+					try {
+						while ((i = me.getText(0, me.getLength()).indexOf(from)) != -1) {
+							me.remove(i, from.length());
+							me.insertString(i, to, attributes.get("keyword"));
+						}
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+        	});
         }
 
         if (Options.Keywords.containsKey(token)) {
