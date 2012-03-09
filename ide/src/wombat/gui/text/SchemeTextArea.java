@@ -252,16 +252,22 @@ public class SchemeTextArea extends JPanel {
             for (int i = indentNow; i < indentTo; i++)
                 toInsert += " ";
 
-            setText(text.substring(0, insertAt) + toInsert + text.substring(insertAt));
-            code.setCaretPosition(pos + (indentTo - indentNow));
+            try {
+				code.getDocument().insertString(insertAt, toInsert, null);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
             
             return (indentTo - indentNow);
         }
 
         // Or remove it, if we need to.
         else if (indentNow > indentTo) {
-            setText(text.substring(0, insertAt) + text.substring(insertAt + (indentNow - indentTo)));
-        	code.setCaretPosition(Math.min(text.length(), Math.max(0, pos - (indentNow - indentTo))));
+        	try {
+				code.getDocument().remove(insertAt, indentNow - indentTo);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
         	
         	return -1 * (indentTo - indentNow);
         }
