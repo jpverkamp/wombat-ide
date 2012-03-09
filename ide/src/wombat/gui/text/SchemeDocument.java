@@ -337,8 +337,7 @@ public class SchemeDocument extends DefaultStyledDocument {
 
         String token = content.substring(startOffset, endOfToken);
         
-        // Implement lambda mode.
-        // Short circuit with return as not doing so will do strange things.
+        // When we see a lambda, remember later to fix it for lambda mode.  
         final SchemeDocument me = this;
         if ((Options.LambdaMode && "lambda".equals(token)) || (!Options.LambdaMode && "\u03BB".equals(token))) {
         	SwingUtilities.invokeLater(new Runnable() {

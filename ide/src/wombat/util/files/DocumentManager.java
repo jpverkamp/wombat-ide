@@ -297,24 +297,25 @@ public final class DocumentManager implements FocusListener {
     	
         if (me.activeDocument == null)
             return false;
-
+        
         String name = me.activeDocument.myView.getViewProperties().getTitle();
-        if (me.activeDocument.isDirty()) {
+        if (me.activeDocument.myFile == null || me.activeDocument.isDirty()) {
         	if (Options.ConfirmOnRun) {
         		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 	                    me.activeDocument,
 	                    "Save " + name + " before running?\n\n(You must save your code to run it.)",
 	                    "Save...",
 	                    JOptionPane.YES_NO_OPTION)) {
-        			Save();
+        			if (!Save())
+        				return false;
         		} else {
         			return false;
         		}
         	} else {
-        		Save();
+        		if (!Save()) return false;
         	}
         }
-
+        
         try {
 			me.Main.doCommand("(load \"" + me.activeDocument.myFile.getCanonicalPath().replace("\\", "/")  + "\")");
 			me.Main.focusREPL();
