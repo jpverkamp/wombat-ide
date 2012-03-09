@@ -77,7 +77,7 @@ public class SchemeTextArea extends JPanel {
         if (Options.LambdaMode) text = text.replace("lambda", "\u03BB");
         
         setText(text);
-        SavedHash = getText().hashCode();
+        SavedHash = text.hashCode();
     }
     
     /**
