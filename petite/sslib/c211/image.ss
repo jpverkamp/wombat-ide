@@ -38,6 +38,10 @@ Other:
     - write the image i to a file; if not specified display a dialog (uses Java)
   (draw-image i)
     - display the image to the user (uses Java)
+  (color-equal? c1 c2)
+    - tests if two colors are equal
+  (image-equal? i1 i2)
+    - tests if two images are equal
   black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
     - predefined colors
 |#
@@ -51,6 +55,7 @@ Other:
    image-set!
    read-image write-image draw-image
    image-data
+   color-equal? image-equal?
    black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
    )
 
@@ -253,8 +258,32 @@ Other:
     (call-to-java draw-image
       (image-cols img) (image-rows img) (image->base64 img))
     (void))
-  
-    ; predefined colors
+
+  ; tests if colors are equal
+  (define (color-equal? c1 c2)
+    (and (color? c1)
+         (color? c2)
+         (= (color-ref c1 'red) (color-ref c2 'red))
+         (= (color-ref c1 'green) (color-ref c2 'green))
+         (= (color-ref c1 'blue) (color-ref c2 'blue))))
+
+  ; tests if images are equal
+  (define image-equal?
+    (lambda (img1 img2)
+      (let ([rows (image-rows img1)]
+            [cols (image-cols img1)])
+        (and (= rows (image-rows img2))
+             (= cols (image-cols img2))
+             (let loop ([r 0])
+               (or (= r rows)
+                   (and (let loop ([c 0])
+                          (or (= c cols)
+                              (and (color-equal? (image-ref img1 r c)
+                                     (image-ref img2 r c))
+                                   (loop (+ c 1)))))
+                        (loop (+ r 1)))))))))
+
+  ; predefined colors
   (define black (color 0 0 0))
   (define darkgray (color 84 84 84))
   (define gray (color 192 192 192))
