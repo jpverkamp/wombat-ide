@@ -56,6 +56,7 @@ Other:
    read-image write-image draw-image
    image-data
    color-equal? image-equal?
+   image->list list->image
    black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
    )
 
@@ -282,6 +283,21 @@ Other:
                                      (image-ref img2 r c))
                                    (loop (+ c 1)))))
                         (loop (+ r 1)))))))))
+
+  ; convert between images and lists
+  (define (image->list image)
+    (let loop ([r (sub1 (image-rows image))] [acc '()])
+      (if (negative? r)
+          acc
+          (loop (- r 1)
+            (let loop ([c (sub1 (image-cols image))] [acc acc])
+              (if (negative? c)
+                  acc
+                  (loop (- c 1) (cons (image-ref image r c) acc))))))))
+  (define (list->image num-cols ls)
+    (make-image (quotient (length ls) num-cols) num-cols
+      (lambda (r c n m)
+        (list-ref ls (+ (* r num-cols) c)))))
 
   ; predefined colors
   (define black (color 0 0 0))
