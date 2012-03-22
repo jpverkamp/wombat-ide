@@ -15,12 +15,23 @@ import wombat.util.files.DocumentManager;
 public class New extends AbstractAction {
 	private static final long serialVersionUID = -8921545233355515110L;
 
+	/**
+	 * New constructor, puts the Action in the MenuManager's Map,
+	 * links the New.png Image to the Object
+	 * @return a New object
+	 */
 	public New() {
 		super("New", IconManager.icon("New.png"));
 		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
 	}
 	
-	@Override
+	/**
+	 *  performs the New (Document) function
+	 * @param arg0  an ActionEvent that triggers the method call
+	 * @return void
+	 *  
+	 * @see DocumentManager, ActionEvent
+	 */
 	public void actionPerformed(ActionEvent arg0) {
 		DocumentManager.New();
 	}

@@ -6,14 +6,20 @@
 package wombat.gui.frames;
 
 
-import javax.swing.*;
+import java.awt.Toolkit;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import wombat.gui.icons.IconManager;
 import wombat.util.Options;
 import wombat.util.files.RecentDocumentManager;
-
-import java.awt.Toolkit;
-import java.util.*;
 
 /**
  * Handle all of the code for building and maintaining menus.

@@ -1,27 +1,39 @@
 package wombat.gui.frames;
 
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.BadLocationException;
-
-import wombat.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import net.infonode.docking.*;
-import net.infonode.docking.util.*;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JToolBar;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+import javax.swing.text.BadLocationException;
 
+import net.infonode.docking.FloatingWindow;
+import net.infonode.docking.RootWindow;
+import net.infonode.docking.SplitWindow;
+import net.infonode.docking.TabWindow;
+import net.infonode.docking.View;
+import net.infonode.docking.util.DockingUtil;
+import net.infonode.docking.util.StringViewMap;
+import net.infonode.docking.util.ViewMap;
+import wombat.Wombat;
 import wombat.gui.icons.IconManager;
 import wombat.gui.text.NonEditableTextArea;
 import wombat.gui.text.REPLTextArea;
 import wombat.gui.text.SchemeDocument;
 import wombat.gui.text.SchemeTextArea;
-import wombat.scheme.*;
+import wombat.scheme.Petite;
 import wombat.util.Options;
-import wombat.util.errors.*;
+import wombat.util.errors.ErrorListener;
+import wombat.util.errors.ErrorManager;
 import wombat.util.files.DocumentManager;
 
 /**
