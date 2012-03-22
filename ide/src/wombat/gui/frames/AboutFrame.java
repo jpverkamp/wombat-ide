@@ -1,5 +1,6 @@
 package wombat.gui.frames;
 
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.swing.*;
 
@@ -44,7 +45,7 @@ public class AboutFrame extends JFrame {
     "<br /><br />"+
     "<span>Wombat - Scheme IDE</span><br />" +
     "Version: "+ wombat.Wombat.VERSION   
-    +"<br />"+"Copyright (C) 2011-"+cal.get(cal.YEAR)+" JP Verkamp<br />" +
+    +"<br />"+"Copyright (C) 2011-" + cal.get(Calendar.YEAR) + " JP Verkamp<br />" +
     "<br /><br />"+
     "This program is free software: you can redistribute it and/or modify<br />" +
     "it under the terms of the GNU General Public License as published by <br />" +
