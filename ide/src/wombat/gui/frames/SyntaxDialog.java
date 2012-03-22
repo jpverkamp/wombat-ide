@@ -4,9 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import wombat.util.Options;
@@ -59,7 +66,12 @@ public final class SyntaxDialog {
 		JTable table = new JTable(new AbstractTableModel() {
 			private static final long serialVersionUID = -8298784246564975586L;
 
-			@Override
+			/**
+			 * gets the value at the specific row and col
+			 * @param row the row of the desired value
+			 * @param col the col of the desired value
+			 * @return value
+			 */
 			public Object getValueAt(int row, int col) {
 				if (row == syntaxNames.size())
 					return null;
@@ -76,7 +88,13 @@ public final class SyntaxDialog {
 				}
 			}
 			
-			@Override
+			/**
+			 * sets the value at the specific row and col with the value given
+			 * @param val the value being given
+			 * @param row the row of the desired value
+			 * @param col the col of the desired value
+			 * @return void
+			 */
 			public void setValueAt(Object val, int row, int col) {
 				String sval = (String) val;
 				
@@ -104,15 +122,31 @@ public final class SyntaxDialog {
 				}
 			}
 			
-			@Override
+			/**
+			 * gets the row count
+			 * @return value
+			 */
 			public int getRowCount() { return syntaxNames.size() + 1; }
 			
+			/**
+			 * gets the col count
+			 * @return value
+			 */
 			@Override
 			public int getColumnCount() { return 2; }
 			
+			/**
+			 * gets the col name
+			 * @paran col the column with the desired name
+			 * @return String "Keyword" or "Indentation"
+			 */
 			@Override
 			public String getColumnName(int col) { return (col == 0 ? "Keyword" : "Indentation"); }
 			
+			/**
+			 * returns if the given cell can be edited
+			 * @return if the cell can be edited
+			 */
 			@Override
 			public boolean isCellEditable(int row, int col) { return true; }
 		});
@@ -144,7 +178,7 @@ public final class SyntaxDialog {
 	}
 	
 	/**
-	 * Show the dialg.
+	 * Show the dialog.
 	 */
 	public static void show() {
 		Collections.sort(syntaxNames);
