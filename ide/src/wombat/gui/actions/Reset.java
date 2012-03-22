@@ -16,12 +16,23 @@ import wombat.gui.icons.IconManager;
 public class Reset extends AbstractAction {
 	private static final long serialVersionUID = -1234756890127385121L;
 
+	/**
+	 * Reset constructor, puts the Action in the MenuManager's Map,
+	 * links the Reset.png Image to the Object
+	 * @return a Reset object
+	 */
 	public Reset() {
 		super("Reset", IconManager.icon("Reset.png"));
 		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
 	}
 	
-	@Override
+	/**
+	 * reset the Scheme environment
+	 * @param arg0  an ActionEvent that triggers the method call
+	 * @return void
+	 *  
+	 * @see DocumentManager, ActionEvent
+	 */
 	public void actionPerformed(ActionEvent arg0) {
 		for (Frame frame : JFrame.getFrames())
 			if (frame instanceof MainFrame)

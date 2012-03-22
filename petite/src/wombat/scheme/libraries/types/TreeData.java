@@ -158,14 +158,14 @@ public class TreeData {
 		// This would be much cleaner with first order functions. :)
 		g.setColor(Color.WHITE);
 		if (isNode)
-			g.fillRect(x - w / 2 - 5, y - 10, w + 10, 20);
-		else
 			g.fillOval(x - w / 2 - 5, y - 10, w + 10, 20);
+		else
+			g.fillRect(x - w / 2 - 5, y - 10, w + 10, 20);
 		g.setColor(Color.BLACK);
 		if (isNode)
-			g.drawRect(x - w / 2 - 5, y - 10, w + 10, 20);
-		else
 			g.drawOval(x - w / 2 - 5, y - 10, w + 10, 20);
+		else
+			g.drawRect(x - w / 2 - 5, y - 10, w + 10, 20);
 
 		g.drawString(thing.toString(), x - fm.stringWidth(s) / 2, y + fm.getAscent() / 2);
 	}

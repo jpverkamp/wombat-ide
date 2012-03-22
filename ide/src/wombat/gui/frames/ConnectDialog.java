@@ -11,7 +11,9 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import wombat.util.files.DocumentManager;
-
+/**
+ * Connection between the frames
+ */
 public class ConnectDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 4997826705741440876L;
 

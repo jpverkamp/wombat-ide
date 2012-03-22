@@ -37,8 +37,11 @@ public class Upload extends AbstractAction {
 	
 	/**
 	 * This button should open the correct submission page in the user's web browser.
+	 * @param arg0  an ActionEvent that triggers the method call
+	 * @return void
+	 * @see URLEncoder, Desktop,DocumentManager
 	 */
-	@Override public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent arg0) {
 		File file = DocumentManager.getActiveFile();
 		
 		// Get the URL to fetch.

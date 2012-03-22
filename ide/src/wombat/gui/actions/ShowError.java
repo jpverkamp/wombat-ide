@@ -9,12 +9,18 @@ import javax.swing.JFrame;
 import wombat.gui.frames.MainFrame;
 
 /**
- * Close the active document.
+ * Show the Debug into for MainFrame
  */
 public class ShowError extends AbstractAction {
 	private static final long serialVersionUID = 4777775801276799438L;
 
-	@Override
+	/**
+	 * Shows the debug info for the MainFrame
+	 * @param arg0  an ActionEvent that triggers the method call
+	 * @return void
+	 *  
+	 * @see ActionEvent, MainFrame
+	 */
 	public void actionPerformed(ActionEvent arg0) {
 		for (Frame frame : JFrame.getFrames())
 			if (frame instanceof MainFrame)
