@@ -19,7 +19,6 @@ image-rows,2
 image-set!,2
 image?,2
 lightgray,2
-list->image,2
 magenta,2
 make-image,2
 orange,2
