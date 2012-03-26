@@ -7,12 +7,13 @@ package wombat.util.files;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Stack;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
+import wombat.util.OS;
 
 /**
  * Remember recently opened documents.
@@ -56,7 +57,7 @@ public class RecentDocumentManager {
 			
 			// Go through the item list, remove any that no longer exist, add the rest to the menu.
 			JMenuItem item;
-			int j = 0;
+			int j = 1;
 			for (int i = fileList.size() - 1; i >= 0; i--) {
 				final File each = fileList.get(i);
 				
@@ -67,7 +68,7 @@ public class RecentDocumentManager {
 				
 				// Add to the menu with a shortcut for each.
 				item = new JMenuItem(j + " - " + each.getPath());
-				item.setMnemonic(KeyEvent.getExtendedKeyCodeForChar(("" + j).charAt(0)));
+				item.setMnemonic(("" + j).charAt(0));
 				item.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -103,6 +104,7 @@ public class RecentDocumentManager {
 		// Build the menu if it hasn't already been.
 		if (menu == null) {
 			menu = new JMenu("Open recent");
+			if (!OS.IsOSX) menu.setMnemonic('r');
 			rebuildMenu();
 		}
 		
