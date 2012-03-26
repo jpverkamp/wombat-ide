@@ -78,7 +78,7 @@ acosh,2
 acquire-lock,2
 add1,2
 alias,2
-and,2
+and,5
 andmap,2
 angle,2
 annotation-expression,2
@@ -370,6 +370,7 @@ dynamic-wind,2
 ee-bind-key,2
 ee-compose,2
 ee-string-macro,2
+else,1
 enable-interrupts,2
 endianness,2
 engine-block,2
@@ -682,7 +683,7 @@ iconv-codec,2
 identifier-syntax,2
 identifier?,2
 ieee-environment,2
-if,2
+if,4
 imag-part,2
 implementation-restriction-violation?,2
 implicit-exports,2
@@ -730,7 +731,7 @@ library-list,2
 library-object-filename,2
 library-requirements,2
 library-version,2
-list,2
+list,6
 list*,2
 list->fxvector,2
 list->string,2
@@ -898,7 +899,7 @@ open-process-ports,2
 open-source-file,2
 open-string-input-port,2
 open-string-output-port,2
-or,2
+or,4
 ormap,2
 output-port-buffer-mode,2
 output-port?,2
