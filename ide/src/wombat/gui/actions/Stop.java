@@ -1,26 +1,26 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.actions;
 
-
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JFrame;
 
 import wombat.gui.frames.MainFrame;
 import wombat.gui.icons.IconManager;
 
 /**
- * Stop all running threads.
+ * Stop the running scheme process.
  */
 public class Stop extends AbstractAction {
 	private static final long serialVersionUID = -7508553925521875759L;
 
 	/**
-	 * Stop constructor, puts the Action in the MenuManager's Map,
-	 * links the Stop.png Image to the Object
-	 * @return a Stop object
+	 * Create the stop action.
 	 */
 	public Stop() {
 		super("Stop", IconManager.icon("Stop.png"));
@@ -28,16 +28,11 @@ public class Stop extends AbstractAction {
 	}
 	
 	/**
-	 * performs the Stop (Document) function. It stops all the 
-	 * Threads that are running for the MainFrame
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Stop the scheme interpreter (actually kills and restarts the scheme process).
+	 * @param event Event parameters (ignored).
 	 * @see MainFrame, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
-		for (Frame frame : JFrame.getFrames())
-			if (frame.isVisible() && frame instanceof MainFrame)
-				((MainFrame) frame).stopAllThreads(false, true);
+	public void actionPerformed(ActionEvent event) {
+		MainFrame.Singleton().stopAllThreads(false,  true);
 	}
 }

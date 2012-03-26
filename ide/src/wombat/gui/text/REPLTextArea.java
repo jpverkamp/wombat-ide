@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.text;
 
 import java.awt.Dimension;
@@ -16,7 +21,11 @@ import javax.swing.text.BadLocationException;
 import wombat.gui.frames.MainFrame;
 
 /**
- * Run commands.
+ * Special text area for running REPL text areas.
+ * 
+ * When you hit enter, run the command if it's at least possibly valid. 
+ * 
+ * Use Ctrl-Enter to override this check and guarantee it runs. 
  */
 public class REPLTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 8753865168892947915L;
@@ -29,8 +38,8 @@ public class REPLTextArea extends SchemeTextArea {
 	/**
 	 * Create a new REPL area.
 	 */
-	public REPLTextArea(final MainFrame main) {
-		Main = main;
+	public REPLTextArea() {
+		Main = MainFrame.Singleton();
 		commandHistory = new ArrayList<String>();
 		setPreferredSize(new Dimension(100, 100));
 		
@@ -63,7 +72,7 @@ public class REPLTextArea extends SchemeTextArea {
 						commandHistory.add(getText());
 			        	currentCommand = commandHistory.size();
 			        	
-						main.doCommand(getText());
+						Main.doCommand(getText());
 						setText("");
                     }
                 });

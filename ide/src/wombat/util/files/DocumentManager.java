@@ -1,7 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
  */
+
 package wombat.util.files;
 
 
@@ -258,8 +259,6 @@ public final class DocumentManager implements FocusListener {
         me.activeDocument.close();
         me.activeDocument.myView.close();
         
-        System.out.println("currently opened documents: " + me.allDocuments.size());
-        	        
         return true;
     }
     

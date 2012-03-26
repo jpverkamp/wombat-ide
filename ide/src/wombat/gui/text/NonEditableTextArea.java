@@ -1,11 +1,14 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.text;
 
 import java.awt.Dimension;
 
-import wombat.gui.frames.MainFrame;
-
 /**
- * Store command history.
+ * Custom text area where editing isn't allowed. Used at the moment for the history pane. Can't rewrite history.
  */
 public class NonEditableTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = -1184733261901876758L;
@@ -13,7 +16,7 @@ public class NonEditableTextArea extends SchemeTextArea {
 	/**
 	 * Create the history text area. 
 	 */
-	public NonEditableTextArea(MainFrame main) {
+	public NonEditableTextArea() {
 		setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
         code.setEditable(false);
 	}

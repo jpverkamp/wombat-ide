@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -14,10 +18,9 @@ import wombat.util.files.DocumentManager;
  */
 public class Close extends AbstractAction {
 	private static final long serialVersionUID = 5083860489087944835L;
+	
 	/**
-	 * Close constructor, puts the Action in the MenuManager's Map,
-	 * links the Close.png Image to the Object
-	 * @return a Close object
+	 * Setup the close action.
 	 */
 	public Close() {
 		super("Close", IconManager.icon("Close.png"));
@@ -25,13 +28,11 @@ public class Close extends AbstractAction {
 	}
 	
 	/**
-	 * performs DocumentManager's Close function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Close the active document.
+	 * @param event Action parameters.
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.Close(false);
 	}
 }

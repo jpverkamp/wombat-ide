@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.scheme.libraries.types;
 
 import java.awt.Color;
@@ -92,8 +97,10 @@ public class TreeData {
 	}
 
 	/**
-	 * Draw a TreeData.
-	 * @return An image containing the TreeData.
+	 * Draw a tree.
+	 * @param g The graphics object to draw with.
+	 * @param width The width of the thing we're drawing to.
+	 * @param height The height of the thing we're drawing to.
 	 */
 	public void drawTreeData(Graphics2D g, int width, int height) {
 		g.setColor(Color.WHITE);
@@ -106,6 +113,15 @@ public class TreeData {
 		draw(g, width / 2, height / (h + 1), width / (w + 1), width - width / (w + 1),  height / (h + 1));
 	}
 
+	/**
+	 * Draw the current node.
+	 * @param g The graphics object.
+	 * @param x The x-location to draw it at.
+	 * @param y The y-location to draw it at.
+	 * @param left The leftmost x-cordinate to draw this node or it's children.
+	 * @param right The rightmost x-coordinate to draw this node or it's children.
+	 * @param skip The amount in the y-coordinate to skip between levels.
+	 */
 	private void draw(Graphics2D g, int x, int y, int left, int right, int skip) {
 		if (Value == null) return;
 
@@ -145,10 +161,10 @@ public class TreeData {
 	
 	/**
 	 * Split this out to either draw my node or non-tree children.
-	 * @param thing
-	 * @param g
-	 * @param x
-	 * @param y
+	 * @param thing Something to draw. Either a node or it's contents. 
+	 * @param g The graphics object to use to draw.
+	 * @param x The x-coordinate to center at.
+	 * @param y The y-coordinate to center at. 
 	 */
 	private void drawThing(Object thing, Graphics2D g, int x, int y, boolean isNode) {
 		String s = thing.toString();
@@ -172,7 +188,7 @@ public class TreeData {
 
 	/**
 	 * Calculate the height of the TreeData (empty TreeData is 0, leaf is 1).
-	 * @return The height of the TreeData.
+	 * @return The height of the tree.
 	 */
 	private int height() {
 		if (Value == null) return 0;

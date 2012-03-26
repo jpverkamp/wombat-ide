@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -16,9 +20,7 @@ public class New extends AbstractAction {
 	private static final long serialVersionUID = -8921545233355515110L;
 
 	/**
-	 * New constructor, puts the Action in the MenuManager's Map,
-	 * links the New.png Image to the Object
-	 * @return a New object
+	 * Create the new action.
 	 */
 	public New() {
 		super("New", IconManager.icon("New.png"));
@@ -26,13 +28,11 @@ public class New extends AbstractAction {
 	}
 	
 	/**
-	 *  performs the New (Document) function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Tell the document manager to create a new document.
+	 * @param event Event parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.New();
 	}
 }

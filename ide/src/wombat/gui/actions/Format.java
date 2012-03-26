@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -10,15 +14,13 @@ import wombat.gui.icons.IconManager;
 import wombat.util.files.DocumentManager;
 
 /**
- * Format the active document.
+ * Format the active document (automatically reindent all fo the lines).
  */
 public class Format extends AbstractAction {
 	private static final long serialVersionUID = -7992738631514081571L;
 
 	/**
-	 * Format constructor, puts the Action in the MenuManager's Map,
-	 * links the Format.png Image to the Object
-	 * @return a Format object
+	 * Create the format action.
 	 */
 	public Format() {
 		super("Format", IconManager.icon("Format.png"));
@@ -26,13 +28,11 @@ public class Format extends AbstractAction {
 	}
 	
 	/**
-	 * performs the Format (Document) function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Format the active document.
+	 * @param event Event parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.Format();
 	}
 }

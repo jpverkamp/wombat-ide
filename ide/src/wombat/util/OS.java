@@ -1,7 +1,12 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.util;
 
 /**
- * Determine OS..
+ * Determine which operating system we're running on.
  */
 public class OS {
     private OS() {}

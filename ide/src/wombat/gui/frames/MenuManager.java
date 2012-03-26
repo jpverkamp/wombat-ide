@@ -1,10 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
  */
 
 package wombat.gui.frames;
-
 
 import java.awt.Toolkit;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import wombat.gui.icons.IconManager;
 import wombat.util.Options;
 import wombat.util.files.RecentDocumentManager;
 
@@ -38,55 +36,64 @@ public final class MenuManager {
      * @param main The main frame.
      */
     private MenuManager(MainFrame main) {
+    	// Maps to and from items and their names.
     	nameToItem = new HashMap<String, JMenuItem>();
         itemToName = new HashMap<JMenuItem, String>();
 
+        // The file chooser.
         fileDialog = new JFileChooser();
         
+        // Actually build the menu based on all of the helper methods we have.
+        // Nulls will turn into menu seperators.
         myMenu = buildBar(
+        		
+    		// Opens for interacting with files.
             buildMenu("File", 'F',
-                    buildItem("New", 'N', new wombat.gui.actions.New()),
-                    RecentDocumentManager.buildRecentDocumentsMenu(),
-                    buildItem("Open", 'O', new wombat.gui.actions.Open()),
-                    buildItem("Save", 'S', new wombat.gui.actions.Save()),
-                    buildItem("Save as", null, new wombat.gui.actions.SaveAs()),
-                    buildItem("Close", 'W', new wombat.gui.actions.Close()),
-                    null,
-                    buildItem("Connect", null, new wombat.gui.actions.Connect()),
-                    buildItem("Upload", null, new wombat.gui.actions.Upload()),
-                    null,
-                    buildItem("Exit", "ALT F4", new wombat.gui.actions.Exit())),
-                buildMenu("Edit",
-            		buildItem("Cut", 'X', new wombat.gui.actions.Cut()),
-            		buildItem("Copy", 'C', new wombat.gui.actions.Copy()),
-            		buildItem("Paste", 'V', new wombat.gui.actions.Paste()),
-            		null,
-            		buildItem("Undo", 'Z', new wombat.gui.actions.Undo()),
-            		buildItem("Redo", 'Y', new wombat.gui.actions.Redo()),
-            		null,
-            		buildItem("Find/Replace", 'F', new wombat.gui.actions.FindReplace())),
-                buildMenu("Scheme",
-                    buildItem("Run", Options.CommandRun, new wombat.gui.actions.Run()),
-                    buildItem("Stop", null, new wombat.gui.actions.Stop()),
-                    buildItem("Format", Options.CommandFormat, new wombat.gui.actions.Format()),
-                    buildItem("Reset", null, new wombat.gui.actions.Reset())),
-                Options.buildOptionsMenu(main),
-                buildMenu("Help",
-                    buildItem("Show debug console", null, new wombat.gui.actions.ShowError()),
-                    buildItem("About", "F1", new wombat.gui.actions.ShowAbout())));
-        
-        for (String name : new String[]{"Cut", "Copy", "Paste"})
-        	nameToItem.get(name).setIcon(IconManager.icon(name + ".png"));
+                buildItem("New", 'N', new wombat.gui.actions.New()),
+                RecentDocumentManager.buildRecentDocumentsMenu(),
+                buildItem("Open", 'O', new wombat.gui.actions.Open()),
+                buildItem("Save", 'S', new wombat.gui.actions.Save()),
+                buildItem("Save as", null, new wombat.gui.actions.SaveAs()),
+                buildItem("Close", 'W', new wombat.gui.actions.Close()),
+                null,
+                buildItem("Connect", null, new wombat.gui.actions.Connect()),
+                buildItem("Upload", null, new wombat.gui.actions.Upload()),
+                null,
+                buildItem("Exit", "ALT F4", new wombat.gui.actions.Exit())),
+                
+            // Options for interacting with the current document.
+            buildMenu("Edit",
+        		buildItem("Cut", 'X', new wombat.gui.actions.Cut()),
+        		buildItem("Copy", 'C', new wombat.gui.actions.Copy()),
+        		buildItem("Paste", 'V', new wombat.gui.actions.Paste()),
+        		null,
+        		buildItem("Undo", 'Z', new wombat.gui.actions.Undo()),
+        		buildItem("Redo", 'Y', new wombat.gui.actions.Redo()),
+        		null,
+        		buildItem("Find/Replace", 'F', new wombat.gui.actions.FindReplace())),
+        		
+        	// Options for interacting with the embedded scheme system or formatting scheme code.
+            buildMenu("Scheme",
+                buildItem("Run", Options.CommandRun, new wombat.gui.actions.Run()),
+                buildItem("Stop", null, new wombat.gui.actions.Stop()),
+                buildItem("Format", Options.CommandFormat, new wombat.gui.actions.Format()),
+                buildItem("Reset", null, new wombat.gui.actions.Reset())),
+                
+            // Actual options, based on which options we're going to use.
+            Options.buildOptionsMenu(main),
+            
+            // Help menu, mostly for debugging and about.
+            buildMenu("Help",
+                buildItem("Show debug console", null, new wombat.gui.actions.ShowError()),
+                buildItem("About", "F1", new wombat.gui.actions.ShowAbout())));
     }
     
     /**
      * Build the main menu.
-     * @param main 
+     * @param main The menu manager.
      */
-    public static MenuManager init(MainFrame main) {
-    	if (me != null) throw new RuntimeException("Attempted to initialize MenuManager more than once.");
-    	
-    	me = new MenuManager(main);
+    public static MenuManager Singleton(MainFrame main) {
+    	if (me == null) me = new MenuManager(main);
     	return me;
     }
     
@@ -119,7 +126,7 @@ public final class MenuManager {
     /**
      * Build a JMenuBar.
      * @param menus All of the menus.
-     * @return 
+     * @return A menu bar based on a number of submenus. 
      */
     private JMenuBar buildBar(JMenu... menus) {
     	JMenuBar menuBar = new JMenuBar();
@@ -134,7 +141,6 @@ public final class MenuManager {
      * @param accel The mnemonic.
      * @param items A list of JMenuItems.
      * @return The menu.
-     * @return
      */
     private JMenu buildMenu(String name, char accel, JMenuItem... items) {
         JMenu menu = buildMenu(name, items);
@@ -169,21 +175,25 @@ public final class MenuManager {
     	JMenuItem item = new JMenuItem(action);
     	item.setText(name);
     	
-        if (accel != null)
-        {
-            if (accel instanceof Character)
+    	// If an accelerator was specified, use it (and also as the mnemonic on non-osx).
+        if (accel != null) {
+            // Something like 'C' -> Ctrl-C / Cmd-C on OSX
+        	if (accel instanceof Character)
                 item.setAccelerator(KeyStroke.getKeyStroke(
                     ((Character) accel).charValue(),
                     Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
                 ));
 
+        	// Something like "Ctrl C" -> Ctrl-C
             else if (accel instanceof String)
                 item.setAccelerator(KeyStroke.getKeyStroke((String) accel));
 
+        	// Only set mnemonics when not on OSX.
             if (!wombat.util.OS.IsOSX && accel instanceof Character)
                 item.setMnemonic((Character) accel);
         }
     	
+        // Add to maps.
     	itemToName.put(item, name);
     	nameToItem.put(name, item);
     	

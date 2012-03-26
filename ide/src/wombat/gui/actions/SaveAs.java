@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -16,9 +20,7 @@ public class SaveAs extends AbstractAction {
 	private static final long serialVersionUID = 7105447480725716711L;
 
 	/**
-	 * SaveAs constructor, puts the Action in the MenuManager's Map,
-	 * links the SaveAs.png Image to the Object
-	 * @return a SaveAs object
+	 * Create the save as action.
 	 */
 	public SaveAs() {
 		super("SaveAs", IconManager.icon("SaveAs.png"));
@@ -26,13 +28,11 @@ public class SaveAs extends AbstractAction {
 	}
 	
 	/**
-	 * performs the SaveAs (Document) function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Save the active document with a new name.
+	 * @param event Event parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.SaveAs();
 	}
 }

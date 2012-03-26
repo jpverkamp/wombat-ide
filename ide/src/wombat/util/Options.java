@@ -1,5 +1,9 @@
-package wombat.util;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.util;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -25,6 +29,8 @@ import wombat.util.files.RecentDocumentManager;
 
 /**
  * Store options.
+ * 
+ * TODO: Rewrite this using local files rather than Java preferences.
  */
 public final class Options {
 	static Preferences prefs = Preferences.userRoot().node("wombat");
@@ -46,6 +52,7 @@ public final class Options {
 	public static boolean EmacsKeybindings;
 	public static boolean ConfirmOnRun;
 	public static boolean ConfirmOnClose;
+	public static boolean BackupOnSave;
 	
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
@@ -61,6 +68,9 @@ public final class Options {
      */
     static { load(); }
     
+    /**
+     * Load all intial options.
+     */
     private static void load() {
     	DisplayTop = prefs.getInt("Display/Top", 100);
     	DisplayLeft = prefs.getInt("Display/Left", 100);
@@ -75,6 +85,7 @@ public final class Options {
     	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", false);
     	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", true);
     	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", true);
+    	BackupOnSave = prefs.getBoolean("Options/BackupOnSave", true);
     	
     	Colors = new HashMap<String, Color>();
     	Colors.put("default", new Color(prefs.getInt("Colors/default", 0x000000)));
@@ -95,13 +106,16 @@ public final class Options {
     	SyntaxDialog.setSyntax(prefs.get("Syntax", null));
     }
     
+    /**
+     * Determine how wide the font actually is per character.
+     */
     private static void calculateFontWidth() {
     	Component c = new Component(){ private static final long serialVersionUID = 366311035336037525L; };
     	FontWidth = c.getFontMetrics(new Font("Monospaced", Font.PLAIN, FontSize)).charWidth(' ');
 	}
 
 	/**
-     * Save to preferences on dispose.
+     * Save preferences.
      */
     public static void save() {
     	prefs.putInt("Display/Top", DisplayTop);
@@ -117,6 +131,7 @@ public final class Options {
     	prefs.putBoolean("Options/EmacsKeybindings", EmacsKeybindings);
     	prefs.putBoolean("Options/ConfirmOnRun", ConfirmOnRun);
     	prefs.putBoolean("Options/ConfirmOnClose", ConfirmOnClose);
+    	prefs.putBoolean("Options/BackupOnSave", BackupOnSave);
     	
     	for (String key : Colors.keySet())
     		prefs.putInt("Colors/" + key, Colors.get(key).getRGB());
@@ -135,16 +150,7 @@ public final class Options {
     	if (optionsMenu == null) {
     		optionsMenu = new JMenu("Options");
     		
-    		/* uncomment when we have emacs keybindings to add
-    		JCheckBoxMenuItem emacs = new JCheckBoxMenuItem("Enable emacs keybindings", EmacsKeybindings);
-    		emacs.addItemListener(new ItemListener() {
-				public void itemStateChanged(ItemEvent arg0) {
-					EmacsKeybindings = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
-				}
-    		});
-    		optionsMenu.add(emacs);
-    		*/
-    		
+    		// Basic options.
     		JCheckBoxMenuItem lambdaMode = new JCheckBoxMenuItem("\u03BB mode", LambdaMode);
     		lambdaMode.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
@@ -171,6 +177,14 @@ public final class Options {
     		});
     		optionsMenu.add(confirmClose);
     		
+    		JCheckBoxMenuItem backup = new JCheckBoxMenuItem("Backup on Save", BackupOnSave);
+    		backup.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					BackupOnSave = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+				}
+    		});
+    		optionsMenu.add(backup);
+    		
     		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
     		toolbar.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
@@ -182,6 +196,7 @@ public final class Options {
     		
     		optionsMenu.addSeparator();
     		
+    		// Display the dialog to add keywords to syntax highlighting / indentation depth. 
     		JMenuItem resetSyntax = new JMenuItem("Keywords");
         	resetSyntax.addActionListener(new ActionListener() {
     			@Override
@@ -191,6 +206,7 @@ public final class Options {
         	});
         	optionsMenu.add(resetSyntax);
     		
+        	// Special option to reset colors to defaults.
     		JMenu colorMenu = new JMenu("Colors");
     		JMenuItem resetColors = new JMenuItem("Reset colors");
     		resetColors.addActionListener(new ActionListener() {
@@ -209,6 +225,7 @@ public final class Options {
     		colorMenu.add(resetColors);
     		colorMenu.addSeparator();
     		
+    		// Special menu for choosing font colors.
     		for (final String key : Colors.keySet()) {
     			String fixed = ("" + key.charAt(0)).toUpperCase() + key.substring(1);
     			final JMenuItem item = new JMenuItem(fixed);
@@ -224,6 +241,8 @@ public final class Options {
     		}
     		optionsMenu.add(colorMenu);
     		
+    		// Special menu for font size choices.
+    		// 8 to 30 by 2s.
     		final JMenu fontSizeMenu = new JMenu("Font size");
     		for (int i = 8; i <= 30; i += 2) {
     			final int fontSize = i;
@@ -252,5 +271,5 @@ public final class Options {
     }
     
     // Hide this.
-    Options() {};
+    private Options() {};
 }

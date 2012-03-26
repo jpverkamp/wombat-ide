@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.text;
 
 import javax.swing.*;
@@ -9,6 +14,7 @@ import wombat.util.errors.ErrorManager;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -18,12 +24,25 @@ import java.util.regex.Pattern;
 public class SchemeTextArea extends JPanel {
 	private static final long serialVersionUID = -5290625425897085428L;
 
+	// File used for saving the document.
 	public File myFile;
+	
+	// View displaying the document.
 	public net.infonode.docking.View myView;
+	
+	// Actual source code.
 	public JTextPane code;
+	
+	// Always use bare newlines, regardless of OS.
     public static String NL = "\n"; //System.getProperty("line.separator");
+    
+    // Used to determine if a document needs to be saved.
     public int SavedHash;
+    
+    // Used for undo/redo stack.
     public UndoManager Undo = new UndoManager();
+    
+    // Match whitespace at the end of a line.
     public static final Pattern WhitespaceEOL = Pattern.compile("[ \\t]+\\n");
     
     /**
@@ -62,9 +81,9 @@ public class SchemeTextArea extends JPanel {
     public void load() throws FileNotFoundException, IOException {
     	if (myFile == null) throw new FileNotFoundException("No file set");
     	
+    	// Load the document.
     	Scanner scanner = new Scanner(myFile);
         StringBuilder content = new StringBuilder();
-        String NL = "\n"; //System.getProperty("line.separator");
 
         while (scanner.hasNextLine()) {
             content.append(scanner.nextLine());
@@ -73,7 +92,7 @@ public class SchemeTextArea extends JPanel {
         
         String text = content.toString();
         
-        // Change lambda string to character in lambda mode
+        // Change lambda string to character in lambda mode.
         if (Options.LambdaMode) text = text.replace("lambda", "\u03BB");
         
         setText(text);
@@ -104,6 +123,27 @@ public class SchemeTextArea extends JPanel {
     		text = text.replace("\u03BB", "lambda");
     	}
     	
+    	// If the file already exists (and the option is set), copy the old version to a backup file.
+    	if (myFile.exists() && Options.BackupOnSave) {
+    		File backupFile = new File(myFile.getCanonicalPath() + "~");
+    		
+    		if(!backupFile.exists()) {
+    			backupFile.createNewFile();
+    	    }
+
+    	    FileChannel source = null;
+    	    FileChannel destination = null;
+
+    	    try {
+    	        source = new FileInputStream(myFile).getChannel();
+    	        destination = new FileOutputStream(backupFile).getChannel();
+    	        destination.transferFrom(source, 0, source.size());
+    	    } finally {
+    	        if(source != null) source.close();
+    	        if(destination != null) destination.close();
+    	    }
+    	}
+    	
     	// Write to file.
     	Writer out = new OutputStreamWriter(new FileOutputStream(myFile));
         out.write(text);
@@ -114,7 +154,7 @@ public class SchemeTextArea extends JPanel {
     
     /**
      * Is the document dirty?
-     * @return If it has changed since the last time.
+     * @return If it has changed since the last time, based on hash.
      */
     public boolean isDirty() {
     	return getText().hashCode() != SavedHash;
@@ -122,7 +162,7 @@ public class SchemeTextArea extends JPanel {
     
     /**
      * Perform a tab at the current position.
-     * @return 
+     * @return How far the caret moved.
      */
     public int tab() {
     	// Things that break tokens.
@@ -277,9 +317,11 @@ public class SchemeTextArea extends JPanel {
     }
 
     /**
-     * Format the document.
+     * Format the document by fixing indentation to scheme standards.
      */
     public void format() {
+    	// TODO: Push this into it's own thread with a progress indicator.
+    	
     	code.setCaretPosition(0);
         tab();
     	
@@ -305,7 +347,6 @@ public class SchemeTextArea extends JPanel {
 
     /**
      * Is the text area empty?
-     *
      * @return True/false
      */
     public boolean isEmpty() {
@@ -314,7 +355,6 @@ public class SchemeTextArea extends JPanel {
 
     /**
      * Set the file that this code is associated with.
-     *
      * @param f The file.
      */
     public void setFile(File f) {
@@ -323,7 +363,6 @@ public class SchemeTextArea extends JPanel {
 
     /**
      * Get the file that this code is associated with (might be null).
-     *
      * @return The file.
      */
     public File getFile() {
@@ -332,7 +371,6 @@ public class SchemeTextArea extends JPanel {
 
     /**
      * Get the code.
-     *
      * @return The code.
      */
     public String getText() {
@@ -348,7 +386,6 @@ public class SchemeTextArea extends JPanel {
 
     /**
      * Append text to the end of the code area.
-     *
      * @param text Text to append.
      */
     public synchronized void append(String text) {

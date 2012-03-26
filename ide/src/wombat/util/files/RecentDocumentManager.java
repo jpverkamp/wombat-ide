@@ -1,35 +1,45 @@
-package wombat.util.files;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.util.files;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Stack;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-
-
+/**
+ * Remember recently opened documents.
+ */
 public class RecentDocumentManager {
-	
 	private RecentDocumentManager() {}
 
+	// How many document we're going to deal with.
 	static int FileCount = 10;
+	
+	// The actual files that were opened.
 	static Stack<File> fileList = new Stack<File>();
+	
+	// The menu containing a list of recently opened files.
 	static JMenu menu;
 	
 	/**
-	 * Log an error.
-	 * @param msg The error.
+	 * Add a new file.
+	 * @param f The file to add/remove.
 	 */
 	public static void addFile(File f) {
-		// Remove then add to the front of the list.
+		// If it already existed, use remove to bump it to the front of the list.
 		fileList.remove(f);
 		fileList.push(f);
 
 		// Old documents fall off.
-		while (fileList.size() > 10)
+		while (fileList.size() > FileCount)
 			fileList.remove(0);
 		
 		// Rebuild the menu.
@@ -41,9 +51,12 @@ public class RecentDocumentManager {
 	 */
 	static void rebuildMenu() {
 		if (menu != null) {
-			// Send the file list to all of the listeners.
+			// Clear the old items out.
 			menu.removeAll();
+			
+			// Go through the item list, remove any that no longer exist, add the rest to the menu.
 			JMenuItem item;
+			int j = 0;
 			for (int i = fileList.size() - 1; i >= 0; i--) {
 				final File each = fileList.get(i);
 				
@@ -52,7 +65,9 @@ public class RecentDocumentManager {
 					continue;
 				}
 				
-				item = new JMenuItem(each.getPath());
+				// Add to the menu with a shortcut for each.
+				item = new JMenuItem(j + " - " + each.getPath());
+				item.setMnemonic(KeyEvent.getExtendedKeyCodeForChar(("" + j).charAt(0)));
 				item.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -60,8 +75,10 @@ public class RecentDocumentManager {
 					}
 				});
 				menu.add(item);
+				j += 1;
 			}
 			
+			// Add a final option to clear this list.
 			menu.addSeparator();
 			item = new JMenuItem("Clear recent documents");
 			item.addActionListener(new ActionListener() {

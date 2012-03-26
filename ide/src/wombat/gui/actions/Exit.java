@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -17,22 +21,21 @@ public class Exit extends AbstractAction {
 	private static final long serialVersionUID = -7508553925521875759L;
 	
 	/**
-	 * Exit constructor, puts the Action in the MenuManager's Map,
-	 * links the Exit.png Image to the Object
-	 * @return a Exit object
+	 * Create the exit action.
 	 */
 	public Exit() {
 		super("Exit", IconManager.icon("Exit.png"));
 		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
 	}
+	
 	/**
-	 * gets rid of all the projects frames.
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Close the program.
+	 * @param event Event parameters (ignored).
 	 * @see DefaultEditorKit, ActionEvent, JFrame, Frame
 	 */ 
 	public void actionPerformed(ActionEvent arg0) {
+		// Go through all frames and dispose them.
+		// This will trigger the the MainFrame's dispose at some point which does most of the work.
 		for (Frame frame : JFrame.getFrames())
 			frame.dispose();
 	}
