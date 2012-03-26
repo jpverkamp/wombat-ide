@@ -1,5 +1,8 @@
 ; Provides the C211 matrix library
 
+; License: source-license.txt
+; If this code is used independently, copy the license here.
+
 #|
 Constructors:
   (matrix-matrix rs cs [i=0])

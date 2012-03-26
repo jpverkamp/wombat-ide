@@ -1,5 +1,8 @@
 ; Provides the C211 image library
 
+; License: source-license.txt
+; If this code is used independently, copy the license here.
+
 #|
 Constructors:
   (color r g b)
