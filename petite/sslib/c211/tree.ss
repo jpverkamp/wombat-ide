@@ -1,5 +1,8 @@
 ; Provides the C211 tree library
 
+; License: source-license.txt
+; If this code is used independently, copy the license here.
+
 #|
 Constructors:
   (tree v l r)

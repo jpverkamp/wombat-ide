@@ -190,7 +190,7 @@ public class Petite {
 												: "unknown")
 										+ ".zip")) {
 							ZipFile zip = new ZipFile(new File(dir, path));
-							System.out.println("Found: " + zip);
+							System.out.println("Found: " + new File(dir, path).getCanonicalPath());
 
 							@SuppressWarnings("unchecked")
 							Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip

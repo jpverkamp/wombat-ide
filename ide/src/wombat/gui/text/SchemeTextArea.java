@@ -45,15 +45,24 @@ public class SchemeTextArea extends JPanel {
     // Match whitespace at the end of a line.
     public static final Pattern WhitespaceEOL = Pattern.compile("[ \\t]+\\n");
     
+    // Line number panel (or null if this shouldn't have one).
+    LineNumberPanel MyLineNumbers;
+    
     /**
      * Create a new Scheme text area.
      */
-    public SchemeTextArea() {
+    public SchemeTextArea(boolean lineNumbers) {
         super();
         setLayout(new BorderLayout());
         
         code = new LinedTextPane(this);
-        add(new JScrollPane(code));
+        JScrollPane scroll = new JScrollPane(code);
+        add(scroll);
+        
+        if (lineNumbers) {
+        	MyLineNumbers = new LineNumberPanel(this, scroll);
+        	add(MyLineNumbers, BorderLayout.WEST);
+        }
     }
     
     /**
@@ -68,8 +77,8 @@ public class SchemeTextArea extends JPanel {
      * @param text Content.
      * @throws FileNotFoundException, IOException 
      */
-    public SchemeTextArea(File file) throws FileNotFoundException, IOException {
-        this();
+    public SchemeTextArea(File file, boolean lineNumbers) throws FileNotFoundException, IOException {
+        this(lineNumbers);
         myFile = file;
         load();
     }
@@ -406,10 +415,24 @@ public class SchemeTextArea extends JPanel {
     /**
      * Update the font.
      */
-	public void updateFont() {
-		// For the document to refresh.
+	public void refresh() {
+		// Force the document to refresh.
 		try {
+			// Process the entire document.
+			
+			// Clear the original styles.
+			// This is necessary to not have a last line with the incorrect height.
+			((SchemeDocument) code.getDocument()).setCharacterAttributes(0, getText().length(), SchemeDocument.attributes.get("default"), true);
+			Enumeration<?> e = ((SchemeDocument) code.getDocument()).getStyleNames();
+			while (e.hasMoreElements()) 
+				((SchemeDocument) code.getDocument()).removeStyle((String) e.nextElement());
+			
+			// Reformat the code.
 			((SchemeDocument) code.getDocument()).processChangedLines(0, getText().length());
+			
+			// Check to show/hide the line numbers.
+			if (MyLineNumbers != null)
+				MyLineNumbers.setVisible(Options.ViewLineNumbers);
 		} catch (BadLocationException e) {
 		}
 	}

@@ -1,3 +1,6 @@
+; License: source-license.txt
+; If this code is used independently, copy the license here.
+
 (library
   (wombat base64)
   (export

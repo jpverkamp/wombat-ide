@@ -39,6 +39,8 @@ public class REPLTextArea extends SchemeTextArea {
 	 * Create a new REPL area.
 	 */
 	public REPLTextArea() {
+		super(false);
+		
 		Main = MainFrame.Singleton();
 		commandHistory = new ArrayList<String>();
 		setPreferredSize(new Dimension(100, 100));

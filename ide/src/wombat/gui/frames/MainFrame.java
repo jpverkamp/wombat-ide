@@ -36,6 +36,7 @@ public class MainFrame extends JFrame {
 
 	// Self-reference for singleton access.
 	static MainFrame Me;
+	static boolean MeBuilding;
 	
 	// Display components.
 	RootWindow Root;
@@ -60,8 +61,12 @@ public class MainFrame extends JFrame {
 	 * @return The main frame.
 	 */
 	public static MainFrame Singleton() { 
-		if (Me == null)
+		if (Me == null && !MeBuilding) {
+			MeBuilding = true;
 			Me = new MainFrame();
+			MeBuilding = false;
+		}
+			
 		return Me; 
 	}
     
