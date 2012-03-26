@@ -1,1 +1,10 @@
 http://www.freeiconsweb.com/Free-Downloads.asp?id=607
+
+LED Icon Set v1.0 are designed for web designers/developers by Marcis Gasuns, 
+Siberia. These .png icons make a professionally looking icon set and are 
+totally free.
+
+You can do whatever you want with these icons (use on web or in desktop 
+applications) as long as you don’t pass them off as your own and remove this
+readme file. A credit statement and a link back to http://led24.de/iconset/ 
+or http://led24.de/ would be appreciated.
