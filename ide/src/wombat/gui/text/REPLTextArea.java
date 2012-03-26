@@ -29,7 +29,6 @@ import wombat.gui.frames.MainFrame;
  */
 public class REPLTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 8753865168892947915L;
-	MainFrame Main;
 	
 	// Store previously entered commands.
 	List<String> commandHistory;
@@ -41,7 +40,6 @@ public class REPLTextArea extends SchemeTextArea {
 	public REPLTextArea() {
 		super(false);
 		
-		Main = MainFrame.Singleton();
 		commandHistory = new ArrayList<String>();
 		setPreferredSize(new Dimension(100, 100));
 		
@@ -52,7 +50,7 @@ public class REPLTextArea extends SchemeTextArea {
                     private static final long serialVersionUID = 723647997099071931L;
 
 					public void actionPerformed(ActionEvent e) {
-						if (Main.Running) return;
+						if (MainFrame.Singleton().Running) return;
 						
 						checkRun();
                     }
@@ -68,13 +66,13 @@ public class REPLTextArea extends SchemeTextArea {
                     private static final long serialVersionUID = 723647997099071931L;
 
 					public void actionPerformed(ActionEvent e) {
-						if (Main.Running) return;
+						if (MainFrame.Singleton().Running) return;
 						if (getText().trim().isEmpty()) return;
 						
 						commandHistory.add(getText());
 			        	currentCommand = commandHistory.size();
 			        	
-						Main.doCommand(getText());
+						MainFrame.Singleton().doCommand(getText());
 						setText("");
                     }
                 });
@@ -156,7 +154,7 @@ public class REPLTextArea extends SchemeTextArea {
 	        	commandHistory.add(getText());
 	        	currentCommand = commandHistory.size();
 	        	
-	            Main.doCommand(getText());
+	            MainFrame.Singleton().doCommand(getText());
 	            setText("");
 	            return;
 	        }
