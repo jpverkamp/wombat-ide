@@ -17,6 +17,8 @@ public class NonEditableTextArea extends SchemeTextArea {
 	 * Create the history text area. 
 	 */
 	public NonEditableTextArea() {
+		super(false);
+		
 		setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
         code.setEditable(false);
 	}

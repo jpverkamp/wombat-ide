@@ -8,6 +8,7 @@ package wombat.util;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -53,12 +54,16 @@ public final class Options {
 	public static boolean ConfirmOnRun;
 	public static boolean ConfirmOnClose;
 	public static boolean BackupOnSave;
+	public static boolean ViewLineNumbers;
 	
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
 	public static Map<String, Integer> Keywords;
+	
+	public static Font Font;
 	public static int FontSize;
 	public static int FontWidth;
+	public static int FontHeight;
 	
 	// Recently used documents.
 	public static String RecentDocuments;
@@ -81,6 +86,7 @@ public final class Options {
     	CommandRun = prefs.get("Command/Run", "F5");
     	CommandFormat = prefs.get("Command/Format", "F6");
 
+    	ViewLineNumbers = prefs.getBoolean("Options/ViewLineNumbers", true);
     	LambdaMode = prefs.getBoolean("Options/LambdaMode", false);
     	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", false);
     	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", true);
@@ -110,8 +116,13 @@ public final class Options {
      * Determine how wide the font actually is per character.
      */
     private static void calculateFontWidth() {
+    	Font = new Font("Monospaced", java.awt.Font.PLAIN, FontSize);
+    	
     	Component c = new Component(){ private static final long serialVersionUID = 366311035336037525L; };
-    	FontWidth = c.getFontMetrics(new Font("Monospaced", Font.PLAIN, FontSize)).charWidth(' ');
+    	FontMetrics fm = c.getFontMetrics(Font);
+    	FontWidth = fm.charWidth(' ');
+    	FontHeight = fm.getHeight();
+    	
 	}
 
 	/**
@@ -127,6 +138,7 @@ public final class Options {
     	prefs.put("Command/Run", CommandRun);
     	prefs.put("Command/Format", CommandFormat);
     	
+    	prefs.putBoolean("Options/ViewLineNumbers", ViewLineNumbers);
     	prefs.putBoolean("Options/LambdaMode", LambdaMode);
     	prefs.putBoolean("Options/EmacsKeybindings", EmacsKeybindings);
     	prefs.putBoolean("Options/ConfirmOnRun", ConfirmOnRun);
@@ -150,7 +162,17 @@ public final class Options {
     	if (optionsMenu == null) {
     		optionsMenu = new JMenu("Options");
     		
-    		// Basic options.
+    		//  Display options
+    		JCheckBoxMenuItem showLineNumber = new JCheckBoxMenuItem("Show line numbers", ViewLineNumbers);
+    		showLineNumber.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					ViewLineNumbers = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					SchemeDocument.reload();
+					DocumentManager.ReloadAll();
+				}
+    		});
+    		optionsMenu.add(showLineNumber);
+    		
     		JCheckBoxMenuItem lambdaMode = new JCheckBoxMenuItem("\u03BB mode", LambdaMode);
     		lambdaMode.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
@@ -161,6 +183,18 @@ public final class Options {
     		});
     		optionsMenu.add(lambdaMode);
     		
+    		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
+    		toolbar.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					DisplayToolbar = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					main.toggleToolbar(DisplayToolbar);
+				}
+    		});
+    		optionsMenu.add(toolbar);
+    		
+    		optionsMenu.addSeparator();
+    		
+    		// Confirm options.
     		JCheckBoxMenuItem confirmRun = new JCheckBoxMenuItem("Confirm on Run", ConfirmOnRun);
     		confirmRun.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
@@ -184,15 +218,6 @@ public final class Options {
 				}
     		});
     		optionsMenu.add(backup);
-    		
-    		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
-    		toolbar.addItemListener(new ItemListener() {
-				public void itemStateChanged(ItemEvent arg0) {
-					DisplayToolbar = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
-					main.toggleToolbar(DisplayToolbar);
-				}
-    		});
-    		optionsMenu.add(toolbar);
     		
     		optionsMenu.addSeparator();
     		

@@ -83,7 +83,7 @@ public final class DocumentManager implements FocusListener {
         me.lastIndex++;
         String id = "document-" + me.lastIndex;
 
-        SchemeTextArea ss = new SchemeTextArea();
+        SchemeTextArea ss = new SchemeTextArea(true);
         me.allDocuments.add(ss);
         ss.code.addFocusListener(me);
         
@@ -155,7 +155,7 @@ public final class DocumentManager implements FocusListener {
             if (!file.exists())
                 file.createNewFile();
 
-            SchemeTextArea ss = new SchemeTextArea(file);
+            SchemeTextArea ss = new SchemeTextArea(file, true);
             me.allDocuments.add(ss);
             ss.myFile = file;
             ss.code.addFocusListener(me);
@@ -286,7 +286,7 @@ public final class DocumentManager implements FocusListener {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
     	for (SchemeTextArea ss : me.allDocuments)
-			ss.updateFont();
+			ss.refresh();
     	
     	return me.Main.updateDisplay();
     }
