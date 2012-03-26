@@ -9,6 +9,7 @@ import wombat.util.errors.ErrorManager;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -102,6 +103,27 @@ public class SchemeTextArea extends JPanel {
     	// Replace lambda character with lambda string
     	if (text.contains("\u03BB")) {
     		text = text.replace("\u03BB", "lambda");
+    	}
+    	
+    	// If the file already exists (and the option is set), copy the old version to a backup file.
+    	if (myFile.exists() && Options.BackupOnSave) {
+    		File backupFile = new File(myFile.getCanonicalPath() + "~");
+    		
+    		if(!backupFile.exists()) {
+    			backupFile.createNewFile();
+    	    }
+
+    	    FileChannel source = null;
+    	    FileChannel destination = null;
+
+    	    try {
+    	        source = new FileInputStream(myFile).getChannel();
+    	        destination = new FileOutputStream(backupFile).getChannel();
+    	        destination.transferFrom(source, 0, source.size());
+    	    } finally {
+    	        if(source != null) source.close();
+    	        if(destination != null) destination.close();
+    	    }
     	}
     	
     	// Write to file.

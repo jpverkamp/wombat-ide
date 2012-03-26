@@ -46,6 +46,7 @@ public final class Options {
 	public static boolean EmacsKeybindings;
 	public static boolean ConfirmOnRun;
 	public static boolean ConfirmOnClose;
+	public static boolean BackupOnSave;
 	
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
@@ -75,6 +76,7 @@ public final class Options {
     	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", false);
     	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", true);
     	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", true);
+    	BackupOnSave = prefs.getBoolean("Options/BackupOnSave", true);
     	
     	Colors = new HashMap<String, Color>();
     	Colors.put("default", new Color(prefs.getInt("Colors/default", 0x000000)));
@@ -117,6 +119,7 @@ public final class Options {
     	prefs.putBoolean("Options/EmacsKeybindings", EmacsKeybindings);
     	prefs.putBoolean("Options/ConfirmOnRun", ConfirmOnRun);
     	prefs.putBoolean("Options/ConfirmOnClose", ConfirmOnClose);
+    	prefs.putBoolean("Options/BackupOnSave", BackupOnSave);
     	
     	for (String key : Colors.keySet())
     		prefs.putInt("Colors/" + key, Colors.get(key).getRGB());
@@ -170,6 +173,14 @@ public final class Options {
 				}
     		});
     		optionsMenu.add(confirmClose);
+    		
+    		JCheckBoxMenuItem backup = new JCheckBoxMenuItem("Backup on Save", BackupOnSave);
+    		backup.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					BackupOnSave = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+				}
+    		});
+    		optionsMenu.add(backup);
     		
     		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
     		toolbar.addItemListener(new ItemListener() {
