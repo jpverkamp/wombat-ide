@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.scheme.libraries;
 
 import java.awt.FileDialog;

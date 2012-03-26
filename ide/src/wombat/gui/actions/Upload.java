@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
@@ -14,11 +18,12 @@ import wombat.util.files.*;
 
 /**
  * Open a web browser so that the user can upload the active document to Tiro.
+ * TODO: Parameter the upload loaction.
  */
 public class Upload extends AbstractAction {
 	private static final long serialVersionUID = 5980425299281375927L;
 
-	/**
+	/*
 	 * BASE_URL is the url when a file isn't known.
 	 * FILE_URL uses the filename to paramaterize the request.
 	 * 
@@ -28,7 +33,7 @@ public class Upload extends AbstractAction {
 	static final String FILE_URL = "https://www.cs.indiana.edu/cgi-pub/c211/spring12/tiro/tiro.cgi?show_submissions=1&show_assignments=1&assignments={assignment_name}&show_group=1&assignments={assignment_name}";
 	
 	/**
-	 * Create the button.
+	 * Create the upload action.
 	 */
 	public Upload() {
 		super("Upload", IconManager.icon("Upload.png"));
@@ -36,12 +41,11 @@ public class Upload extends AbstractAction {
 	}
 	
 	/**
-	 * This button should open the correct submission page in the user's web browser.
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
+	 * Open the correct submission page in the user's web browser.
+	 * @param event Event parameters (ignored).
 	 * @see URLEncoder, Desktop,DocumentManager
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		File file = DocumentManager.getActiveFile();
 		
 		// Get the URL to fetch.

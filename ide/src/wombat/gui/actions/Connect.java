@@ -1,6 +1,10 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.actions;
 
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
 import javax.swing.*;
@@ -9,14 +13,13 @@ import wombat.gui.frames.*;
 import wombat.gui.icons.*;
 
 /**
- * Connect and share a document.
+ * Connect and share a document. Can be used either for hosting or joining a previously hosted document.
  */
 public class Connect extends AbstractAction {
 	private static final long serialVersionUID = 3786293931035177076L;
+	
 	/**
-	 * Connect constructor, puts the Action in the MenuManager's Map,
-	 * links the Connect.png Image to the Object
-	 * @return a Connect object
+	 * Create a connect object.
 	 */
 	public Connect() {
 		super("Connect", IconManager.icon("Connect.png"));
@@ -24,18 +27,12 @@ public class Connect extends AbstractAction {
 	}
 	
 	/**
-	 * share the frames via ConnectDialog 
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Display the ConnectDialog to arrange sharing. 
+	 * @param event Action parameters (ignored)
 	 * @see ConnectDialog, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
-		for (Frame frame : JFrame.getFrames()) {
-			if (frame instanceof MainFrame) {
-				new ConnectDialog((MainFrame) frame).setVisible(true);
-				return;
-			}
-		}
+	public void actionPerformed(ActionEvent event) {
+		// Find the main frame to connect to.
+		new ConnectDialog(MainFrame.Singleton()).setVisible(true);
 	}
 }

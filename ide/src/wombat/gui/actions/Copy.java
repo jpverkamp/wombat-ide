@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -10,30 +14,28 @@ import javax.swing.text.DefaultEditorKit;
 import wombat.gui.icons.IconManager;
 
 /**
- * Copy selected text.
+ * Copy selected text by wrapping the default copy action. 
  */
 public class Copy extends AbstractAction {
 	private static final long serialVersionUID = -5442317793842147955L;
 	
-	Action todo;
+	Action OriginalCopy;
+	
 	/**
-	 * Copy constructor, puts the Action in the MenuManager's Map,
-	 * links the Copy.png Image to the Object
-	 * @return a Copy object
+	 * Create a copy action.
 	 */
 	public Copy() {
 		super("Copy", IconManager.icon("Copy.png"));
 		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
-		todo = new DefaultEditorKit.CopyAction();
+		OriginalCopy = new DefaultEditorKit.CopyAction();
 	}
+	
 	/**
-	 * perform the Copy Action 
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Perform the copy. 
+	 * @param event Event parameters.
 	 * @see ActionEvent,DefaultEditorKit
 	 */
-	public void actionPerformed(ActionEvent arg0) {
-		todo.actionPerformed(arg0);
+	public void actionPerformed(ActionEvent event) {
+		OriginalCopy.actionPerformed(event);
 	}
 }

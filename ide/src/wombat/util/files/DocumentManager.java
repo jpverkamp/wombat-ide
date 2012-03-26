@@ -1,7 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
  */
+
 package wombat.util.files;
 
 

@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.frames;
 
 import java.awt.BorderLayout;
@@ -18,7 +23,14 @@ import javax.swing.table.AbstractTableModel;
 
 import wombat.util.Options;
 
+/**
+ * Options for syntax, both syntax highlighting for keywords and indent level.
+ */
 public final class SyntaxDialog {
+	/*
+	 * Syntax to use if nothing else has been set.
+	 * TODO: Load this from a file. 
+	 */
 	public final static String DEFAULT_SYNTAX =
 		"define		2 \n" +
 		"lambda		2 \n" +
@@ -52,7 +64,7 @@ public final class SyntaxDialog {
 	static List<String> syntaxNames = new ArrayList<String>();
 	
 	/**
-	 * Create a new syntax frame.
+	 * Create a new syntax frame to add new keywords and set their indentation.
 	 */
 	private SyntaxDialog() {
 		dialog = new JDialog();
@@ -89,15 +101,15 @@ public final class SyntaxDialog {
 			}
 			
 			/**
-			 * sets the value at the specific row and col with the value given
-			 * @param val the value being given
-			 * @param row the row of the desired value
-			 * @param col the col of the desired value
-			 * @return void
+			 * Set either a keyword name or it's indentation.
+			 * @param val The keyword or indentation.
+			 * @param row The specific keyword
+			 * @param col 0 for the keyword, 1 for the indentation.
 			 */
 			public void setValueAt(Object val, int row, int col) {
 				String sval = (String) val;
 				
+				// Last item, new keyword.
 				if (row == syntaxNames.size()) {
 					if (syntaxNames.contains(sval))
 						JOptionPane.showConfirmDialog(dialog, "Duplicated keyword: " + sval, "Duplicated keyword", JOptionPane.OK_CANCEL_OPTION);
@@ -105,14 +117,21 @@ public final class SyntaxDialog {
 						syntaxNames.add(sval);
 						Options.Keywords.put(sval, 2);
 					}
-				} else {
+				}
+				
+				// Previously defined item.
+				else {
+					// Keyword name.
 					if (col == 0) {
 						syntaxNames.remove(row);
 						syntaxNames.add(row, sval);
 						
 						Options.Keywords.put(sval, Options.Keywords.get(sval));
 						Options.Keywords.remove(sval);
-					} else {
+					}
+					
+					// Indentation of a defined keyword.
+					else {
 						try {
 							Options.Keywords.put(syntaxNames.get(row), Integer.parseInt(sval));
 						} catch (NumberFormatException nfe) {
@@ -123,29 +142,29 @@ public final class SyntaxDialog {
 			}
 			
 			/**
-			 * gets the row count
-			 * @return value
+			 * Get the number of rows.
+			 * @return Number of keywords + 1 for expansion.
 			 */
 			public int getRowCount() { return syntaxNames.size() + 1; }
 			
 			/**
-			 * gets the col count
-			 * @return value
+			 * Always two columns.
+			 * @return 2
 			 */
 			@Override
 			public int getColumnCount() { return 2; }
 			
 			/**
-			 * gets the col name
-			 * @paran col the column with the desired name
+			 * Names of the columens.
+			 * @paran col Which column we want.
 			 * @return String "Keyword" or "Indentation"
 			 */
 			@Override
 			public String getColumnName(int col) { return (col == 0 ? "Keyword" : "Indentation"); }
 			
 			/**
-			 * returns if the given cell can be edited
-			 * @return if the cell can be edited
+			 * Can we edit the cell?
+			 * @return Yes.
 			 */
 			@Override
 			public boolean isCellEditable(int row, int col) { return true; }
@@ -155,6 +174,7 @@ public final class SyntaxDialog {
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new GridLayout(1, 2));
 		
+		// Reset all keywords to their defaults.
 		JButton resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ActionListener() {
 			@Override
@@ -165,6 +185,7 @@ public final class SyntaxDialog {
 		});
 		buttons.add(resetButton);
 		
+		// Close and save the syntax items.
 		JButton closeButton = new JButton("Close");
 		closeButton.addActionListener(new ActionListener() {
 			@Override
@@ -187,7 +208,7 @@ public final class SyntaxDialog {
 	}
 	
 	/**
-	 * Get an encoded string.
+	 * Get an encoded string of all of the syntax items.
 	 * @return Syntax.
 	 */
 	public static String getSyntax() {
@@ -207,7 +228,7 @@ public final class SyntaxDialog {
 	
 	/**
 	 * Load syntax from an encoded string.
-	 * @param val Encoding
+	 * @param val Encoded string.
 	 */
 	public static void setSyntax(String val) {
 		syntaxNames.clear();

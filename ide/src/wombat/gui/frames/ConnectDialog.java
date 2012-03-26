@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.frames;
 
 import java.awt.Color;
@@ -11,20 +16,22 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import wombat.util.files.DocumentManager;
+
 /**
- * Connection between the frames
+ * Dialog to connect shared documents between different machines. 
  */
 public class ConnectDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 4997826705741440876L;
 
+	// Singleton.
 	static ConnectDialog me;
-	static String hostPrefix;
 	
+	// Contain the address to connect to.
 	JTextField joinAddress;
 	
 	/**
 	 * Create a new connection dialog. 
-	 * @param text
+	 * @param parent The main frame hosting this dialog.
 	 */
 	public ConnectDialog(MainFrame parent) {
 		super(parent, true);
@@ -67,9 +74,11 @@ public class ConnectDialog extends JDialog implements ActionListener {
 
 	/**
 	 * Run when one of the buttons is clicked.
+	 * @param event Event parameters (determine which button was clicked).
 	 */
-	@Override public void actionPerformed(ActionEvent e) {
-		String buttonText = ((JButton) e.getSource()).getText();
+	@Override 
+	public void actionPerformed(ActionEvent event) {
+		String buttonText = ((JButton) event.getSource()).getText();
 		
 		if ("Host".equals(buttonText)) {
 			try {

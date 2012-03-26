@@ -1,13 +1,42 @@
+/* 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of 
+ * this software and associated documentation files (the "Software"), to deal in 
+ * the Software without restriction, including without limitation the rights to 
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ */
+
 package wombat.scheme.util;
 
+/**
+ * Source: http://svn.codehaus.org/jruby/jcodings/trunk/src/org/jcodings/util/ArrayCopy.java
+ * Convert between int arrays and interspliced byte arrays. 
+ */
 public class Conversion {
 	private Conversion() {}
-	
-	public static int[] byte2int(byte[]src) {
+
+	/**
+	 * Convert byte arrays to int arrays.
+	 * @param src Original byte array.
+	 * @return Merge every four into an int for a new array.
+	 */
+	public static int[] byte2int(byte[] src) {
         int dstLength = src.length >>> 2;
-        int[]dst = new int[dstLength];
+        int[] dst = new int[dstLength];
         
-        for (int i=0; i<dstLength; i++) {
+        for (int i = 0; i < dstLength; i++) {
             int j = i << 2;
             int x = 0;
             x += (src[j++] & 0xff) << 0;
@@ -19,11 +48,16 @@ public class Conversion {
         return dst;
     }
 	
-	public static byte[] int2byte(int[]src) {
+	/**
+	 * Pull apart int arrays to a byte array.
+	 * @param src The original int array.
+	 * @return The returned byte.
+	 */
+	public static byte[] int2byte(int[] src) {
 	    int srcLength = src.length;
-	    byte[]dst = new byte[srcLength << 2];
+	    byte[] dst = new byte[srcLength << 2];
 	    
-	    for (int i=0; i<srcLength; i++) {
+	    for (int i = 0; i < srcLength; i++) {
 	        int x = src[i];
 	        int j = i << 2;
 	        dst[j++] = (byte) ((x >>> 0) & 0xff);           

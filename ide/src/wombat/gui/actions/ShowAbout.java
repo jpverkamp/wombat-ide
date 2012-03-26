@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
@@ -15,9 +20,7 @@ public class ShowAbout extends AbstractAction {
 	private static final long serialVersionUID = 5083860489087944835L;
 
 	/**
-	 * ShowAbout constructor, puts the Action in the MenuManager's Map,
-	 * links the ShowAbout.png Image to the Object
-	 * @return a ShowAbouts object
+	 * Create an action to show the about dialog.
 	 */
 	public ShowAbout() {
 		super("ShowAbout", IconManager.icon("ShowAbout.png"));
@@ -25,13 +28,11 @@ public class ShowAbout extends AbstractAction {
 	}
 	
 	/**
-	 * Shows the About Frame
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Shows the about dialog.
+	 * @param event Event parameters (ignored).
 	 * @see AboutFrame, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		AboutFrame.showMe();
 	}
 }

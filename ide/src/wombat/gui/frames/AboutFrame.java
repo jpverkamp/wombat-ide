@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.frames;
 
 import java.util.Calendar;
@@ -5,17 +10,17 @@ import java.util.GregorianCalendar;
 import javax.swing.*;
 
 /**
- * About frame.
+ * Display information about this program.
  */
 public class AboutFrame extends JFrame {
 	private static final long serialVersionUID = -4920859302858551323L;
 
+	// Make it a singleton.
 	static AboutFrame me;
+
 	/**
-	 * AboutFrame constructor
-	 * contains the information for the JLabel that is displayed
-	 * Symbol, creator, committees, and licensing
-	 * @return a Close object
+	 * Create the about frame.
+	 * TODO: Load from file embeded in the source code.
 	 */
     private AboutFrame () {
         setTitle("About Wombat");

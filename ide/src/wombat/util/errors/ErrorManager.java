@@ -1,9 +1,16 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.util.errors;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Manage errors by relaying them to any number of error listeners.
+ */
 public class ErrorManager {
 	private ErrorManager() {}
 	

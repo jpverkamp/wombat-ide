@@ -1,47 +1,42 @@
-package wombat.gui.frames;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.frames;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JToolBar;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
-import javax.swing.text.BadLocationException;
+import javax.swing.*;
+import javax.swing.text.*;
 
-import net.infonode.docking.FloatingWindow;
-import net.infonode.docking.RootWindow;
-import net.infonode.docking.SplitWindow;
-import net.infonode.docking.TabWindow;
-import net.infonode.docking.View;
-import net.infonode.docking.util.DockingUtil;
-import net.infonode.docking.util.StringViewMap;
-import net.infonode.docking.util.ViewMap;
+import net.infonode.docking.*;
+import net.infonode.docking.View; // explicit because of import conflict with javax.swing
+import net.infonode.docking.util.*;
+
 import wombat.Wombat;
-import wombat.gui.icons.IconManager;
-import wombat.gui.text.NonEditableTextArea;
-import wombat.gui.text.REPLTextArea;
-import wombat.gui.text.SchemeDocument;
-import wombat.gui.text.SchemeTextArea;
-import wombat.scheme.Petite;
-import wombat.util.Options;
-import wombat.util.errors.ErrorListener;
-import wombat.util.errors.ErrorManager;
-import wombat.util.files.DocumentManager;
+
+import wombat.gui.icons.*;
+import wombat.gui.text.*;
+import wombat.scheme.*;
+import wombat.util.*;
+import wombat.util.errors.*;
+import wombat.util.files.*;
 
 /**
- * Create a main frame.
+ * Main frame for the program. This does pretty much everything.
+ * 
+ * TODO: Break this apart a little better. It's overlarge.
  */
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 2574330949324570164L;
 
+	// Self-reference for singleton access.
+	static MainFrame Me;
+	
 	// Display components.
 	RootWindow Root;
 	Petite Petite;
@@ -57,15 +52,24 @@ public class MainFrame extends JFrame {
 
     // Unique code components.
     NonEditableTextArea History;
-    NonEditableTextArea Display;
     NonEditableTextArea Debug;
     REPLTextArea REPL;
 
     /**
+	 * Singleton access.
+	 * @return The main frame.
+	 */
+	public static MainFrame Singleton() { 
+		if (Me == null)
+			Me = new MainFrame();
+		return Me; 
+	}
+    
+    /**
      * Don't directly create this, use me().
      * Use this method to set it up though.
      */
-    public MainFrame() {
+    private MainFrame() {
         // Set frame options.
         setTitle("Wombat - Build " + Wombat.VERSION);
         setSize(Options.DisplayWidth, Options.DisplayHeight);
@@ -96,7 +100,7 @@ public class MainFrame extends JFrame {
         });
 
         // Set up the menus using the above definitions.
-        MenuManager.init(this);
+        MenuManager.Singleton(this);
         setJMenuBar(MenuManager.getMenu());
         
         // Create a display for any open documents.
@@ -107,8 +111,8 @@ public class MainFrame extends JFrame {
         DocumentManager.New();
          
         // Create displays for a split REPL.
-        History = new NonEditableTextArea(this);
-        REPL = new REPLTextArea(this);
+        History = new NonEditableTextArea();
+        REPL = new REPLTextArea();
         ViewMap.addView("REPL - Execute", new View("REPL - Execute", null, REPL));
         ViewMap.addView("REPL - History", new View("REPL - History", null, History));
         SplitWindow replSplit = new SplitWindow(true, 0.5f, ViewMap.getView("REPL - Execute"), ViewMap.getView("REPL - History"));
@@ -120,28 +124,16 @@ public class MainFrame extends JFrame {
         ViewMap.getView("REPL - History").getWindowProperties().setUndockEnabled(false);
         
         // Create the error/debug/display views.
-        Display = new NonEditableTextArea(this);
-        Debug = new NonEditableTextArea(this);
-        ViewMap.addView("Display", new View("Display", null, Display));
+        Debug = new NonEditableTextArea();
         ViewMap.addView("Debug", new View("Debug", null, Debug));
+        
+        // Listen and report new error messages.
         ErrorManager.addErrorListener(new ErrorListener() {
 			@Override
 			public void logError(String msg) {
 				Debug.append(msg + "\n");
 			}
         });
-        Display.addAncestorListener(new AncestorListener() {
-			@Override
-			public void ancestorRemoved(AncestorEvent event) {
-				Display.setText("");
-			}
-			
-			@Override
-			public void ancestorMoved(AncestorEvent event) {}
-			
-			@Override
-			public void ancestorAdded(AncestorEvent event) {}
-		});
         
         // Put everything together into the actual dockable display.
         SplitWindow fullSplit = new SplitWindow(false, 0.6f, documents, replSplit);
@@ -189,11 +181,6 @@ public class MainFrame extends JFrame {
         		})
         	ToolBar.add(new JButton(a));
         
-        /*
-        ToolBar.addSeparator();
-        ToolBar.add(new JButton(MenuManager.itemForName("Share").getAction()));
-        */
-        
         add(ToolBar, BorderLayout.PAGE_START);
         ToolBar.setVisible(Options.DisplayToolbar);
         
@@ -211,13 +198,15 @@ public class MainFrame extends JFrame {
 		ToolBar.addSeparator();
         ToolBar.add(RowColumn);
         
-        // Connect to Petite.
+        // Connect to Petite
+        // This thread also takes the output from Petite and relays it to the GUI
         try {
 			Petite = new Petite();
 			
 			Thread petiteOutputThread = new Thread("Petite Output") {
 	        	public void run() {
 	        		while (true) {
+	        			// Copy output to the GUI.
 	        			if (Petite.hasOutput()) {
 	        				String output = Petite.getOutput();
 	        				if (History != null && output != null) {
@@ -226,6 +215,7 @@ public class MainFrame extends JFrame {
 	        				}
 	        			}
 	        			
+	        			// Update the stop button to prevent multiple things from running at once.
 	        			if ((Running && Petite.isReady()) || (!Running && !Petite.isReady())) {
 	        				Running = !Petite.isReady();
 	            			
@@ -236,14 +226,17 @@ public class MainFrame extends JFrame {
 	            			ToolBarStop.setEnabled(Running);
 	        			}
 	    				
+	        			// Don't abuse the processor.
 	        			try { Thread.sleep(20); } catch (InterruptedException e) { }
 	        		}
 	        	}
 	        };
 	        petiteOutputThread.setDaemon(true);
-	        petiteOutputThread.start();
-	        
-		} catch (Exception e1) {
+	        petiteOutputThread.start();    
+		} 
+        
+        // This will come up if we cannot connect to Petite. This is a pretty critical error.
+        catch (Exception e1) {
 			JOptionPane.showMessageDialog(
 					this, 
 					"Unable to start Petite process:\n" 
@@ -257,26 +250,27 @@ public class MainFrame extends JFrame {
     }
 
 	/**
-     * Run a command.
-     *
+     * Run a line of Scheme code.
      * @param command The command to run.
      */
     public void doCommand(String command) {
+    	// Don't allow multiple things to run at once.
     	MenuManager.itemForName("Run").setEnabled(false);
     	MenuManager.itemForName("Stop").setEnabled(true);
-    	
     	ToolBarRun.setEnabled(false);
     	ToolBarStop.setEnabled(true);
-    	
     	Running = true;
     	
+    	// Clean up the input and don't run empty content.
         final String cmd = command.trim();
         if (cmd.length() == 0)
             return;
 
+        // Add the prompt and indent to match it.
         History.append("\n~ " + cmd.replace("\n", "\n  ") + "\n");
         History.goToEnd();
         
+        // Actually execute the command (async, the petite thread above will capture any output).
         Petite.sendCommand(cmd);
     }
 
@@ -285,7 +279,7 @@ public class MainFrame extends JFrame {
      */
 	public boolean updateDisplay() {
 		boolean reloaded = true;
-		for (SchemeTextArea ss : new SchemeTextArea[]{History, Display, Debug, REPL}) {
+		for (SchemeTextArea ss : new SchemeTextArea[]{History, Debug, REPL}) {
 			try {
 				((SchemeDocument) ss.code.getDocument()).processChangedLines(0, ss.getText().length());
 				ss.updateUI();

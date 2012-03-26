@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.frames;
 
 import java.awt.Frame;
@@ -18,34 +23,41 @@ import javax.swing.WindowConstants;
 public class FindReplaceDialog extends JDialog {
 	private static final long serialVersionUID = -4069253877583476204L;
 
+	// Text to find and replace.
 	private JTextPane text;
 	
+	// Search position.
 	private int currentPos = 0;
 	private int pos = -1;
 
+	// Text to find / replace it with.
 	private JTextField findTextField;
 	private JTextField replaceTextField;
 
 	/**
 	 * Create a new find/replace dialog.
 	 * @param parent The parent frame of this dialog.
-	 * @param text The text pane to replace.
+	 * @param text The text pane to replace text in.
 	 */
 	public FindReplaceDialog(Frame parent, JTextPane textPane) {
 		super(parent, false);
 		
-		final FindReplaceDialog me = this;
 		this.text = textPane;
-
+		
+		
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setTitle("Find/Replace");
 
 		replaceTextField = new JTextField();
 		findTextField = new JTextField();
 
+		// So we can access it in the nested event listener. 
+		final FindReplaceDialog me = this;
+		
+		// Button to find the next matching bit of text.
 		JButton findButton = new JButton("Find Next");
 		findButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+			public void actionPerformed(java.awt.event.ActionEvent event) {
 				// Nothing to search for.
 				if (findTextField.getText().isEmpty()) return;
 
@@ -70,23 +82,24 @@ public class FindReplaceDialog extends JDialog {
 			}
 		});
 
+		// Button to replace the current instance with the replacement text.
 		JButton replaceButton = new JButton("Replace");
 		replaceButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				if (!findTextField.getText().isEmpty() && text.getSelectedText().equals(findTextField.getText()) && pos != -1)
-						text.replaceSelection(replaceTextField.getText());
+			public void actionPerformed(java.awt.event.ActionEvent event) {
+				if (!findTextField.getText().isEmpty() && text.getSelectedText().equals(findTextField.getText()) && pos != -1) 
+					text.replaceSelection(replaceTextField.getText());
 			}
 		});
 
+		// Replace all instances of the target text with the replacement.
 		JButton replaceAllButton = new JButton("Replace All");
 		replaceAllButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+			public void actionPerformed(java.awt.event.ActionEvent event) {
 				text.setText(text.getText().replace(findTextField.getText(), replaceTextField.getText()));
 			}
 		});
-
 		findTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-			public void keyReleased(java.awt.event.KeyEvent evt) {
+			public void keyReleased(java.awt.event.KeyEvent event) {
 				currentPos = 0;
 			}
 		});
@@ -94,6 +107,7 @@ public class FindReplaceDialog extends JDialog {
 		JLabel replaceLabel = new JLabel("Replace with: ");
 		JLabel findLabel = new JLabel("Find: ");
 
+		// Layout the group content.
 		GroupLayout layout = new GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)

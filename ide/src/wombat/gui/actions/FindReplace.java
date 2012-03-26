@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -10,28 +14,25 @@ import wombat.gui.icons.IconManager;
 import wombat.util.files.DocumentManager;
 
 /**
- * Format the active document.
+ * Display the find/replace dialog.
  */
 public class FindReplace extends AbstractAction {
 	private static final long serialVersionUID = -1486418641534138445L;
 
 	/**
-	 * FindReplace constructor, puts the Action in the MenuManager's Map,
-	 * links the FindReplace.png Image to the Object
-	 * @return a FindReplace object
+	 * Create the find/replace action.
 	 */
 	public FindReplace() {
 		super("Find/Replace", IconManager.icon("FindReplace.png"));
 		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
 	}
+	
 	/**
-	 * performs the Find/Replace action from DocumentManager
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Display the find/replace dialog.
+	 * @param event Event parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */ 
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.FindReplace();
 	}
 }

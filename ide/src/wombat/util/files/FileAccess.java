@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.util.files;
 
 import java.io.File;
@@ -5,15 +10,31 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
+/**
+ * Get files from either the operating system or the JAR files.
+ */
 public class FileAccess {
 	static FileAccess me = new FileAccess();
 	
 	private FileAccess() {}
-	
+
+	/**
+	 * Get a file by name.
+	 * @param filename The filename to find.
+	 * @return The content of that file.
+	 * @throws FileNotFoundException If we cannot find it.
+	 */
 	public static String getFile(String filename) throws FileNotFoundException {
 		return getFile(filename, false);
 	}
 	
+	/**
+	 * Get a file, skipping any local content (if flagged).
+	 * @param filename The filename to find.
+	 * @param skipLocal True to skip any local files.
+	 * @return The content of that file.
+	 * @throws FileNotFoundException If we cannot find it.
+	 */
 	public static String getFile(String filename, boolean skipLocal) throws FileNotFoundException {
 		Scanner s;
 		
@@ -39,6 +60,11 @@ public class FileAccess {
 	    return contents.toString();
 	}
 	
+	/**
+	 * Get the extension of a file.
+	 * @param path The path to deal with.
+	 * @return The extension.
+	 */
 	public static String extension(String path) {
 		return path.substring(path.lastIndexOf(".") + 1);
 	}

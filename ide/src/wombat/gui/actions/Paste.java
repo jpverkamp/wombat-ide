@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -10,33 +14,28 @@ import javax.swing.text.DefaultEditorKit;
 import wombat.gui.icons.IconManager;
 
 /**
- * Paste selected text from clip board.
+ * Paste selected text from clip board by wrapping the default paste action.
  */
 public class Paste extends AbstractAction {
 	private static final long serialVersionUID = 8274755168128480452L;
 	
-	Action todo;
+	Action DefaultPaste;
 	
 	/**
-	 * Paste constructor, puts the Action in the MenuManager's Map,
-	 * links the Paste.png Image to the Object
-	 * @return a Paste object
+	 * Create the new paste action.
 	 */
 	public Paste() {
 		super("Paste", IconManager.icon("Paste.png"));
-		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));//this adds the Action to the Button Hashmap
-		
-		// make the Action a Paste Action
-		todo = new DefaultEditorKit.PasteAction();
+		putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
+		DefaultPaste = new DefaultEditorKit.PasteAction();
 	}
+	
 	/**
-	 * performs the Paste action
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Actually do the paste.
+	 * @param event Event parameters.
 	 * @see DefaultEditorKit, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
-		todo.actionPerformed(arg0);
+	public void actionPerformed(ActionEvent event) {
+		DefaultPaste.actionPerformed(event);
 	}
 }

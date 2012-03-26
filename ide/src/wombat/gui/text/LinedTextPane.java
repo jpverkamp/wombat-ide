@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.text;
 
 import java.awt.Color;
@@ -22,7 +27,7 @@ public class LinedTextPane extends JTextPane {
 
 	/**
 	 * Create a new text pane.
-	 * @param sta
+	 * @param sta The text area that we're displaying.
 	 */
 	public LinedTextPane(final SchemeTextArea sta) {
 		final SchemeDocument doc = new SchemeDocument();
@@ -40,8 +45,11 @@ public class LinedTextPane extends JTextPane {
         setEditorKit(sek);
         setDocument(doc);
 
+        // Correctly set up tab and enter to indent for scheme code.
         getInputMap().put(KeyStroke.getKeyStroke("TAB"), new wombat.gui.actions.Tab());
         getInputMap().put(KeyStroke.getKeyStroke("ENTER"), new wombat.gui.actions.Return());
+        
+        // Use Ctrl/Cmd-L to insert lambda.
         getInputMap().put(KeyStroke.getKeyStroke(((Character) 'L').charValue(), Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), 
         		new AbstractAction() {
 					private static final long serialVersionUID = 5003494780540838485L;
@@ -55,6 +63,7 @@ public class LinedTextPane extends JTextPane {
 					}
 				});
         
+        // Copy the relevant keyboard shortcuts from the menu code to here for cut/copy/paste, etc.
         for (String name : new String[]{
         		"New", "Open", "Save", "Save as", "Close", "Exit", 
         		"Cut", "Copy", "Paste", "Undo", "Redo", 
@@ -77,7 +86,12 @@ public class LinedTextPane extends JTextPane {
         });
 	}
 	
-	@Override public void paint(Graphics go) {
+	/**
+	 * Draw the right margin.
+	 * @param go The original graphics object.
+	 */
+	@Override
+	public void paint(Graphics go) {
     	super.paint(go);
     	
     	Graphics2D g = (Graphics2D) go;

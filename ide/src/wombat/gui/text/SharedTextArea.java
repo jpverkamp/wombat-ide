@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.gui.text;
 
 import java.awt.Color;
@@ -26,15 +31,23 @@ import wombat.util.Options;
 public class SharedTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 2220038488909999007L;
 	
+	// Debug print mode. 
 	static final boolean NETWORKING_DEBUG = false;
+	
+	// Characters that are hard to read in the Base64 alphabit.
 	static final char[][] BAD_CHARS = {
 		{'l', '('}, {'1', ')'},
 		{'o', '['}, {'O', ']'}, {'0', '*'}, 
 		{'/', '?'},
 	};
 	
+	// Our Base64 ID.
 	String ID;
+	
+	// If we're currently sharing the document.
 	boolean Running = true;
+	
+	// Only check for resync when the document isn't active.
 	SyncTimer SyncTimer;
 	
 	// Used for the hosting text areas.
@@ -231,6 +244,7 @@ public class SharedTextArea extends SchemeTextArea {
 		
 		try {
 			
+			// Initial login, used by the server to send the initial state to new clients.
 			if ("hello".equals(parts[0])) {
 				
 				if (onHost && getText().length() > 0)
@@ -238,7 +252,10 @@ public class SharedTextArea extends SchemeTextArea {
 				else
 					return null;
 				
-			} if ("insert".equals(parts[0])) {
+			} 
+			
+			// Text has been inserted into the remote document.
+			else if ("insert".equals(parts[0])) {
 				
 				int off = Integer.parseInt(parts[1]);
 				String str = new String(Base64.decode(parts[3]), "UTF-8");
@@ -253,7 +270,10 @@ public class SharedTextArea extends SchemeTextArea {
 					return "check-sync," + getText().hashCode();
 				}
 				
-			} else if ("remove".equals(parts[0])) {
+			}
+			
+			// Text has been removed from the remote document.
+			else if ("remove".equals(parts[0])) {
 				
 				int off = Integer.parseInt(parts[1]);
 				int len = Integer.parseInt(parts[2]);
@@ -268,7 +288,10 @@ public class SharedTextArea extends SchemeTextArea {
 					return "check-sync," + getText().hashCode();
 				}
 				
-			} else if ("check-sync".equals(parts[0])) {
+			}
+			
+			// Remote document wants to check that both are in sync.
+			else if ("check-sync".equals(parts[0])) {
 				
 				int hash = Integer.parseInt(parts[1]);
 				int myHash = getText().hashCode();
@@ -278,11 +301,17 @@ public class SharedTextArea extends SchemeTextArea {
 				else
 					return null;
 				
-			} else if ("request-sync".equals(parts[0])) {
+			} 
+			
+			// The remote document thinks it's out of sync and wants to get back into sync.
+			else if ("request-sync".equals(parts[0])) {
 				
 				return "force-sync," + Base64.encodeBytes(getText().getBytes("UTF-8"));
 				
-			} else if ("force-sync".equals(parts[0])) {
+			}
+			
+			// The remote document has sent a new version to override our version.
+			else if ("force-sync".equals(parts[0])) {
 				
 				SyncTimer.setActive();
 				String str = new String(Base64.decode(parts[1]), "UTF-8");

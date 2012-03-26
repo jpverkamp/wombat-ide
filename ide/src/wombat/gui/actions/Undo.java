@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -10,15 +14,13 @@ import wombat.gui.icons.IconManager;
 import wombat.util.files.DocumentManager;
 
 /**
- * Undo the last action 
+ * Roll back one step on the undo stack. 
  */
 public class Undo extends AbstractAction {
 	private static final long serialVersionUID = 418918561564535849L;
 
 	/**
-	 * Undo constructor, puts the Action in the MenuManager's Map,
-	 * links the Undo.png Image to the Object
-	 * @return a Undo object
+	 * Create an Undo action.
 	 */
 	public Undo() {
 		super("Undo", IconManager.icon("Undo.png"));
@@ -26,13 +28,11 @@ public class Undo extends AbstractAction {
 	}
 	
 	/**
-	 * performs the Undo (Document) function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Performs an undo in the active document.
+	 * @param event EVent parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.Undo();
 	}
 }

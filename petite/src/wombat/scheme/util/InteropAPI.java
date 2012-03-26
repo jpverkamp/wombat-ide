@@ -1,3 +1,8 @@
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
+
 package wombat.scheme.util;
 
 import wombat.scheme.libraries.*;
@@ -6,7 +11,7 @@ import wombat.scheme.libraries.types.TreeData;
 import wombat.util.Base64;
 
 /**
- * Helper that stores all of the interop functions.
+ * Helper that stores all of the interop functions for calling Java methods from Scheme.
  */
 public class InteropAPI {
 	private InteropAPI() {}

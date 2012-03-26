@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -10,15 +14,13 @@ import wombat.gui.icons.IconManager;
 import wombat.util.files.DocumentManager;
 
 /**
- * Run the active document.
+ * Load and run the active document in the embedded scheme interpreter.
  */
 public class Run extends AbstractAction {
 	private static final long serialVersionUID = -7513211155903837433L;
 
 	/**
-	 * Run constructor, puts the Action in the MenuManager's Map,
-	 * links the Run.png Image to the Object
-	 * @return a Run object
+	 * Create the run action.
 	 */
 	public Run() {
 		super("Run", IconManager.icon("Run.png"));
@@ -26,13 +28,11 @@ public class Run extends AbstractAction {
 	}
 	
 	/**
-	 * performs the Run (Document) function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Run the active document in scheme.
+	 * @param event Event parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.Run();
 	}
 }

@@ -1,5 +1,9 @@
-package wombat.gui.actions;
+/* 
+ * License: source-license.txt
+ * If this code is used independently, copy the license here.
+ */
 
+package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -9,15 +13,13 @@ import wombat.gui.icons.IconManager;
 import wombat.util.files.DocumentManager;
 
 /**
- * Return/enter hit in the current active document.
+ * Trigger the return/enter key in the current active document.
  */
 public class Return extends AbstractAction {
 	private static final long serialVersionUID = 4079540525618774444L;
 
 	/**
-	 * Return constructor, puts the Action in the MenuManager's Map,
-	 * links the Return.png Image to the Object
-	 * @return a Return object
+	 * Create the return action.
 	 */
 	public Return() {
 		super("Return", IconManager.icon("Return.png"));
@@ -25,13 +27,11 @@ public class Return extends AbstractAction {
 	}
 
 	/**
-	 * performs the Tab (Document) function
-	 * @param arg0  an ActionEvent that triggers the method call
-	 * @return void
-	 *  
+	 * Hit return/enter. Essentially, insert a newline then tab to the correct depth.
+	 * @param event Event parameters (ignored).
 	 * @see DocumentManager, ActionEvent
 	 */
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent event) {
 		DocumentManager.Tab(true);
 	}
 }
