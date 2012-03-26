@@ -5,9 +5,12 @@
 
 package wombat.gui.frames;
 
+import java.io.FileNotFoundException;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import javax.swing.*;
+
+import wombat.Wombat;
+import wombat.util.files.FileAccess;
 
 /**
  * Display information about this program.
@@ -24,59 +27,22 @@ public class AboutFrame extends JFrame {
 	 */
     private AboutFrame () {
         setTitle("About Wombat");
-        setSize(600, 400);
+        setSize(800, 700);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        GregorianCalendar cal = new GregorianCalendar();        
-        JLabel license = new JLabel(
-    "<html><style type=\"text/css\"> body { text-align:center}</style>"+
-    "<div>"+"\n" +
-    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span><br />"+
-    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<br />"+
-    "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<br />"+
-    "@@@@@@@0000000000000000000@@@@@@@@@@@@@@@<br />"+
-    "@@@0000000000000000000000000000000@@@@@@@@@@@@<br />"+
-    "@@00000000000000000000000000000000000000000@@@@@@@<br />"+
-    "@0000000000000000000000000000000000000000000000@@@@@<br />"+
-    "@000000000000000000000000000000000000000000000000@@@@<br />"+
-    "@000000000000000000000000000000000000000000000000000@@<br />"+
-    "@@000000000000000000000000000000000000000000000000000@<br />"+
-	"@@0000000000000000000000000000000000000000000000@@@@<br />"+
-	"@@@0000000000000000@@@@@0000000000000@@@@@@@@<br />"+
-	"@@@@@000@@@@00@@@@@@00@@@00000@@@@@@@@<br />"+
-	"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<br />"+
-	"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<br />"+
-	"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<br />"+
-	
-    "<br /><br />"+
-    "<span>Wombat - Scheme IDE</span><br />" +
-    "Version: "+ wombat.Wombat.VERSION   
-    +"<br />"+"Copyright (C) 2011-" + cal.get(Calendar.YEAR) + " JP Verkamp<br />" +
-    "<br /><br />"+
-    "This program is free software: you can redistribute it and/or modify<br />" +
-    "it under the terms of the GNU General Public License as published by <br />" +
-    "the Free Software Foundation, either version 3 of the License, or<br />" +
-    "(at your option) any later version.<br />" +
-    "<br />" +
-    "This program is distributed in the hope that it will be useful,<br />" +
-    "but WITHOUT ANY WARRANTY; without even the implied warranty of<br />" +
-    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br />" +
-    "GNU General Public License for more details.<br />" +
-    "<br />" +
-    "You should have received a copy of the GNU General Public License<br />" +
-    "along with this program.  If not, see <http://www.gnu.org/licenses/>."+
-    "<br /><br /><br />"+ 
-    "Libraries<br />"+
-    "Infonode Docking windows<br />"+
-    "Petite Chez Scheme<br />"+
-    "Base64"+"</div><html/>",JLabel.CENTER);
-            license.setHorizontalTextPosition(JLabel.CENTER);
-           
-            
-            JScrollPane scroll = new JScrollPane(license);
-            
         
-            add(scroll);
-        }
+        JLabel license;
+		try {
+			license = new JLabel(
+				FileAccess.getFile("wombat/gui/frames/about.htm", true)
+					.replace("{year}", "" + Calendar.getInstance().get(Calendar.YEAR))
+					.replace("{version}", Wombat.VERSION),
+				JLabel.CENTER);
+		} catch (FileNotFoundException e) {
+			license = new JLabel("Unable to load about.htm");
+		}
+		add(license);
+    }
+    
     /**
 	 * Shows the About Frame
 	 * @return void

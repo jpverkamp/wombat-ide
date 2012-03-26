@@ -13,20 +13,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.prefs.Preferences;
 
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import java.io.*;
+import java.util.*;
+import java.util.prefs.*;
+import javax.swing.*;
 
-import wombat.gui.frames.MainFrame;
-import wombat.gui.frames.SyntaxDialog;
-import wombat.gui.text.SchemeDocument;
-import wombat.util.files.DocumentManager;
-import wombat.util.files.RecentDocumentManager;
+import wombat.gui.frames.*;
+import wombat.gui.text.*;
+import wombat.util.errors.ErrorManager;
+import wombat.util.files.*;
 
 /**
  * Store options.
@@ -104,25 +100,46 @@ public final class Options {
     	Keywords = new HashMap<String, Integer>();
     	
     	FontSize = prefs.getInt("FontSize", 12);
-    	calculateFontWidth();
+    	calculateFont();
     	
     	SchemeDocument.reload();
     	
     	RecentDocumentManager.setFiles(prefs.get("RecentDocuments", null));
-    	SyntaxDialog.setSyntax(prefs.get("Syntax", null));
+    	loadSyntax();
     }
     
     /**
+     * Load syntax options from file.
+     */
+    private static void loadSyntax() {
+		try {
+			final Scanner s = new Scanner(new File("lib", "syntax.csv"));
+			String line;
+			String[] parts;
+			while (s.hasNextLine()) {
+				line = s.nextLine().trim();
+				if ("".equals(line) || line.charAt(0) == ';') continue;
+				
+				parts = line.split(",");
+				if (parts.length != 2) continue;
+				Keywords.put(parts[0], Integer.parseInt(parts[1]));
+			}
+		} catch(FileNotFoundException ex) {
+			ErrorManager.logError("Unable to find syntax file.");
+			return;
+		}
+	}
+
+	/**
      * Determine how wide the font actually is per character.
      */
-    private static void calculateFontWidth() {
+    private static void calculateFont() {
     	Font = new Font("Monospaced", java.awt.Font.PLAIN, FontSize);
     	
     	Component c = new Component(){ private static final long serialVersionUID = 366311035336037525L; };
     	FontMetrics fm = c.getFontMetrics(Font);
     	FontWidth = fm.charWidth(' ');
     	FontHeight = fm.getHeight();
-    	
 	}
 
 	/**
@@ -151,10 +168,9 @@ public final class Options {
     	prefs.putInt("FontSize", FontSize);
     	
     	prefs.put("RecentDocuments", RecentDocumentManager.getFiles());
-    	prefs.put("Syntax", SyntaxDialog.getSyntax());
     }
-    
-    /**
+
+	/**
      * Build the options menu (only build once).
      * @return An options menu.
      */
@@ -222,14 +238,14 @@ public final class Options {
     		optionsMenu.addSeparator();
     		
     		// Display the dialog to add keywords to syntax highlighting / indentation depth. 
-    		JMenuItem resetSyntax = new JMenuItem("Keywords");
-        	resetSyntax.addActionListener(new ActionListener() {
-    			@Override
-    			public void actionPerformed(ActionEvent e) {
-    				SyntaxDialog.show();
-    			}    		
-        	});
-        	optionsMenu.add(resetSyntax);
+//    		JMenuItem resetSyntax = new JMenuItem("Keywords");
+//        	resetSyntax.addActionListener(new ActionListener() {
+//    			@Override
+//    			public void actionPerformed(ActionEvent e) {
+//    				SyntaxDialog.show();
+//    			}    		
+//        	});
+//        	optionsMenu.add(resetSyntax);
     		
         	// Special option to reset colors to defaults.
     		JMenu colorMenu = new JMenu("Colors");
@@ -284,7 +300,7 @@ public final class Options {
 						SchemeDocument.reload();
 						DocumentManager.ReloadAll();
 						
-						calculateFontWidth();
+						calculateFont();
 					}
     			});
     			fontSizeMenu.add(item);
