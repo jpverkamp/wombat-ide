@@ -5,7 +5,6 @@
 
 package wombat.gui.frames;
 
-import java.awt.BorderLayout;
 import java.io.FileNotFoundException;
 import java.util.Calendar;
 import javax.swing.*;
