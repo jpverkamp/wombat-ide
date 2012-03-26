@@ -258,8 +258,6 @@ public final class DocumentManager implements FocusListener {
         me.activeDocument.close();
         me.activeDocument.myView.close();
         
-        System.out.println("currently opened documents: " + me.allDocuments.size());
-        	        
         return true;
     }
     
