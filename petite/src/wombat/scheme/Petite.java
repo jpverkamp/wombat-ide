@@ -19,7 +19,7 @@ import wombat.scheme.util.InteropAPI;
  * Class to wrap Petite bindings.
  */
 public class Petite {
-	static final boolean DEBUG_INTEROP = false;
+	static final boolean DEBUG_INTEROP = true;
 
 	/**
 	 * Run from the command line, providing a REPL.
@@ -34,26 +34,21 @@ public class Petite {
 			final Petite p = new Petite();
 			final Scanner s = new Scanner(System.in);
 
-			Thread t = new Thread("Petite REPL") {
-				public void run() {
-					while (p.isRunning()) {
-						if (p.hasOutput()) {
-							System.out.println(p.getOutput());
-							System.out.print(">> ");
-						}
-
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e) {
-						}
-					}
+			p.addPetiteListener(new PetiteListener() {
+				@Override public void onReady() {
+					System.out.print(">> ");
 				}
-			};
-			t.setDaemon(true);
-			t.start();
-
-			while (p.isRunning()) {
-				if (p.isReady() && s.hasNextLine()) {
+				
+				@Override public void onOutput(String output) {
+					System.out.print(output);
+				}
+				
+				@Override
+				public void onInteropReturn() {}
+			});
+			
+			while (true) {
+				if (s.hasNextLine()) {
 					String cmd = s.nextLine();
 					p.sendCommand(cmd);
 				}
@@ -80,12 +75,11 @@ public class Petite {
 	static final char Interop = '!';
 
 	boolean RestartOnCollapse;
-	boolean Running;
-	boolean Starting;
+	boolean InStartup;
 	boolean SeenPrompt1;
-	boolean Ready;
-
 	boolean InInterop;
+	
+	List<PetiteListener> Listeners;
 
 	StringBuffer Buffer;
 	StringBuffer InteropBuffer;
@@ -140,13 +134,13 @@ public class Petite {
 		System.err.println("Petite connecting");
 
 		// Reset the wrapper state (necessary in the case of a reconnect).
-		Starting = true;
 		SeenPrompt1 = false;
-		Ready = false;
-		Running = true;
+		InStartup = true;
 		InInterop = false;
 		RestartOnCollapse = true;
-
+		
+		Listeners = new ArrayList<PetiteListener>();
+		
 		if (Buffer == null)
 			Buffer = new StringBuffer();
 		else
@@ -240,7 +234,6 @@ public class Petite {
 		if (pdir == null)
 			throw new IOException("Unable to find Petite directory.");
 
-
 		String petiteBinary = null;
 		String petiteBoot = null;
 		if (IsWindows) {
@@ -316,25 +309,8 @@ public class Petite {
 		sendCommand("(library-directories '((\"lib\" . \"lib\") (\".\" . \".\") (\"..\" . \"..\") (\"dist\" . \"dist\") (\"dist/lib\" . \"dist/lib\")))");
 
 		// Make sure that the prompt is set as we want it
+		// Set this last so all of the startup commands have time to run
 		sendCommand("(waiter-prompt-string \"|`\")");
-	}
-
-	/**
-	 * Check if the process is ready.
-	 * 
-	 * @return If the process is ready.
-	 */
-	public boolean isReady() {
-		return Ready;
-	}
-
-	/**
-	 * Check if the process is still running.
-	 * 
-	 * @return If the process is still running.
-	 */
-	public boolean isRunning() {
-		return Running;
 	}
 
 	/**
@@ -350,7 +326,6 @@ public class Petite {
 
 		// Shut down the old connection.
 		RestartOnCollapse = false;
-		Ready = false;
 		BufferLock.lock();
 		Buffer.delete(0, Buffer.length());
 		BufferLock.unlock();
@@ -378,25 +353,28 @@ public class Petite {
 	}
 
 	/**
+	 * Listen for state changes in the Petite binding.
+	 * @param pl A listener
+	 */
+	public void addPetiteListener(PetiteListener pl) {
+		Listeners.add(pl);
+	}
+	
+	/**
+	 * Stop a certain Petite listener.
+	 * @param pl The listener that we are watching.
+	 */
+	public void removePetiteListener(PetiteListener pl) {
+		Listeners.remove(pl);
+	}
+	
+	/**
 	 * If the output buffer has any content.
 	 * 
 	 * @return True or false.
 	 */
 	public boolean hasOutput() {
-		return !Starting && (Buffer.length() > 0);
-	}
-
-	/**
-	 * Get the contents of the output buffer.
-	 * 
-	 * @return The output buffer.
-	 */
-	public String getOutput() {
-		BufferLock.lock();
-		String output = Buffer.toString();
-		Buffer.delete(0, Buffer.length());
-		BufferLock.unlock();
-		return output;
+		return !InStartup && (Buffer.length() > 0);
 	}
 
 	/**
@@ -416,8 +394,6 @@ public class Petite {
 			if (!cmd.endsWith("\n"))
 				ToPetite.write("\n");
 			ToPetite.flush();
-
-			Ready = false;
 
 		} catch (Exception e) {
 			System.err.println("Unable to execute command");
@@ -449,12 +425,18 @@ public class Petite {
 					else if (SeenPrompt1 && c == Prompt2) {
 						SeenPrompt1 = false;
 
-						if (Starting) {
+						if (InStartup) {
 							Buffer.delete(0, Buffer.length());
-							Starting = false;
+							InStartup = false;
 						}
 
-						Ready = true;
+						for (PetiteListener pl : Listeners) {
+							BufferLock.lock();
+							pl.onOutput(Buffer.toString());
+							Buffer.delete(0, Buffer.length());
+							BufferLock.unlock();
+							pl.onReady();
+						}
 					}
 
 					// Switch to interop mode on Prompt1 + Interop
@@ -478,7 +460,14 @@ public class Petite {
 							}
 
 							if (DEBUG_INTEROP) System.out.println("exiting interop");
-							Ready = true;
+							for (PetiteListener pl : Listeners) {
+								BufferLock.lock();
+								pl.onOutput(Buffer.toString());
+								Buffer.delete(0, Buffer.length());
+								BufferLock.unlock();
+								pl.onInteropReturn();
+								pl.onReady();
+							}
 
 							InteropBuffer.delete(0, InteropBuffer.length());
 							InInterop = false;

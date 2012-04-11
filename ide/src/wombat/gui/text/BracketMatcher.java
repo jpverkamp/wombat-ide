@@ -68,13 +68,13 @@ public class BracketMatcher implements CaretListener {
 			int offset = Utilities.getRowStart(textArea.code, caretPos);
 			int colNum = caretPos - offset + 1;
 
-			MainFrame.RowColumn.setText(rowNum + ":" + colNum);
+			MainFrame.Singleton().RowColumn.setText(rowNum + ":" + colNum);
 
 		}
 
 		// Can't find the caret correctly, reset the row:column indicator.
 		catch (BadLocationException ex) {
-			MainFrame.RowColumn.setText("row:column");
+			MainFrame.Singleton().RowColumn.setText("row:column");
 		}
 
 		// If the bracket matcher has broken, don't keep trying.
