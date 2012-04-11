@@ -19,15 +19,13 @@ import wombat.scheme.util.InteropAPI;
  * Class to wrap Petite bindings.
  */
 public class Petite {
-	static final boolean DEBUG_INTEROP = false;
+	static final boolean DEBUG_INTEROP = true;
 
 	/**
 	 * Run from the command line, providing a REPL.
 	 * 
-	 * @param args
-	 *            Ignored.
-	 * @throws URISyntaxException
-	 *             If we botched the files from the JAR.
+	 * @param args Ignored.
+	 * @throws URISyntaxException If we botched the files from the JAR.
 	 */
 	public static void main(String[] args) throws URISyntaxException {
 		try {
