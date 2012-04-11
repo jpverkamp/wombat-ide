@@ -19,7 +19,7 @@ import wombat.scheme.util.InteropAPI;
  * Class to wrap Petite bindings.
  */
 public class Petite {
-	static final boolean DEBUG_INTEROP = true;
+	static final boolean DEBUG_INTEROP = false;
 
 	/**
 	 * Run from the command line, providing a REPL.
@@ -461,12 +461,7 @@ public class Petite {
 
 							if (DEBUG_INTEROP) System.out.println("exiting interop");
 							for (PetiteListener pl : Listeners) {
-								BufferLock.lock();
-								pl.onOutput(Buffer.toString());
-								Buffer.delete(0, Buffer.length());
-								BufferLock.unlock();
 								pl.onInteropReturn();
-								pl.onReady();
 							}
 
 							InteropBuffer.delete(0, InteropBuffer.length());
