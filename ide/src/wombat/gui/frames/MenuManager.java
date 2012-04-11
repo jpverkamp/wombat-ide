@@ -76,6 +76,9 @@ public final class MenuManager {
             buildMenu("Scheme",
                 buildItem("Run", Options.CommandRun, new wombat.gui.actions.Run()),
                 buildItem("Stop", null, new wombat.gui.actions.Stop()),
+                null,
+                buildItem("Load into Scheme", null, new wombat.gui.actions.LoadAndRun()),
+                null,
                 buildItem("Format", Options.CommandFormat, new wombat.gui.actions.Format()),
                 buildItem("Reset", null, new wombat.gui.actions.Reset())),
                 
