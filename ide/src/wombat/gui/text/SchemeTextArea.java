@@ -133,7 +133,8 @@ public class SchemeTextArea extends JPanel {
     	}
     	
     	// If the file already exists (and the option is set), copy the old version to a backup file.
-    	if (myFile.exists() && Options.BackupOnSave) {
+    	// Don't save a backup of a backup.
+    	if (myFile.exists() && Options.BackupOnSave && myFile.getCanonicalPath().charAt(myFile.getCanonicalPath().length() - 1) != '~') {
     		File backupFile = new File(myFile.getCanonicalPath() + "~");
     		
     		if(!backupFile.exists()) {

@@ -45,11 +45,10 @@ public class MainFrame extends JFrame {
     
     // Toolbar.
     JToolBar ToolBar;
-    JButton ToolBarRun;
-    JButton ToolBarStop;
     JButton UpdateButton;
-    public static JLabel RowColumn;
-    public boolean Running = false;
+    public JButton ToolBarRun;
+    public JButton ToolBarStop;
+    public JLabel RowColumn;
 
     // Unique code components.
     NonEditableTextArea History;
@@ -208,36 +207,25 @@ public class MainFrame extends JFrame {
         try {
 			Petite = new Petite();
 			
-			Thread petiteOutputThread = new Thread("Petite Output") {
-	        	public void run() {
-	        		while (true) {
-	        			// Copy output to the GUI.
-	        			if (Petite.hasOutput()) {
-	        				String output = Petite.getOutput();
-	        				if (History != null && output != null) {
-	        					History.append(output);
-	        					History.goToEnd();
-	        				}
-	        			}
-	        			
-	        			// Update the stop button to prevent multiple things from running at once.
-	        			if ((Running && Petite.isReady()) || (!Running && !Petite.isReady())) {
-	        				Running = !Petite.isReady();
-	            			
-	            			MenuManager.itemForName("Run").setEnabled(!Running);
-	            			ToolBarRun.setEnabled(!Running);
-	            	    	
-	            			MenuManager.itemForName("Stop").setEnabled(Running);
-	            			ToolBarStop.setEnabled(Running);
-	        			}
-	    				
-	        			// Don't abuse the processor.
-	        			try { Thread.sleep(20); } catch (InterruptedException e) { }
-	        		}
-	        	}
-	        };
-	        petiteOutputThread.setDaemon(true);
-	        petiteOutputThread.start();    
+	        // Add a listener to reset the running state when Petite reports it is ready.
+	        Petite.addPetiteListener(new PetiteListener() {
+				@Override public void onReady() {
+					MenuManager.itemForName("Run").setEnabled(true);
+					ToolBarRun.setEnabled(true);
+        			
+        			MenuManager.itemForName("Stop").setEnabled(true);
+					ToolBarStop.setEnabled(false);
+				}
+				
+				@Override public void onInteropReturn() {}
+
+				@Override public void onOutput(String output) {
+					if (History != null && output != null) {
+    					History.append(output);
+    					History.goToEnd();
+    				}
+				}
+			});
 		} 
         
         // This will come up if we cannot connect to Petite. This is a pretty critical error.
@@ -261,10 +249,10 @@ public class MainFrame extends JFrame {
     public void doCommand(String command) {
     	// Don't allow multiple things to run at once.
     	MenuManager.itemForName("Run").setEnabled(false);
-    	MenuManager.itemForName("Stop").setEnabled(true);
     	ToolBarRun.setEnabled(false);
+    	
+    	MenuManager.itemForName("Stop").setEnabled(true);
     	ToolBarStop.setEnabled(true);
-    	Running = true;
     	
     	// Clean up the input and don't run empty content.
         final String cmd = command.trim();
@@ -361,29 +349,32 @@ public class MainFrame extends JFrame {
 						"Are you sure you want to do this?", 
 				"Confirm Stop", JOptionPane.YES_NO_OPTION)) {
 			
-			Thread onRestart = new Thread("Wait for restart") {
-				public void run() {
-					try {
-						if (andRestart) {
-							Petite.restart();
-							
-							while (!Petite.isReady()) {
-								try { Thread.sleep(50); } catch (InterruptedException e) {}
-							}
-							
+			try {
+				if (andRestart) {
+					Petite.restart();
+					
+					Petite.addPetiteListener(new PetiteListener() {
+						
+						@Override
+						public void onReady() {
 							History.setText(">>> Execution halted <<<<\n\n");
 					    	History.goToEnd();
-						} else {
-							Petite.stop();
+					    	Petite.removePetiteListener(this);
 						}
-					} catch (Exception e) {
-						ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
-						e.printStackTrace();
-					}
+						
+						@Override public void onOutput(String output) {}
+						
+						@Override
+						public void onInteropReturn() {}
+					});
+					
+				} else {
+					Petite.stop();
 				}
-			};
-			onRestart.setDaemon(true);
-			onRestart.start();
+			} catch (Exception e) {
+				ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 

@@ -50,7 +50,7 @@ public class REPLTextArea extends SchemeTextArea {
                     private static final long serialVersionUID = 723647997099071931L;
 
 					public void actionPerformed(ActionEvent e) {
-						if (MainFrame.Singleton().Running) return;
+						if (MainFrame.Singleton().ToolBarStop.isEnabled()) return;
 						
 						checkRun();
                     }
@@ -66,7 +66,7 @@ public class REPLTextArea extends SchemeTextArea {
                     private static final long serialVersionUID = 723647997099071931L;
 
 					public void actionPerformed(ActionEvent e) {
-						if (MainFrame.Singleton().Running) return;
+						if (MainFrame.Singleton().ToolBarStop.isEnabled()) return;
 						if (getText().trim().isEmpty()) return;
 						
 						commandHistory.add(getText());
