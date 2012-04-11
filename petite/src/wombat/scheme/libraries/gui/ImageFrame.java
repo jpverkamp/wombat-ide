@@ -9,17 +9,16 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Robot;
-import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 
 /**
  * A semi-advanced image viewer.
@@ -42,9 +41,12 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 	int ScreenX = -1;
 	int ScreenY = -1;
 	
-	static final int MINIMUM_DISPLAY_WIDTH = 300;
-	static final int MINIMUM_DISPLAY_HEIGHT = 100;
+	int MaxWidth = -200 + (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+	int MaxHeight = -200 + (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 
+	JLabel ImageDisplay;
+	JLabel ImageInformation;
+	
 	static final int ROW_HEIGHT = 14;
 	static final DecimalFormat FORMAT = new DecimalFormat("#.##");
 	
@@ -53,107 +55,97 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 	 * @param image Image data to display.
 	 */
 	public ImageFrame(Image image) {
+		final ImageFrame me = this;
+		MyImage = image;
+		
 		// Basic layout stuff.
 		setTitle("draw-image");
-		setLayout(new BorderLayout());
+		setLayout(new BorderLayout(10, 10));
 		setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		// Add zoom buttons to the top.
+		JPanel zoomButtoms = new JPanel();
+		
+		JButton zoomOut = new JButton("-");
+		zoomOut.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				
+				if (MyImage.getWidth(null) * Scale < 5 || MyImage.getHeight(null) * Scale < 5)
+					return;
+				
+				Scale /= 2.0;
+				
+				int scaleWidth = (int) (MyImage.getWidth(null) * Scale);
+				int scaleHeight = (int) (MyImage.getHeight(null) * Scale);
+				
+				ImageDisplay.setIcon(new ImageIcon(MyImage.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_SMOOTH)));
+				Dimension size = new Dimension(scaleWidth, scaleHeight);
+				ImageDisplay.setSize(size);
+				ImageDisplay.setMinimumSize(size);
+				ImageDisplay.setPreferredSize(size);
+				ImageDisplay.setMaximumSize(size);
+				
+				me.updateInformation();
+				me.pack();
+			}
+		});
+		zoomButtoms.add(zoomOut);
+		
+		JButton zoomIn = new JButton("+");
+		zoomIn.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent arg0) {
+				
+				if (MyImage.getWidth(null) * Scale > MaxWidth || MyImage.getHeight(null) * Scale > MaxHeight)
+					return;
+				
+				Scale *= 2.0;
+				
+				int scaleWidth = (int) (MyImage.getWidth(null) * Scale);
+				int scaleHeight = (int) (MyImage.getHeight(null) * Scale);
+				
+				ImageDisplay.setIcon(new ImageIcon(MyImage.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_SMOOTH)));
+				Dimension size = new Dimension(scaleWidth, scaleHeight);
+				ImageDisplay.setSize(size);
+				ImageDisplay.setMinimumSize(size);
+				ImageDisplay.setPreferredSize(size);
+				ImageDisplay.setMaximumSize(size);
+				
+				me.updateInformation();
+				me.pack();
+			}
+		});
+		zoomButtoms.add(zoomIn);
+		
+		add(zoomButtoms, BorderLayout.NORTH);
+		
+		// Add a description
+		ImageInformation = new JLabel();
+		Dimension size = new Dimension(300, 50);
+		ImageInformation.setHorizontalAlignment(JLabel.CENTER);
+		ImageInformation.setSize(size);
+		ImageInformation.setMinimumSize(size);
+		ImageInformation.setPreferredSize(size);
+		ImageInformation.setMaximumSize(size);
+		add(ImageInformation, BorderLayout.SOUTH);
+		
+		// Add the image.
+		ImageDisplay = new JLabel();
+		ImageDisplay.setIcon(new ImageIcon(MyImage));
+		ImageDisplay.setHorizontalAlignment(JLabel.CENTER);
+		ImageDisplay.setIconTextGap(0);
+		ImageDisplay.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		
+		JPanel imageDisplayPanel = new JPanel();
+		imageDisplayPanel.add(ImageDisplay);
+		add(imageDisplayPanel, BorderLayout.CENTER);
+		
+		// Get the size from that to display everything.
+		updateInformation();
 		pack();
 		
-		MyImage = image; 
 		try { MyRobot = new Robot(); } catch (AWTException e) {}
-		
-		// Try to figure out a good size to display the image at.
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		
-		int width = MyImage.getWidth(null);
-		int height = MyImage.getHeight(null);
-		
-		if (width < MINIMUM_DISPLAY_WIDTH) width = MINIMUM_DISPLAY_WIDTH;
-		if (height < MINIMUM_DISPLAY_HEIGHT) height = MINIMUM_DISPLAY_HEIGHT;
-		
-		if (width + 2 * ROW_HEIGHT > dim.getWidth()) width = (int) dim.getWidth() - 2 * ROW_HEIGHT;
-		if (height + 6 * ROW_HEIGHT > dim.getHeight()) height = (int) dim.getHeight() - 6 * ROW_HEIGHT;
-		
-		setSize(width + 2 * ROW_HEIGHT, height + 6 * ROW_HEIGHT);
-		
-		add(new ImagePanel());
-		
-		addMouseMotionListener(this);
-	}
-	
-	/**
-	 * Panel so that we can override the paintComponent method.
-	 */
-	class ImagePanel extends JPanel {
-		private static final long serialVersionUID = -2370331213089804268L;
-
-		/**
-		 * Custom paint method.
-		 */
-		public void paintComponent(Graphics graphics) {
-			super.paintComponent(graphics);
-			Graphics2D g = (Graphics2D) graphics;
-	
-			// Draw the background.
-			g.setColor(Color.WHITE);
-			g.fillRect(0,  0, getWidth(), getHeight());
-	
-			// Calculate the image scale.
-			Scale = Math.min(
-				(double) (getWidth() - 2 * ROW_HEIGHT) / (double) MyImage.getWidth(null),
-				(double) (getHeight() - 6 * ROW_HEIGHT) / (double) MyImage.getHeight(null)
-			);
-			
-			// Get the scaled width and height of the image.
-			int scaleWidth = (int) (Scale * MyImage.getWidth(null));
-			int scaleHeight = (int) (Scale * MyImage.getHeight(null));
-			int left = ((getWidth() - 2 * ROW_HEIGHT) - scaleWidth) / 2 + ROW_HEIGHT;
-			int top = ((getHeight() - 6 * ROW_HEIGHT) - scaleHeight) / 2 + ROW_HEIGHT;
-			
-			// Finally, draw the image.
-			g.translate(left, top);
-			g.drawImage(MyImage, AffineTransform.getScaleInstance(Scale, Scale), null);
-			
-			// Draw a border.
-	//		g.setColor(Color.BLACK);
-	//		g.setStroke(new BasicStroke(2.0f));
-	//		g.drawRect(0, 0, scaleWidth, scaleHeight);
-			
-			// Print image information (if requested)
-			if (Debug) {
-				g.setColor(Color.BLACK);
-				g.translate(-left, scaleHeight);
-				
-				g.drawString(
-					"Image size: " + 
-						MyImage.getHeight(null) + " rows, " + 
-						MyImage.getWidth(null) + " columns",
-					ROW_HEIGHT, 2 * ROW_HEIGHT);
-				g.drawString(
-					"Current scale: " + FORMAT.format(100 * Scale) + "%", 
-					ROW_HEIGHT, 3 * ROW_HEIGHT);
-				
-				if (MyRobot != null 
-						&& ImageX >= left && ImageX <= left + scaleWidth 
-						&& ImageY >= top && ImageY <= top + scaleHeight) {
-					
-					int displayX = (int) ((ImageX - left) / Scale);
-					int displayY = (int) ((ImageY - top) / Scale);
-					
-					Color c = MyRobot.getPixelColor(ScreenX, ScreenY);
-					g.drawString(
-						"Color at " + 
-							"row " + displayY + " / column " + displayX + ": " +
-							"#[color " + c.getRed() + " " + c.getGreen() + " " + c.getBlue() + "]", 
-							ROW_HEIGHT, 4 * ROW_HEIGHT);
-				} else {
-					g.drawString(
-						"Mouse over the image to view colors", 
-						ROW_HEIGHT, 4 * ROW_HEIGHT);
-				}
-			}
-		}
+		ImageDisplay.addMouseMotionListener(this);
 	}
 
 	/**
@@ -171,6 +163,34 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 		ImageY = event.getY();
 		ScreenX = event.getXOnScreen();
 		ScreenY = event.getYOnScreen();
-		repaint();
+		updateInformation();
+	}
+	
+	/**
+	 * Update information about the image.
+	 */
+	void updateInformation() {
+		String text = "<html>";
+		
+		text += "Image size: " + MyImage.getHeight(null) + " rows, " + MyImage.getWidth(null) + " columns\n";
+		text += "<br />";
+		text += "Current scale: " + FORMAT.format(100 * Scale) + "%";
+		text += "<br />";
+		
+		if (MyRobot != null) {
+			int displayX = (int) (ImageX / Scale);
+			int displayY = (int) (ImageY / Scale);
+			
+			if (displayX >= 0 && displayX < MyImage.getWidth(null) && displayY >= 0 && displayY <= MyImage.getHeight(null)) {
+				Color c = MyRobot.getPixelColor(ScreenX, ScreenY);
+				text += "Color at " + "row " + displayY + " / column " + displayX + ": " + "#[color " + c.getRed() + " " + c.getGreen() + " " + c.getBlue() + "]";
+			}
+		}
+		
+		text += "</html>";
+			
+		ImageInformation.setText(text);
+		
+		pack();
 	}
 }
