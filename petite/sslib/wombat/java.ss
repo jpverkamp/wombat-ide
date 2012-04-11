@@ -12,7 +12,7 @@
          ; send the command to java
          (printf "|!~s~a|!" 'n
            (apply string-append
-             (map (lambda (a) (format " ~s" a))
+             (map (lambda (a) (format " ~a" a))
                (list a* ...))))
 
          ; get the result back

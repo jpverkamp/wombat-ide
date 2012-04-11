@@ -60,7 +60,7 @@ public class InteropAPI {
 				ImageData img = new ImageData(
 					Integer.parseInt(args[0]),
 					Integer.parseInt(args[1]),
-					Conversion.byte2int(Base64.decode(args[2].substring(1, args[2].length() - 1)))
+					Conversion.byte2int(Base64.decode(args[2]))
 				);
 				
 				if (cd == null)
@@ -75,7 +75,7 @@ public class InteropAPI {
 				ImageData img = new ImageData(
 					Integer.parseInt(args[0]),
 					Integer.parseInt(args[1]),
-					Conversion.byte2int(Base64.decode(args[2].substring(1, args[2].length() - 1)))
+					Conversion.byte2int(Base64.decode(args[2]))
 				);
 				
 				ImageAPI.displayImage(img);

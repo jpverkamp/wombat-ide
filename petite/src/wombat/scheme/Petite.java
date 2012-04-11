@@ -13,21 +13,21 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.swing.SwingUtilities;
+
 import wombat.scheme.util.InteropAPI;
 
 /**
  * Class to wrap Petite bindings.
  */
 public class Petite {
-	static final boolean DEBUG_INTEROP = false;
+	static final boolean DEBUG_INTEROP = true;
 
 	/**
 	 * Run from the command line, providing a REPL.
 	 * 
-	 * @param args
-	 *            Ignored.
-	 * @throws URISyntaxException
-	 *             If we botched the files from the JAR.
+	 * @param args Ignored.
+	 * @throws URISyntaxException If we botched the files from the JAR.
 	 */
 	public static void main(String[] args) throws URISyntaxException {
 		try {
@@ -356,7 +356,7 @@ public class Petite {
 	 * Listen for state changes in the Petite binding.
 	 * @param pl A listener
 	 */
-	public void addPetiteListener(PetiteListener pl) {
+	public void addPetiteListener(final PetiteListener pl) {
 		Listeners.add(pl);
 	}
 	
@@ -364,8 +364,12 @@ public class Petite {
 	 * Stop a certain Petite listener.
 	 * @param pl The listener that we are watching.
 	 */
-	public void removePetiteListener(PetiteListener pl) {
-		Listeners.remove(pl);
+	public void removePetiteListener(final PetiteListener pl) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Listeners.remove(pl);	
+			}
+		});
 	}
 	
 	/**
@@ -409,6 +413,7 @@ public class Petite {
 			char c;
 			try {
 				while (true) {
+					// Read from the buffer.
 					c = (char) FromPetite.read();
 					BufferLock.lock();
 
