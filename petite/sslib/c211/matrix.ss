@@ -65,7 +65,7 @@ Parameters:
       [(rs cs i)
        (!check-integer 'make-matrix rs)
        (!check-integer 'make-matrix cs)
-       (matrix-generator rs cs (lambda (_) i))]))
+       (matrix-generator rs cs (lambda (_1 _2) i))]))
 
   ; generate a matrix using a generating function based on row and column
   (define (matrix-generator rs cs p)
