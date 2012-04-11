@@ -357,9 +357,19 @@ public class MainFrame extends JFrame {
 						
 						@Override
 						public void onReady() {
+							// Tell the user it worked.
 							History.setText(">>> Execution halted <<<<\n\n");
 					    	History.goToEnd();
+					    	
+					    	// Don't stack these up.
 					    	Petite.removePetiteListener(this);
+					    	
+					    	// Reenable running code.
+					    	MenuManager.itemForName("Run").setEnabled(true);
+					    	ToolBarRun.setEnabled(true);
+					    	
+					    	MenuManager.itemForName("Stop").setEnabled(false);
+					    	ToolBarStop.setEnabled(false);
 						}
 						
 						@Override public void onOutput(String output) {}
