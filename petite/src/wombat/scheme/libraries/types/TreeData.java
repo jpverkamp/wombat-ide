@@ -103,9 +103,6 @@ public class TreeData {
 	 * @param height The height of the thing we're drawing to.
 	 */
 	public void drawTreeData(Graphics2D g, int width, int height) {
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, width, height);
-
 		g.setColor(Color.BLACK);
 		int h = height();
 		int w = new BigInteger("2").pow(h).intValue();
