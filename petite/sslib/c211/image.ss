@@ -237,7 +237,7 @@ Other:
     (let ([response
             (cond
               [(null? args) (call-to-java read-image)]
-              [(null? (cdr args)) (call-to-java read-image (car args))]
+              [(null? (cdr args)) (call-to-java read-image (cd) (car args))]
               [else (error 'read-image "incorrect argument count")])])
       (if (= (length response) 3)
           (apply base64->image response)
@@ -252,7 +252,7 @@ Other:
            (image-cols img) (image-rows img) base64)]
         [(null? (cdr args))
          (call-to-java write-image
-           (image-cols img) (image-rows img) base64 (car args))]
+           (cd) (image-cols img) (image-rows img) base64 (car args))]
         [else
          (error 'read-image "incorrect argument count")])
       (void)))

@@ -14,6 +14,8 @@ import wombat.util.Base64;
  * Helper that stores all of the interop functions for calling Java methods from Scheme.
  */
 public class InteropAPI {
+	public static String SchemeCD = null;
+	
 	private InteropAPI() {}
 	
 	/**
@@ -32,27 +34,39 @@ public class InteropAPI {
 			
 			if ("read-image".equals(key)) {
 				ImageData img = null;
-				if (val == null)
+				if (val == null) {
 					img = ImageAPI.readImage();
-				else
-					img = ImageAPI.readImage(val);
+				} else {
+					int split = val.indexOf("\" \"");
+					String cd = val.substring(1, split);
+					String fn = val.substring(split + 3, val.length() - 1);
+				
+					img = ImageAPI.readImage(cd, fn);
+				}
 				
 				return "(" + img.Width + " " + img.Height + " \"" + Base64.encodeBytes(Conversion.int2byte(img.Data)) + "\")";
 			} 
 			
 			// write images to file
 			else if ("write-image".equals(key)) {
+				String cd = null;
+				if (val.startsWith("\"")) {
+					int split = val.indexOf('"', 2);
+					cd = val.substring(1, split);
+					val = val.substring(split + 2, val.length());
+				}
+				
 				String[] args = val.split(" ");
 				ImageData img = new ImageData(
 					Integer.parseInt(args[0]),
 					Integer.parseInt(args[1]),
-					Conversion.byte2int(Base64.decode(args[2]))
+					Conversion.byte2int(Base64.decode(args[2].substring(1, args[2].length() - 1)))
 				);
 				
-				if (args.length == 3)
+				if (cd == null)
 					ImageAPI.writeImage(img);
 				else
-					ImageAPI.writeImage(img, args[3]);
+					ImageAPI.writeImage(cd, img, args[3].substring(1, args[3].length() - 1));
 			}
 			
 			// display images to the screen
@@ -61,7 +75,7 @@ public class InteropAPI {
 				ImageData img = new ImageData(
 					Integer.parseInt(args[0]),
 					Integer.parseInt(args[1]),
-					Conversion.byte2int(Base64.decode(args[2]))
+					Conversion.byte2int(Base64.decode(args[2].substring(1, args[2].length() - 1)))
 				);
 				
 				ImageAPI.displayImage(img);
@@ -82,6 +96,13 @@ public class InteropAPI {
 			}
 			
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
+			// Meta API
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
+			else if ("set-cd".equals(key)) {
+				SchemeCD = val;
+			}
+			
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Test API
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
 			
@@ -95,7 +116,8 @@ public class InteropAPI {
 			
 		} catch(Exception e) {
 			e.printStackTrace();
-			return "(exception " + key + " \"" + e.getMessage() + "\")";
+			System.out.println("(exception " + key + " \"" + e.getMessage().replace("\\", "\\\\") + "\")");
+			return "(exception " + key + " \"" + e.getMessage().replace("\\", "\\\\") + "\")";
 		}
 		
 		return "()";
