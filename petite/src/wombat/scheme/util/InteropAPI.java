@@ -96,6 +96,13 @@ public class InteropAPI {
 			}
 			
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
+			// Trutle API
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
+			else if ("draw-turtle".equals(key)) {
+				TurtleAPI.drawTurtle(val);
+			}
+			
+			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
 			// Meta API
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
 			else if ("set-cd".equals(key)) {
@@ -112,6 +119,11 @@ public class InteropAPI {
 				int a = 1;
 				for (int i = 2; i <= n; i++) a *= i;
 				return "(" + a + ")";
+			}
+			
+			// Unknown method!
+			else {
+				throw new Exception("Unknown method: " + key);
 			}
 			
 		} catch(Exception e) {

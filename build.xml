@@ -12,8 +12,8 @@
 		
 		<property name="jar-name" value="wombat-ide-${ide-version}.jar" />
 		<property name="petite-version" value="8.4" />
-		<property name="petite-bindings" value="${petite-version}.12" />
-		<property name="c211-lib-version" value="1.0.7" />
+		<property name="petite-bindings" value="${petite-version}.13" />
+		<property name="c211-lib-version" value="1.0.8" />
 		
 		<echo>Versions:
 		IDE: ${ide-version}
