@@ -93,8 +93,6 @@ public class ImageAPI {
 		
 		File file = new File(filename);
 		
-		System.out.println("writing to " + file.getCanonicalPath());
-		
 		String[] parts = file.getName().split("\\.");
 		ImageIO.write(ri, parts[parts.length - 1], file);
 	}

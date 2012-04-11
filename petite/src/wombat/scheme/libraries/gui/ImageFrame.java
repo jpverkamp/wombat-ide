@@ -121,7 +121,7 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 		
 		// Add a description
 		ImageInformation = new JLabel();
-		Dimension size = new Dimension(300, 50);
+		Dimension size = new Dimension(350, 60);
 		ImageInformation.setHorizontalAlignment(JLabel.CENTER);
 		ImageInformation.setSize(size);
 		ImageInformation.setMinimumSize(size);

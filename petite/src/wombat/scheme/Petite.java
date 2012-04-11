@@ -21,7 +21,7 @@ import wombat.scheme.util.InteropAPI;
  * Class to wrap Petite bindings.
  */
 public class Petite {
-	static final boolean DEBUG_INTEROP = true;
+	static final boolean DEBUG_INTEROP = false;
 
 	/**
 	 * Run from the command line, providing a REPL.

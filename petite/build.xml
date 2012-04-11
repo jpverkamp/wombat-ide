@@ -11,8 +11,8 @@
 	<property name="sslib-dir" location="sslib" />
 	
 	<property name="petite-version" value="8.4" />
-	<property name="petite-bindings" value="${petite-version}.11" />
-	<property name="c211-lib-version" value="1.0.6" />
+	<property name="petite-bindings" value="${petite-version}.12" />
+	<property name="c211-lib-version" value="1.0.7" />
 	
 	<property name="petite-jar-name" value="petite-${petite-bindings}.jar" />
 	
