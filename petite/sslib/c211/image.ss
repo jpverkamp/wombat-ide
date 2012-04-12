@@ -57,10 +57,10 @@ Other:
    image-rows image-cols image-ref color-ref
    image-set!
    read-image write-image draw-image
-   image-data
    color-equal? image-equal?
    image->list list->image
    black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
+   base64->image image->base64
    )
 
   (import (except (chezscheme) lambda define))

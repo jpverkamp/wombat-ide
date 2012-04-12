@@ -5,6 +5,8 @@
 
 package wombat.scheme.util;
 
+import java.awt.image.BufferedImage;
+
 import wombat.scheme.libraries.*;
 import wombat.scheme.libraries.types.ImageData;
 import wombat.scheme.libraries.types.TreeData;
@@ -100,6 +102,16 @@ public class InteropAPI {
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~
 			else if ("draw-turtle".equals(key)) {
 				TurtleAPI.drawTurtle(val);
+			}
+			
+			else if ("turtle->image".equals(key)) {
+				BufferedImage bi = (BufferedImage) TurtleAPI.turtleToImage(val);
+				
+				int[] imgdata = new int[bi.getWidth() * bi.getHeight()];
+				bi.getRGB(0, 0, bi.getWidth(), bi.getHeight(), imgdata, 0, bi.getWidth());
+				ImageData img = new ImageData(bi.getWidth(), bi.getHeight(), imgdata);
+				
+				return "(" + img.Width + " " + img.Height + " \"" + Base64.encodeBytes(Conversion.int2byte(img.Data)) + "\")";
 			}
 			
 			// ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ 
