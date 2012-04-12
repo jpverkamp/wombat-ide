@@ -9,16 +9,21 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+
+import wombat.scheme.libraries.ImageAPI;
 
 /**
  * A semi-advanced image viewer.
@@ -65,7 +70,7 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		// Add zoom buttons to the top.
-		JPanel zoomButtoms = new JPanel();
+		JPanel zoomButtons = new JPanel();
 		
 		JButton zoomOut = new JButton("-");
 		zoomOut.addActionListener(new ActionListener() {
@@ -90,7 +95,27 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 				me.pack();
 			}
 		});
-		zoomButtoms.add(zoomOut);
+		zoomButtons.add(zoomOut);
+		
+		JButton saveCurrent = new JButton("save");
+		saveCurrent.addActionListener(new ActionListener() {			
+			@Override public void actionPerformed(ActionEvent arg0) {
+				try {
+					int scaleWidth = (int) (MyImage.getWidth(null) * Scale);
+					int scaleHeight = (int) (MyImage.getHeight(null) * Scale);
+					
+					Image i = MyImage.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_SMOOTH);
+					BufferedImage bi = new BufferedImage(i.getWidth(null), i.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+					Graphics g = bi.getGraphics();
+					g.drawImage(i, 0, 0, null);
+					ImageAPI.writeImage(bi);
+					
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(null, "Unable to save image: " + ex.getMessage(), "Unable to save image", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		zoomButtons.add(saveCurrent);		
 		
 		JButton zoomIn = new JButton("+");
 		zoomIn.addActionListener(new ActionListener() {
@@ -115,9 +140,9 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 				me.pack();
 			}
 		});
-		zoomButtoms.add(zoomIn);
+		zoomButtons.add(zoomIn);
 		
-		add(zoomButtoms, BorderLayout.NORTH);
+		add(zoomButtons, BorderLayout.NORTH);
 		
 		// Add a description
 		ImageInformation = new JLabel();

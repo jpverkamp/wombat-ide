@@ -6,17 +6,19 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import java.util.*;
-import javax.swing.*;
+
+import wombat.scheme.libraries.gui.ImageFrame;
 
 /**
  * Represent turtle graphics.
  */
 public class TurtleAPI {
 	/**
-	 * Draw a set of turtle lines.
-	 * @param data Lines each with "tick x0 y0 x1 y1 r g b"
+	 * Convert a turtle to an image.
+	 * @param data Lines each with "tick x0 y0 x1 y1 r g b" 
+	 * @return An image.
 	 */
-	public static void drawTurtle(String data) {
+	public static Image turtleToImage(String data) {
 		@SuppressWarnings("unused")
 		class LineData {
 			int Tick;
@@ -71,20 +73,10 @@ public class TurtleAPI {
 		minY -= 1;
 		maxY += 1;
 		
-		Image i = new BufferedImage((int) (maxX - minX), (int) (maxY - minY), BufferedImage.TYPE_INT_RGB);
-		Graphics2D g = (Graphics2D) i.getGraphics();
-		
-		System.out.println("X: " + minX + " " + maxX + ", Y: " + minY + " " + maxY);
-		System.out.println("width: " + i.getWidth(null) + ", height: " + i.getHeight(null));
+		BufferedImage bi = new BufferedImage((int) (maxX - minX), (int) (maxY - minY), BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = (Graphics2D) bi.getGraphics();
 		
 		for (LineData line : lines) {
-			System.out.println(
-					(int) (line.X0 - minX) + " " +
-					(int) (line.Y0 - minY) + " " +
-					(int) (line.X1 - minX) + " " +
-					(int) (line.Y1 - minY)
-					);
-			
 			g.setColor(line.C);
 			g.drawLine(
 				(int) (line.X0 - minX), 
@@ -94,12 +86,16 @@ public class TurtleAPI {
 			);
 		}
 		
-		JFrame frame = new JFrame("draw-turtle");
-		frame.setLocationByPlatform(true);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.add(new JLabel(new ImageIcon(i)));
-		frame.pack();
-		frame.setVisible(true);
-		
+		return bi;
+	}
+	
+	/**
+	 * Draw a set of turtle lines.
+	 * @param data Lines each with "tick x0 y0 x1 y1 r g b"
+	 */
+	public static void drawTurtle(String data) {
+		ImageFrame iframe = new ImageFrame(turtleToImage(data));
+		iframe.setTitle("draw-turtle");
+		iframe.setVisible(true);
 	}
 }

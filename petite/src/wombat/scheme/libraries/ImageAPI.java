@@ -61,6 +61,25 @@ public class ImageAPI {
 	}
 	
 	/**
+	 * Write the image. Display a dialog for the filename.
+	 * @param dir The directory to read from.
+	 * @param data The image to write.
+	 * @throws IOException If we cannot write the image.
+	 */
+	public static void writeImage(Image img) throws IOException {
+		FileDialog fc = new FileDialog((java.awt.Frame) null, "write-image", FileDialog.SAVE);
+        fc.setVisible(true);
+
+        if (fc.getFile() == null)
+        	throw new IllegalArgumentException("Error in read-image: no image chosen");
+
+        File file = new File(fc.getDirectory(), fc.getFile());
+		
+		String[] parts = file.getName().split("\\.");
+		ImageIO.write((RenderedImage) img, parts[parts.length - 1], file);
+	}
+	
+	/**
 	 * Write the given [r,g,b,a] buffer to an image. Display a dialog for the filename.
 	 * @param dir The directory to read from.
 	 * @param data The image to write. The first two values are the width and height.
