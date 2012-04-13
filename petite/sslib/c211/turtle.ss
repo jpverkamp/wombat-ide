@@ -5,6 +5,7 @@
   (export
     spawn split
     live-display
+    live-timer
     block repeat
     move! move-to! turtle-location
     turn-left! turn-right! turn! turn-to! turtle-direction
@@ -20,6 +21,14 @@
   (import (c211 image))
 
   (define live-display (make-parameter #f))
+  (define live-display-timer (make-parameter 0.1))
+
+  (define live-timer
+    (case-lambda 
+      [() (live-display-timer)]
+      [(n)
+       (call-to-java update-live-timer n)
+       (live-display-timer n)]))
 
   (define-record turtle (id tick x y dir up/down color children lines))
   (define-record line (tick x0 y0 x1 y1 color))
@@ -65,7 +74,6 @@
 
   ; split a turtle into two turtles
   (define (split t)
-    (live! t `(split))
     (tick! t)
     (let ([new-t
             (make-turtle^
@@ -96,6 +104,14 @@
            (set-turtle-dir! t orig-dir)
            (set-turtle-up/down! t orig-u/d)
            (set-turtle-color! t orig-clr)
+           (live! t `(block-reset
+                       ,(turtle-x t)
+                       ,(turtle-y t)
+                       ,(turtle-dir t)
+                       ,(turtle-up/down t)
+                       ,(color-ref (turtle-color t) 'red)
+                       ,(color-ref (turtle-color t) 'green)
+                       ,(color-ref (turtle-color t) 'blue)))
            result))]))
 
   ; repeat a set of commands a given number of times

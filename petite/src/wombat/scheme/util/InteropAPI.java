@@ -104,6 +104,10 @@ public class InteropAPI {
 				TurtleAPI.drawTurtle(val);
 			}
 			
+			else if ("update-live-timer".equals(key)) {
+				TurtleAPI.Pause = Double.parseDouble(val);
+			}
+			
 			else if ("turtle-update".equals(key)) {
 				String[] parts = val.split(" ", 2);
 				String[] args = parts[1].substring(1, parts[1].length() - 1).split(" ", 2);
