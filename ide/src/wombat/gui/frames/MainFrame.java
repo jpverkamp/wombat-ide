@@ -202,7 +202,15 @@ public class MainFrame extends JFrame {
 		ToolBar.addSeparator();
         ToolBar.add(RowColumn);
         
-        // Connect to Petite
+        // Finally, intialize petite.
+        initPetite();
+    }
+
+    /**
+     * Start up Petite or restart it on a reset.
+     */
+    private void initPetite() {
+    	// Connect to Petite
         // This thread also takes the output from Petite and relays it to the GUI
         try {
 			Petite = new Petite();
@@ -217,13 +225,19 @@ public class MainFrame extends JFrame {
 					ToolBarStop.setEnabled(false);
 				}
 				
-				@Override public void onInteropReturn() {}
-
 				@Override public void onOutput(String output) {
 					if (History != null && output != null) {
     					History.append(output);
     					History.goToEnd();
     				}
+				}
+								
+				@Override public void onError(Exception ex) {}
+
+				@Override public void onStop() {}
+
+				@Override public void onReset() {
+					History.setText(">>> Environment reset <<<\n");
 				}
 			});
 		} 
@@ -241,7 +255,7 @@ public class MainFrame extends JFrame {
 			e1.printStackTrace();
 		}
     }
-
+    
 	/**
      * Run a line of Scheme code.
      * @param command The command to run.
@@ -304,8 +318,6 @@ public class MainFrame extends JFrame {
 	 */
 	public void resetScheme() {
 		Petite.reset();
-		History.setText("");
-		History.append(">>> Environment reset <<<\n");
 	}
 
 	/**
@@ -345,46 +357,50 @@ public class MainFrame extends JFrame {
 	public void stopAllThreads(final boolean silent, final boolean andRestart) {
 		if (silent || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
 				this, 
-				"Stopping will reset the current Petite process.\n" + 
-						"Are you sure you want to do this?", 
+				"Stopping will reset the current Petite process.\nAre you sure you want to do this?", 
 				"Confirm Stop", JOptionPane.YES_NO_OPTION)) {
 			
-			try {
-				if (andRestart) {
-					Petite.restart();
-					
-					Petite.addPetiteListener(new PetiteListener() {
+			// If we want to restart Petite, add a listener to do just that.
+			if (andRestart) {
+				Petite.addPetiteListener(new PetiteListener() {
+					@Override public void onStop() {
+						// Create the new Petite.
+						initPetite();
 						
-						@Override
-						public void onReady() {
-							// Tell the user it worked.
-							History.setText(">>> Execution halted <<<<\n\n");
-					    	History.goToEnd();
-					    	
-					    	// Don't stack these up.
-					    	Petite.removePetiteListener(this);
-					    	
-					    	// Reenable running code.
-					    	MenuManager.itemForName("Run").setEnabled(true);
-					    	ToolBarRun.setEnabled(true);
-					    	
-					    	MenuManager.itemForName("Stop").setEnabled(false);
-					    	ToolBarStop.setEnabled(false);
-						}
-						
-						@Override public void onOutput(String output) {}
-						
-						@Override
-						public void onInteropReturn() {}
-					});
-					
-				} else {
-					Petite.stop();
-				}
-			} catch (Exception e) {
-				ErrorManager.logError("Unable to reconnect to Petite:\n" + e.getMessage());
-				e.printStackTrace();
+						// Add add a listener to reset the display state when the new Petite is ready.
+						Petite.addPetiteListener(new PetiteListener() {
+							@Override public void onReady() {
+								// Tell the user it worked.
+								History.setText(">>> Execution halted <<<<\n\n");
+						    	History.goToEnd();
+						    	
+						    	// Don't stack these up.
+						    	Petite.removePetiteListener(this);
+						    	
+						    	// Reenable running code.
+						    	MenuManager.itemForName("Run").setEnabled(true);
+						    	ToolBarRun.setEnabled(true);
+						    	
+						    	MenuManager.itemForName("Stop").setEnabled(false);
+						    	ToolBarStop.setEnabled(false);
+							}
+							
+							@Override public void onOutput(String output) {}
+							@Override public void onError(Exception ex) {}
+							@Override public void onStop() {};
+							@Override public void onReset() {};
+						});
+					}
+
+					@Override public void onReset() {}
+					@Override public void onReady() {}
+					@Override public void onOutput(String output) {}
+					@Override public void onError(Exception ex) {}
+				});
 			}
+				
+			// Now, actually stop Petite.
+			Petite.stop();
 		}
 	}
 
