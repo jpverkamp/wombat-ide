@@ -101,4 +101,12 @@ public class TurtleAPI {
 		iframe.setTitle("draw-turtle");
 		iframe.setVisible(true);
 	}
+
+	/**
+	 * Update a live turtle.
+	 * @param val The first part is the turtle id, the rest are parameters.
+	 */
+	public static void updateTurtle(String id, String fun, String[] args) {
+		System.out.println("live-turtle: " + id + "::" + fun + Arrays.toString(args));
+	}
 }

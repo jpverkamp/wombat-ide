@@ -4,9 +4,10 @@
   (c211 turtle)
   (export
     spawn split
+    live-display
     block repeat
     move! move-to! turtle-location
-    turn-left! turn-right! turn-to! turtle-direction
+    turn-left! turn-right! turn! turn-to! turtle-direction
     lift-pen! drop-pen! pen-up/down?
     set-pen-color! pen-color
     draw-turtle
@@ -18,30 +19,57 @@
 
   (import (c211 image))
 
-  (define-record turtle (tick x y dir up/down color children lines))
+  (define live-display (make-parameter #f))
+
+  (define-record turtle (id tick x y dir up/down color children lines))
   (define-record line (tick x0 y0 x1 y1 color))
 
   (define (tick! t) (set-turtle-tick! t (+ 1 (turtle-tick t))))
   (define (record! t l) (set-turtle-lines! t (cons l (turtle-lines t))))
 
+  (define (live! t args)
+    (when (live-display)
+      (call-to-java turtle-update (turtle-id t) (map fix args))
+      (void)))
+
   (define pi 3.141592654)
   (define (d->r d) (/ (* d pi) 180))
   (define (r->d r) (/ (* r 180) pi))
 
+  ; wrapper to record spawns
+  (define (make-turtle^ . args)
+    (let ([t (apply make-turtle args)])
+      (live! t `(spawn
+                  ,(turtle-x t)
+                  ,(turtle-y t)
+                  ,(turtle-dir t)
+                  ,(turtle-up/down t)
+                  ,(color-ref (turtle-color t) 'red)
+                  ,(color-ref (turtle-color t) 'green)
+                  ,(color-ref (turtle-color t) 'blue)))
+      t))
+
   ; spawn a new turtle
   (define spawn
     (case-lambda
-      [() (make-turtle 0 0.0 0.0 0.0 'down black '() '())]
-      [(dir) (make-turtle 0 0.0 0.0 dir 'down black '() '())]
-      [(x y) (make-turtle 0 x y 0.0 'down black '() '())]
-      [(x y dir) (make-turtle 0 x y dir 'down black '() '())]
-      [(x y dir up/down color) (make-turtle 0 x y dir up/down color '() '())]))
+      [()
+       (make-turtle^ (gensym) 0 0.0 0.0 0.0 'down black '() '())]
+      [(dir)
+       (make-turtle^ (gensym) 0 0.0 0.0 dir 'down black '() '())]
+      [(x y)
+       (make-turtle^ (gensym) 0 x y 0.0 'down black '() '())]
+      [(x y dir)
+       (make-turtle^ (gensym) 0 x y dir 'down black '() '())]
+      [(x y dir up/down color)
+       (make-turtle^ (gensym) 0 x y dir up/down color '() '())]))
 
   ; split a turtle into two turtles
   (define (split t)
+    (live! t `(split))
     (tick! t)
     (let ([new-t
-            (make-turtle
+            (make-turtle^
+              (gensym)
               (turtle-tick t)
               (turtle-x t)
               (turtle-y t)
@@ -87,6 +115,7 @@
 
   ; move a turtle t directly to a given point x,y regardless of facing
   (define (move-to! t new-x new-y)
+    (live! t `(move ,new-x ,new-y ,(turtle-up/down t)))
     (when (eq? 'down (turtle-up/down t))
       (record! t
         (make-line (turtle-tick t)
@@ -101,16 +130,18 @@
 
   ; turn a turtle t left by d degrees
   (define (turn-left! t d)
-    (turn-right! t (- d)))
+    (turn-to! t (r->d (- (turtle-dir t) (d->r d)))))
 
   ; turn a turtle t right by d degrees
   (define (turn-right! t d)
-    (let ([r (d->r d)])
-      (tick! t)
-      (set-turtle-dir! t (+ r (turtle-dir t)))))
+    (turn-to! t (r->d (+ (turtle-dir t) (d->r d)))))
+
+  ; turn right by default
+  (define turn! turn-right!)
 
   ; turn a turtle t directly to a given direction d (in degrees clockwise from up)
   (define (turn-to! t d)
+    (live! t `(turn ,(mod d 360)))
     (tick! t)
     (set-turtle-dir! t (d->r d)))
 
@@ -119,12 +150,20 @@
     (r->d (turtle-dir t)))
 
   ; lift the turtle's pen or put it down
-  (define (lift-pen! t) (tick! t) (set-turtle-up/down! t 'up))
-  (define (drop-pen! t) (tick! t) (set-turtle-up/down! t 'down))
+  (define (lift-pen! t)
+    (live! t `(pen up)) (tick! t) (set-turtle-up/down! t 'up))
+  (define (drop-pen! t)
+    (live! t `(pen down)) (tick! t) (set-turtle-up/down! t 'down))
   (define (pen-up/down? t) (turtle-up/down t))
 
   ; change the pen's color
-  (define (set-pen-color! t c) (tick! t) (set-turtle-color! t c))
+  (define (set-pen-color! t c)
+    (live! t `(pen-color
+                ,(color-ref c 'red)
+                ,(color-ref c 'green)
+                ,(color-ref c 'blue)))
+    (tick! t)
+    (set-turtle-color! t c))
   (define (pen-color t) (turtle-color t))
 
   ; get all lines from a turtle and it's children
@@ -142,10 +181,10 @@
                (apply string-append
                  (map (lambda (x) (format "~a " x))
                    (list (line-tick line)
-                         (shorten (line-x0 line))
-                         (shorten (line-y0 line))
-                         (shorten (line-x1 line))
-                         (shorten (line-y1 line))
+                         (fix (line-x0 line))
+                         (fix (line-y0 line))
+                         (fix (line-x1 line))
+                         (fix (line-y1 line))
                          (color-ref (line-color line) 'red)
                          (color-ref (line-color line) 'green)
                          (color-ref (line-color line) 'blue))))
@@ -162,8 +201,7 @@
   (define (turtle->image t)
     (apply base64->image (call-to-java turtle->image (turtle->string t))))
 
-  (define (shorten n) (* 0.01 (round (* 100.0 n))))
-  (define (fix x) (if (number? x) (shorten x) x))
+  (define (fix x) (if (and (number? x) (inexact? x))  (format "~,3f" x) x))
 
 (record-writer (type-descriptor turtle)
   (lambda (r p wr)

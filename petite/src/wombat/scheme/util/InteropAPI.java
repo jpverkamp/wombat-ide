@@ -104,6 +104,13 @@ public class InteropAPI {
 				TurtleAPI.drawTurtle(val);
 			}
 			
+			else if ("turtle-update".equals(key)) {
+				String[] parts = val.split(" ", 2);
+				String[] args = parts[1].substring(1, parts[1].length() - 1).split(" ", 2);
+				
+				TurtleAPI.updateTurtle(parts[0], args[0], args[1].split(" "));
+			}
+			
 			else if ("turtle->image".equals(key)) {
 				BufferedImage bi = (BufferedImage) TurtleAPI.turtleToImage(val);
 				
@@ -140,8 +147,7 @@ public class InteropAPI {
 			
 		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("(exception " + key + " \"" + e.getMessage().replace("\\", "\\\\") + "\")");
-			return "(exception " + key + " \"" + e.getMessage().replace("\\", "\\\\") + "\")";
+			return "(exception " + key + " \"" + e.getClass().getSimpleName() + ": " + e.getMessage().replace("\\", "\\\\") + "\")";
 		}
 		
 		return "()";
