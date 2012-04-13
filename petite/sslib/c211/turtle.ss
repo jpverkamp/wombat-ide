@@ -3,7 +3,8 @@
 (library
   (c211 turtle)
   (export
-    spawn split block
+    spawn split
+    block repeat
     move! move-to! turtle-location
     turn-left! turn-right! turn-to! turtle-direction
     lift-pen! drop-pen! pen-up/down?
@@ -68,6 +69,15 @@
            (set-turtle-up/down! t orig-u/d)
            (set-turtle-color! t orig-clr)
            result))]))
+
+  ; repeat a set of commands a given number of times
+  (define-syntax repeat
+    (syntax-rules ()
+      [(_ n b* ...)
+       (let loop ([i 0])
+         (when (< i n)
+           (begin b* ...)
+           (loop (add1 i))))]))
 
   ; move a turtle t forward by n units (or backwards if negative)
   (define (move! t n)
@@ -145,7 +155,8 @@
 
   ; export to java
   (define (draw-turtle t)
-    (call-to-java draw-turtle (turtle->string t)))
+    (call-to-java draw-turtle (turtle->string t))
+    (void))
 
   ; convert to an image
   (define (turtle->image t)

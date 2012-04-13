@@ -75,6 +75,8 @@ public class TurtleAPI {
 		
 		BufferedImage bi = new BufferedImage((int) (maxX - minX), (int) (maxY - minY), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) bi.getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 		
 		for (LineData line : lines) {
 			g.setColor(line.C);
