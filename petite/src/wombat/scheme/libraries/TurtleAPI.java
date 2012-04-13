@@ -46,8 +46,9 @@ public class TurtleAPI {
 		double maxY = 0;
 		
 		for (String line : data.split("\n")) {
-			String[] parts = line.split(" ");
-			if (parts.length != 8) continue;
+			String[] parts = line.trim().split(" ");
+			if (parts.length == 0) continue;
+			if (parts.length != 8) throw new IllegalArgumentException("Malformed turtle data with line: " + line);
 			lines.add(new LineData(
 				Integer.parseInt(parts[0]),
 				Double.parseDouble(parts[1]),
@@ -60,7 +61,7 @@ public class TurtleAPI {
 					Integer.parseInt(parts[7])
 					)
 				));
-		}			
+		}
 		
 		for (LineData line : lines) {
 			minX = Math.min(line.X0, Math.min(line.X1, minX));
