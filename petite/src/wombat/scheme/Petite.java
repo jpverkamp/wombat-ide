@@ -196,8 +196,10 @@ public class Petite {
 							HalfPrompt = false;
 							State = PetiteState.Command;
 							
-							for (PetiteListener pl : Listeners)
-								pl.onReady();
+							synchronized (Listeners) {
+								for (PetiteListener pl : Listeners)
+									pl.onReady();
+							}
 						}
 						
 						// Prompt while running, means the process is ready for more.
@@ -208,12 +210,14 @@ public class Petite {
 							HalfPrompt = false;
 							State = PetiteState.Command;
 							
-							for (PetiteListener pl : Listeners) {
-								if (output.startsWith(" "))
-									pl.onOutput(output.substring(1));
-								else
-									pl.onOutput(output);
-								pl.onReady();
+							synchronized (Listeners) {
+								for (PetiteListener pl : Listeners) {
+									if (output.startsWith(" "))
+										pl.onOutput(output.substring(1));
+									else
+										pl.onOutput(output);
+									pl.onReady();
+								}
 							}
 						}
 
@@ -268,8 +272,10 @@ public class Petite {
 					}
 
 				} catch (IOException e) {
-					for (PetiteListener pl : Listeners) {
-						pl.onError(e);
+					synchronized (Listeners) {
+						for (PetiteListener pl : Listeners) {
+							pl.onError(e);
+						}
 					}
 				}
 			}
@@ -386,8 +392,10 @@ public class Petite {
 		sendCommand("(waiter-prompt-string \"|`\")");
 		
 		// Tell the listeners what we did.
-		for (PetiteListener pl : Listeners)
-			pl.onReset();
+		synchronized (Listeners) {
+			for (PetiteListener pl : Listeners)
+				pl.onReset();	
+		}
 	}
 
 	/**
@@ -405,8 +413,10 @@ public class Petite {
 		}
 		
 		// Tell any listeners that we got it.
-		for (PetiteListener pl : Listeners)
-			pl.onStop();
+		synchronized (Listeners) {
+			for (PetiteListener pl : Listeners)
+				pl.onStop();
+		}
 	}
 
 	/**
