@@ -1,18 +1,38 @@
-
-
 (library
   (c211 turtle)
   (export
-    spawn split
-    live-display
-    live-timer
-    block repeat
-    move! move-to! turtle-location
-    turn-left! turn-right! turn! turn-to! turtle-direction
-    lift-pen! drop-pen! pen-up/down?
-    set-pen-color! pen-color
-    draw-turtle
-    turtle->image)
+    ; constructors
+    hatch ; (hatch ...) create a new turtle, see code for options
+    clone ; (clone turtle) create a copy of a given turtle
+    ; display parameters
+    live-display ; (live-display #t/#f) enable or display the live display
+    live-delay ; (live-delay seconds) delay between steps in live-display move
+    ; macros for branching
+    block ; (block turtle cmds ...) store turtle state and restore after cmds
+    repeat ; (repeat n cmds ...) repeat cmds n times for their side effects
+    ; movement
+    move! ; (move! turtle n) move fowards n units
+    move-to! ; (move-to! turtle x y) teleport directly to a given location
+    teleport! ; (teleport! turtle x y) alias for move-to!
+    turtle-location ; (turtle-location turtle) get the (x y) of the turtle
+    ; direction
+    turn-left! ; (turn-left! turtle d) turn left (counterclockwise) d degrees
+    turn-right! ; (turn-right! turtle d) turn right (clockwise) d degrees
+    turn-counter-clockwise! ; (turn-counterclockwise! turtle d) turn-left! alias
+    turn-clockwise! ; (turn-clockwise! turtle d) alias for turn-right!
+    turn! ; (turn! turtle d) alias for turn-right!
+    turn-to! ; (turn-to! turtle d) turn to a given facing (0 north, + is right)
+    turtle-direction ; (turtle-direction t) get the facing for a turtle
+    ; drawing
+    lift-pen! ; (lift-pen! turtle) stop drawing but allow movement
+    drop-pen! ; (drop-pen! turtle) start drawing
+    pen-up/down ; (pen-up/down turtle) test if the pen is 'up or 'down
+    set-pen-color! ; (set-pen-color! turtle color) set the pen, use (c211 image)
+    pen-color ; (pen-color turtle) get the pen color
+    ; display
+    draw-turtle ; (draw-turtle turtle) draw this turtle and any cloned from it
+    turtle->image ; (turtle->image turtle) convert this turtle into (c211 image)
+    )
 
   (import (except (chezscheme) lambda define))
   (import (wombat define))
@@ -23,8 +43,8 @@
   (define live-display (make-parameter #f))
   (define live-display-timer (make-parameter 0.1))
 
-  (define live-timer
-    (case-lambda 
+  (define live-delay
+    (case-lambda
       [() (live-display-timer)]
       [(n)
        (call-to-java update-live-timer n)
@@ -58,8 +78,8 @@
                   ,(color-ref (turtle-color t) 'blue)))
       t))
 
-  ; spawn a new turtle
-  (define spawn
+  ; create a new turtle
+  (define hatch
     (case-lambda
       [()
        (make-turtle^ (gensym) 0 0.0 0.0 0.0 'down black '() '())]
@@ -72,8 +92,8 @@
       [(x y dir up/down color)
        (make-turtle^ (gensym) 0 x y dir up/down color '() '())]))
 
-  ; split a turtle into two turtles
-  (define (split t)
+  ; create a clone of a given turtle
+  (define (clone t)
     (tick! t)
     (let ([new-t
             (make-turtle^
@@ -139,6 +159,7 @@
     (tick! t)
     (set-turtle-x! t new-x)
     (set-turtle-y! t new-y))
+  (define teleport! move-to!)
 
   ; get the turtle's current location
   (define (turtle-location t)
@@ -147,10 +168,12 @@
   ; turn a turtle t left by d degrees
   (define (turn-left! t d)
     (turn-to! t (r->d (- (turtle-dir t) (d->r d)))))
+  (define turn-counter-clockwise! turn-left!)
 
   ; turn a turtle t right by d degrees
   (define (turn-right! t d)
     (turn-to! t (r->d (+ (turtle-dir t) (d->r d)))))
+  (define turn-clockwise! turn-right!)
 
   ; turn right by default
   (define turn! turn-right!)
@@ -163,14 +186,14 @@
 
   ; get the turtle's current rotation in degrees
   (define (turtle-direction t)
-    (r->d (turtle-dir t)))
+    (mod (r->d (turtle-dir t)) 360))
 
   ; lift the turtle's pen or put it down
   (define (lift-pen! t)
     (live! t `(pen up)) (tick! t) (set-turtle-up/down! t 'up))
   (define (drop-pen! t)
     (live! t `(pen down)) (tick! t) (set-turtle-up/down! t 'down))
-  (define (pen-up/down? t) (turtle-up/down t))
+  (define (pen-up/down t) (turtle-up/down t))
 
   ; change the pen's color
   (define (set-pen-color! t c)
