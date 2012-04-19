@@ -260,6 +260,17 @@ public class Petite {
 								Buffer.append(c);
 							}
 						}
+						
+						// Go ahead and force output on newlines (if not in interop)
+						else if (State == PetiteState.Command && c == '\n') {
+							Buffer.append(c);
+							String output = Buffer.toString();
+							Buffer.delete(0, Buffer.length());
+							synchronized (Listeners) {
+								for (PetiteListener pl : Listeners)
+									pl.onOutput(output);
+							}
+						}
 
 						// Normal case, no new characters.
 						else {
