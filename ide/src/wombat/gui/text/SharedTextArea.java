@@ -63,8 +63,8 @@ public class SharedTextArea extends SchemeTextArea {
 	/**
 	 * Create a new text area.
 	 */
-	private SharedTextArea(boolean lineNumbers) {
-		super(lineNumbers);
+	private SharedTextArea(boolean marginLine, boolean lineNumbers) {
+		super(marginLine, lineNumbers);
 		
 		// Custom text pane that displays server information.
 		code = new LinedTextPane(this) {
@@ -92,7 +92,7 @@ public class SharedTextArea extends SchemeTextArea {
 	 * @throws Exception If we cannot host.
 	 */
 	public static SharedTextArea host() throws Exception {
-		final SharedTextArea sta = new SharedTextArea(true);
+		final SharedTextArea sta = new SharedTextArea(true, true);
 		
 		// Create the host.
 		for (int i = 5309; ; i++) {
@@ -172,7 +172,7 @@ public class SharedTextArea extends SchemeTextArea {
 	 * @throws Exception If we can't get the server.
 	 */
 	public static SharedTextArea join(String connectTo) throws Exception {
-		final SharedTextArea sta = new SharedTextArea(true);
+		final SharedTextArea sta = new SharedTextArea(true, true);
 		sta.ID = connectTo;
 		
 		// Unconvert bad characters

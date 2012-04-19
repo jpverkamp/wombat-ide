@@ -31,7 +31,7 @@ public class SchemeTextArea extends JPanel {
 	public net.infonode.docking.View myView;
 	
 	// Actual source code.
-	public JTextPane code;
+	public LinedTextPane code;
 	
 	// Always use bare newlines, regardless of OS.
     public static String NL = "\n"; //System.getProperty("line.separator");
@@ -51,11 +51,12 @@ public class SchemeTextArea extends JPanel {
     /**
      * Create a new Scheme text area.
      */
-    public SchemeTextArea(boolean lineNumbers) {
+    public SchemeTextArea(boolean marginLine, boolean lineNumbers) {
         super();
         setLayout(new BorderLayout());
         
         code = new LinedTextPane(this);
+        code.setLined(marginLine);
         JScrollPane scroll = new JScrollPane(code);
         add(scroll);
         
@@ -77,8 +78,8 @@ public class SchemeTextArea extends JPanel {
      * @param text Content.
      * @throws FileNotFoundException, IOException 
      */
-    public SchemeTextArea(File file, boolean lineNumbers) throws FileNotFoundException, IOException {
-        this(lineNumbers);
+    public SchemeTextArea(File file, boolean marginLine, boolean lineNumbers) throws FileNotFoundException, IOException {
+        this(marginLine, lineNumbers);
         myFile = file;
         load();
     }
@@ -410,7 +411,9 @@ public class SchemeTextArea extends JPanel {
      * Jump to the end of the text area.
      */
     public void goToEnd() {
-    	code.scrollRectToVisible(new Rectangle(0, code.getHeight() - 1, 1, 1));
+    	if (code != null) {
+    		code.scrollRectToVisible(new Rectangle(0, code.getHeight() - 1, 1, 1));
+    	}
     }
 
     /**

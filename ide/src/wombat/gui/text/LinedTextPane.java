@@ -24,6 +24,7 @@ import wombat.util.Options;
  */
 public class LinedTextPane extends JTextPane {
 	private static final long serialVersionUID = 2523699493531510651L;
+	boolean LineEnabled;
 
 	/**
 	 * Create a new text pane.
@@ -87,19 +88,29 @@ public class LinedTextPane extends JTextPane {
 	}
 	
 	/**
+	 * Set if we actually want to draw that line we've heard so much about.
+	 * @param lined The new lined value.
+	 */
+	public void setLined(boolean lined) {
+		LineEnabled = lined;
+	}
+	
+	/**
 	 * Draw the right margin.
 	 * @param go The original graphics object.
 	 */
 	@Override
 	public void paint(Graphics go) {
 		super.paint(go);
-    	
-    	Graphics2D g = (Graphics2D) go;
-    	
-    	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
-    	
-    	g.setColor(Color.LIGHT_GRAY);
-    	g.drawLine(width, 0, width, getHeight() + 10);
+		
+		if (LineEnabled) {	
+	    	Graphics2D g = (Graphics2D) go;
+	    	
+	    	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
+	    	
+	    	g.setColor(Color.LIGHT_GRAY);
+	    	g.drawLine(width, 0, width, getHeight() + 10);
+		}
 	}
 }
 

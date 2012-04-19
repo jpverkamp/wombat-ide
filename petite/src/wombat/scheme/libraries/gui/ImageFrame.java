@@ -49,6 +49,7 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 	int MaxWidth = -200 + (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 	int MaxHeight = -200 + (int) java.awt.Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 
+	JPanel ImageDisplayPanel;
 	JLabel ImageDisplay;
 	JLabel ImageInformation;
 	
@@ -68,6 +69,7 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 		setLayout(new BorderLayout(10, 10));
 		setLocationByPlatform(true);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setResizable(false);
 		
 		// Add zoom buttons to the top.
 		JPanel zoomButtons = new JPanel();
@@ -161,9 +163,9 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 		ImageDisplay.setIconTextGap(0);
 		ImageDisplay.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		
-		JPanel imageDisplayPanel = new JPanel();
-		imageDisplayPanel.add(ImageDisplay);
-		add(imageDisplayPanel, BorderLayout.CENTER);
+		ImageDisplayPanel = new JPanel();
+		ImageDisplayPanel.add(ImageDisplay);
+		add(ImageDisplayPanel, BorderLayout.CENTER);
 		
 		// Get the size from that to display everything.
 		updateInformation();

@@ -2,7 +2,9 @@ package wombat.scheme.libraries.gui;
 
 import java.util.*;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
@@ -52,8 +54,22 @@ public class TurtleFrame extends ImageFrame {
 		}
 		
 		MyImage = turtleImage;
-		ImageDisplay.setIcon(new ImageIcon(MyImage));
+		
+		int scaleWidth = (int) (MyImage.getWidth(null) * Scale);
+		int scaleHeight = (int) (MyImage.getHeight(null) * Scale);
+		Dimension d = new Dimension(scaleWidth, scaleHeight);
+		
+		ImageDisplay.setIcon(new ImageIcon(MyImage.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_SMOOTH)));
+		ImageDisplay.setSize(d);
+		ImageDisplay.setMinimumSize(d);
+		ImageDisplay.setPreferredSize(d);
+		ImageDisplay.setMaximumSize(d);
+		
 		pack();
+		
+		invalidate();
+		validate();
+		
 		repaint();
 	}
 }

@@ -83,7 +83,7 @@ public final class DocumentManager implements FocusListener {
         me.lastIndex++;
         String id = "document-" + me.lastIndex;
 
-        SchemeTextArea ss = new SchemeTextArea(true);
+        SchemeTextArea ss = new SchemeTextArea(true, true);
         me.allDocuments.add(ss);
         ss.code.addFocusListener(me);
         
@@ -155,7 +155,7 @@ public final class DocumentManager implements FocusListener {
             if (!file.exists())
                 file.createNewFile();
 
-            SchemeTextArea ss = new SchemeTextArea(file, true);
+            SchemeTextArea ss = new SchemeTextArea(file, true, true);
             me.allDocuments.add(ss);
             ss.myFile = file;
             ss.code.addFocusListener(me);
