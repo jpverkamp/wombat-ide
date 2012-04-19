@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,6 +38,8 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 
 	Image MyImage;
 	Robot MyRobot;
+	
+	static final double SCALE_CONSTANT = 1.3;
 	
 	double Scale = 1.0;
 	boolean Debug = true;
@@ -74,14 +77,14 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 		// Add zoom buttons to the top.
 		JPanel zoomButtons = new JPanel();
 		
-		JButton zoomOut = new JButton("-");
+		final JButton zoomOut = new JButton("-");
 		zoomOut.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
 				
-				if (MyImage.getWidth(null) * Scale < 5 || MyImage.getHeight(null) * Scale < 5)
+				if (MyImage.getWidth(null) * Scale / SCALE_CONSTANT < 5 || MyImage.getHeight(null) * Scale / SCALE_CONSTANT < 5)
 					return;
 				
-				Scale /= 2.0;
+				Scale /= SCALE_CONSTANT;
 				
 				int scaleWidth = (int) (MyImage.getWidth(null) * Scale);
 				int scaleHeight = (int) (MyImage.getHeight(null) * Scale);
@@ -94,7 +97,14 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 				ImageDisplay.setMaximumSize(size);
 				
 				me.updateInformation();
+				
 				me.pack();
+				
+				me.invalidate();
+				me.validate();
+				
+				Point p = zoomOut.getLocationOnScreen();
+				MyRobot.mouseMove((int) p.getX() + zoomOut.getWidth() / 2, (int) p.getY() + zoomOut.getHeight() / 2);
 			}
 		});
 		zoomButtons.add(zoomOut);
@@ -117,16 +127,16 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 				}
 			}
 		});
-		zoomButtons.add(saveCurrent);		
+		zoomButtons.add(saveCurrent);
 		
-		JButton zoomIn = new JButton("+");
+		final JButton zoomIn = new JButton("+");
 		zoomIn.addActionListener(new ActionListener() {
 			@Override public void actionPerformed(ActionEvent arg0) {
 				
-				if (MyImage.getWidth(null) * Scale > MaxWidth || MyImage.getHeight(null) * Scale > MaxHeight)
+				if (MyImage.getWidth(null) * Scale * SCALE_CONSTANT > MaxWidth || MyImage.getHeight(null) * Scale * SCALE_CONSTANT > MaxHeight)
 					return;
 				
-				Scale *= 2.0;
+				Scale *= SCALE_CONSTANT;
 				
 				int scaleWidth = (int) (MyImage.getWidth(null) * Scale);
 				int scaleHeight = (int) (MyImage.getHeight(null) * Scale);
@@ -139,7 +149,14 @@ public class ImageFrame extends JFrame implements MouseMotionListener {
 				ImageDisplay.setMaximumSize(size);
 				
 				me.updateInformation();
+				
 				me.pack();
+				
+				me.invalidate();
+				me.validate();
+				
+				Point p = zoomIn.getLocationOnScreen();
+				MyRobot.mouseMove((int) p.getX() + zoomIn.getWidth() / 2, (int) p.getY() + zoomIn.getHeight() / 2);
 			}
 		});
 		zoomButtons.add(zoomIn);
