@@ -6,11 +6,13 @@
 package wombat.gui.frames;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.text.*;
 
 import net.infonode.docking.*;
@@ -189,8 +191,7 @@ public class MainFrame extends JFrame {
         ToolBar.setVisible(Options.DisplayToolbar);
         
         // Disable items by default.
-        MenuManager.itemForName("Stop").setEnabled(false);
-		ToolBarStop.setEnabled(false);
+        setRunning(false);
 		
 		// Remove text on toolbar buttons.
 		for (Component c : ToolBar.getComponents())
@@ -205,6 +206,28 @@ public class MainFrame extends JFrame {
         // Finally, intialize petite.
         initPetite();
     }
+    
+    static Border REPLOriginalBorder;
+    static Border REPLRunningBorder;
+    
+    /**
+     * Set if the system should report itself as running.
+     * @param running True to display run and enable stop, false for the opposite.
+     */
+    public void setRunning(boolean toRunning) {
+    	MenuManager.itemForName("Run").setEnabled(!toRunning);
+		ToolBarRun.setEnabled(!toRunning);
+		
+		MenuManager.itemForName("Stop").setEnabled(toRunning);
+		ToolBarStop.setEnabled(toRunning);
+
+		if (REPLOriginalBorder == null) {
+			REPLOriginalBorder = REPL.code.getBorder(); 
+			REPLRunningBorder = BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED, Color.RED, Color.RED);
+		}
+
+		REPL.code.setBorder(toRunning ? REPLRunningBorder : REPLOriginalBorder);
+    }
 
     /**
      * Start up Petite or restart it on a reset.
@@ -218,11 +241,7 @@ public class MainFrame extends JFrame {
 	        // Add a listener to reset the running state when Petite reports it is ready.
 	        Petite.addPetiteListener(new PetiteListener() {
 				@Override public void onReady() {
-					MenuManager.itemForName("Run").setEnabled(true);
-					ToolBarRun.setEnabled(true);
-        			
-        			MenuManager.itemForName("Stop").setEnabled(true);
-					ToolBarStop.setEnabled(false);
+					setRunning(false);
 				}
 				
 				@Override public void onOutput(String output) {
@@ -262,11 +281,7 @@ public class MainFrame extends JFrame {
      */
     public void doCommand(String command) {
     	// Don't allow multiple things to run at once.
-    	MenuManager.itemForName("Run").setEnabled(false);
-    	ToolBarRun.setEnabled(false);
-    	
-    	MenuManager.itemForName("Stop").setEnabled(true);
-    	ToolBarStop.setEnabled(true);
+    	setRunning(true);
     	
     	// Clean up the input and don't run empty content.
         final String cmd = command.trim();
@@ -378,11 +393,7 @@ public class MainFrame extends JFrame {
 						    	Petite.removePetiteListener(this);
 						    	
 						    	// Reenable running code.
-						    	MenuManager.itemForName("Run").setEnabled(true);
-						    	ToolBarRun.setEnabled(true);
-						    	
-						    	MenuManager.itemForName("Stop").setEnabled(false);
-						    	ToolBarStop.setEnabled(false);
+						    	setRunning(false);
 							}
 							
 							@Override public void onOutput(String output) {}

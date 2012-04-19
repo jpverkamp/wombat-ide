@@ -92,7 +92,7 @@ public class LinedTextPane extends JTextPane {
 	 */
 	@Override
 	public void paint(Graphics go) {
-    	super.paint(go);
+		super.paint(go);
     	
     	Graphics2D g = (Graphics2D) go;
     	
