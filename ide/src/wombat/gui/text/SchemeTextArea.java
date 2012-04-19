@@ -9,10 +9,13 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.undo.*;
 
+import wombat.gui.frames.MainFrame;
 import wombat.util.Options;
 import wombat.util.errors.ErrorManager;
 
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
@@ -331,29 +334,83 @@ public class SchemeTextArea extends JPanel {
      * Format the document by fixing indentation to scheme standards.
      */
     public void format() {
-    	// TODO: Push this into it's own thread with a progress indicator.
+    	int lines = 0;
+    	String text = getText();
+    	for (int i = 0; i < text.length(); i++)
+    		if (text.charAt(i) == '\n')
+    			lines++;
+    	final int totalLines = lines;
     	
-    	code.setCaretPosition(0);
-        tab();
+    	final JFrame frame = new JFrame();
+    	frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    	frame.setLocationByPlatform(true);
+    	frame.setLayout(new BorderLayout());
     	
-        int next = -1;
-        int eof = getText().indexOf("#!eof");
-        if (eof == -1) eof = getText().length();
-        
-        while (true) {
-        	next = getText().indexOf(NL, next + 1) + NL.length();
-        	
-            if (next > 0 && next < eof) {
-                try {
-                    code.setCaretPosition(next);
-                    tab();
-                } catch (IllegalArgumentException iae) {
-                    // Means there's extra lines. Just ignore it.
-                }
-            } else {
-                break;
-            }
-        }
+    	final JProgressBar progress = new JProgressBar(0, 100);
+    	progress.setValue(0);
+    	progress.setSize(100, 20);
+    	progress.setString("Formatting code...");
+    	progress.setStringPainted(true);
+    	
+    	frame.add(progress);
+    	frame.pack();
+    	frame.setVisible(true);
+    	
+    	MainFrame.Singleton().setRunning(true);
+    	
+    	SwingWorker<Object, Integer> task = new SwingWorker<Object, Integer>() {
+    		@Override
+    		protected Object doInBackground() throws Exception {
+    			code.setCaretPosition(0);
+    	        tab();
+    	    	
+    	        int next = 1;
+    	        int eof = getText().indexOf("#!eof");
+    	        if (eof == -1) eof = getText().length();
+    	        
+    	        String text = null;
+    	        int line = 0;
+    	        while (next < eof) {
+    	        	setProgress((line++) * 100 / totalLines);
+    	        	
+    	        	text = getText();
+    	        	for (; next > 0 && next < eof && text.charAt(next) != '\n'; next++) {
+    	        		// wheee!
+    	        	}
+    	        	next += 2;
+    	        	
+    	            if (next > 0 && next < eof) {
+    	                try {
+    	                    code.setCaretPosition(next);
+    	                    next += tab();
+    	                    try { Thread.sleep(10); } catch(InterruptedException ex) {}
+    	                } catch (IllegalArgumentException iae) {
+    	                    iae.printStackTrace();
+    	                }
+    	            } 
+    	        }
+    	        
+    	        return null;
+    		}
+    		
+    		@Override
+    		protected void done() {
+    			super.done();
+    			
+    			frame.setVisible(false);
+    			MainFrame.Singleton().setRunning(false);
+    		}
+    	};
+    	task.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if ("progress".equals(evt.getPropertyName())) {
+					progress.setValue((Integer) evt.getNewValue());
+				}
+			}
+		});
+    	task.execute();
     }
 
     /**
