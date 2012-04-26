@@ -52,7 +52,11 @@ public class ImageAPI {
 		if (!new File(filename).exists())
 			throw new IllegalArgumentException("Error in read-image: '" + filename + "' does not exist");
 		
-		BufferedImage bi = ImageIO.read(new File(filename));
+		BufferedImage bi_orig = ImageIO.read(new File(filename));
+		
+		// This is a fix to deal with getRGB screwing up on previously grayscale images
+		BufferedImage bi = new BufferedImage(bi_orig.getWidth(), bi_orig.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		bi.getGraphics().drawImage(bi_orig, 0, 0, null);
 		
 		int[] data = new int[bi.getWidth() * bi.getHeight()];
 		bi.getRGB(0, 0, bi.getWidth(), bi.getHeight(), data, 0, bi.getWidth());
