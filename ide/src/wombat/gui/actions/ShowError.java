@@ -6,6 +6,8 @@
 package wombat.gui.actions;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileInputStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -33,6 +35,27 @@ public class ShowError extends AbstractAction {
 	 * @see ActionEvent, MainFrame
 	 */
 	public void actionPerformed(ActionEvent event) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Logs:\n\n");
+		
+		for (String s : new File(".").list()) {
+			File f = new File(s);
+			if (s.startsWith("log") && f.isFile() && f.canRead()) {
+				try {
+					sb.append("-- " + f.getCanonicalPath() + " --");
+					
+					byte[] buffer = new byte[(int) f.length()];
+				    FileInputStream fis = new FileInputStream(f);
+				    fis.read(buffer);
+					sb.append(new String(buffer));
+				} catch(Exception e) {
+					
+				}
+			}
+		}
+		
+		MainFrame.Singleton().DebugLogs.setText(sb.toString());
+		
 		MainFrame.Singleton().showDebug();
 	}
 }

@@ -8,6 +8,7 @@ package wombat.gui.frames;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -56,6 +57,8 @@ public class MainFrame extends JFrame {
     NonEditableTextArea History;
     NonEditableTextArea Debug;
     REPLTextArea REPL;
+    
+    public NonEditableTextArea DebugLogs;
 
     /**
 	 * Singleton access.
@@ -130,8 +133,13 @@ public class MainFrame extends JFrame {
         ViewMap.getView("REPL - History").getWindowProperties().setUndockEnabled(false);
         
         // Create the error/debug/display views.
+        JPanel debugPanel = new JPanel();
+        debugPanel.setLayout(new GridLayout(2, 1));
         Debug = new NonEditableTextArea();
-        ViewMap.addView("Debug", new View("Debug", null, Debug));
+        debugPanel.add(Debug);
+        DebugLogs = new NonEditableTextArea();
+        debugPanel.add(DebugLogs);
+        ViewMap.addView("Debug", new View("Debug", null, debugPanel));
         
         // Listen and report new error messages.
         ErrorManager.addErrorListener(new ErrorListener() {
