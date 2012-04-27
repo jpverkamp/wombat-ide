@@ -108,9 +108,9 @@ public class ImageAPI {
 	 * @throws IOException If we cannot write the image.
 	 */
 	public static void writeImage(String dir, ImageData img, String filename) throws IOException {
-		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
+		RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_INT_RGB);
 		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
-		
+
 		if (!new File(filename).isAbsolute())
 			filename = new File(dir, filename).getCanonicalPath();
 		
@@ -126,7 +126,7 @@ public class ImageAPI {
 	 * @throws IOException If we cannot write the image.
 	 */
 	public static void displayImage(ImageData img) {
-		final RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_4BYTE_ABGR);
+		final RenderedImage ri = new BufferedImage(img.Width, img.Height, BufferedImage.TYPE_INT_RGB);
 		((BufferedImage) ri).setRGB(0, 0, img.Width, img.Height, img.Data, 0, img.Width);
 		
 		// Create the basic frame.
