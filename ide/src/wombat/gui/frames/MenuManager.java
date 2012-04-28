@@ -88,7 +88,7 @@ public final class MenuManager {
             // Help menu, mostly for debugging and about.
             buildMenu("Help",
                 buildItem("Show debug console", null, new wombat.gui.actions.ShowError()),
-                buildItem("About", "F1", new wombat.gui.actions.ShowAbout())));
+                buildItem("About", null, new wombat.gui.actions.ShowAbout())));
     }
     
     /**

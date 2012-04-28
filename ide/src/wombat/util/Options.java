@@ -55,6 +55,7 @@ public final class Options {
 	// Syntax highlighting.
 	public static Map<String, Color> Colors;
 	public static Map<String, Integer> Keywords;
+	public static Map<String, String> KeywordHelpURLs;
 	
 	public static Font Font;
 	public static int FontSize;
@@ -98,6 +99,7 @@ public final class Options {
     	Colors.put("invalid-bracket", new Color(prefs.getInt("Colors/invalid-bracket", 0xFF0000)));
     	
     	Keywords = new HashMap<String, Integer>();
+    	KeywordHelpURLs = new HashMap<String, String>();
     	
     	FontSize = prefs.getInt("FontSize", 12);
     	calculateFont();
@@ -121,8 +123,13 @@ public final class Options {
 				if ("".equals(line) || line.charAt(0) == ';') continue;
 				
 				parts = line.split(",");
-				if (parts.length != 2) continue;
-				Keywords.put(parts[0], Integer.parseInt(parts[1]));
+				if (parts.length == 2) { // old style: keyword,indent
+					Keywords.put(parts[0], Integer.parseInt(parts[1]));
+				} else if (parts.length == 4) { // new style: keyword,kind,indent,help URL
+					Keywords.put(parts[0], Integer.parseInt(parts[2]));
+					if (!parts[3].trim().isEmpty())
+						KeywordHelpURLs.put(parts[0], parts[3]);
+				}
 			}
 		} catch(FileNotFoundException ex) {
 			ErrorManager.logError("Unable to find syntax file.");
