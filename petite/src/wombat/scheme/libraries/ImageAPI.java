@@ -54,6 +54,15 @@ public class ImageAPI {
 		
 		BufferedImage bi_orig = ImageIO.read(new File(filename));
 		
+		if (bi_orig == null) {
+			String filetypes = "";
+			for (String s : ImageIO.getReaderFileSuffixes())
+				filetypes += s + " ";
+			filetypes = filetypes.trim();
+			
+			throw new IllegalArgumentException("Error in read-image: Unable to read '" + filename + "'. Valid file types are: " + filetypes);
+		}
+			
 		// This is a fix to deal with getRGB screwing up on previously grayscale images
 		BufferedImage bi = new BufferedImage(bi_orig.getWidth(), bi_orig.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		bi.getGraphics().drawImage(bi_orig, 0, 0, null);
