@@ -59,7 +59,7 @@ Turtle location, facing, pen state, and pen color will all be stored.
 name: repeat
 form: n code ...
 
-Repeat a block of code _n_ times purely for side effects. Equivalent to _(foreach (lambda (_) code ...) (iota n))_ except the list does not need to be constructed.
+Repeat a block of code _n_ times purely for side effects. Equivalent to _(foreach (lambda (x) code ...) (iota n))_ except the list does not need to be constructed.
 
 ---
 
@@ -94,7 +94,7 @@ Rotates _turtle_ left/counter-clockwise by _angle_ degrees.
 
 ---
 
-name: turn-right
+name: turn-right!
 form: turtle angle
 alias: turn-clockwise!
 alias: turn!
