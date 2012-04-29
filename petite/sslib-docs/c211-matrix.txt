@@ -43,7 +43,7 @@ name: matrix-ref
 form: matrix row column
 return: a value
 
-Access the value at _row_ x _column_ in _matrix.
+Access the value at _row_ x _column_ in _matrix_.
 
 ---
 

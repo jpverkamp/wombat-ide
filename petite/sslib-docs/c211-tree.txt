@@ -26,7 +26,7 @@ name: tree?
 form: obj
 return: #t or #f
 
-Tests if _obj_ is a tree. Returns #t on either a tree or an empty-tree.
+Test if _obj_ is a tree. Returns #t on either a tree or an empty-tree.
 
 ---
 
@@ -34,7 +34,7 @@ name: leaf?
 form: obj
 return: #t or #f
 
-Tests if _obj_ is a leaf. Equivalent to _(and (tree? obj) (empty-tree? (left-subtree obj) (right-subtree obj)))_.
+Test if _obj_ is a leaf. Equivalent to _(and (tree? obj) (empty-tree? (left-subtree obj)) (empty-tree? (right-subtree obj)))_.
 
 ---
 
@@ -42,7 +42,7 @@ name: empty-tree?
 form: obj
 return: #t or #f
 
-Tests if _obj_ is an empty tree.
+Test if _obj_ is an empty tree.
 
 ---
 

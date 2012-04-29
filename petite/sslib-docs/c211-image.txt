@@ -32,7 +32,7 @@ name: color?
 form: obj
 return: #t or #f
 
-Tests if _obj_ is a color.
+Test if _obj_ is a color.
 
 ---
 
@@ -40,7 +40,7 @@ name: image?
 form: obj
 return: #t or #f
 
-Tests if _obj is a colr
+Test if _obj_ is a colr
 
 ---
 
@@ -123,7 +123,7 @@ name: color-equal?
 form: color color
 return: #t or #f
 
-Tests if two colors are equal.
+Test if two colors are equal.
 
 ---
 
@@ -131,4 +131,4 @@ name: image-equal?
 form: image image
 return: #t or #f
 
-Tests if two images are equal.
+Test if two images are equal.
