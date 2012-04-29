@@ -78,13 +78,15 @@ public class SchemeTextArea extends JPanel {
 						String text = code.getText();
 						String delimiters = "()[] \t\n";
 						
-						for (; tokenStart > 0 && delimiters.indexOf(text.charAt(tokenStart)) == -1; tokenStart--) {}
-						for (; tokenEnd < text.length() - 1 && delimiters.indexOf(text.charAt(tokenEnd)) == -1; tokenEnd++) {}
+						for (; tokenStart >= 0 && delimiters.indexOf(text.charAt(tokenStart)) == -1; tokenStart--) {}
+						for (; tokenEnd < text.length() && delimiters.indexOf(text.charAt(tokenEnd)) == -1; tokenEnd++) {}
+				
+						if (tokenStart < 0 || tokenEnd >= text.length() || tokenStart >= tokenEnd)
+							return;
 						
 						String token = text.substring(tokenStart + 1, tokenEnd);
 						if (Options.KeywordHelpURLs.containsKey(token)) {
 							URI toVisit = URI.create(Options.KeywordHelpURLs.get(token));
-							System.out.println("Help loading: " + token + " -> " + toVisit.toASCIIString());
 							Desktop.getDesktop().browse(toVisit);
 						} else {
 							JOptionPane.showMessageDialog(MainFrame.Singleton(), "Unable to find help for '" + token + "'", "Error on help", JOptionPane.INFORMATION_MESSAGE);
