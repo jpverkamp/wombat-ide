@@ -15,6 +15,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.prefs.*;
 import javax.swing.*;
@@ -115,7 +116,8 @@ public final class Options {
      */
     private static void loadSyntax() {
 		try {
-			final Scanner s = new Scanner(new File("lib", "syntax.csv"));
+	        ClassLoader loader = Options.class.getClassLoader();
+			final Scanner s = new Scanner(new File(loader.getResource("lib/syntax.csv").toURI()));
 			String line;
 			String[] parts;
 			while (s.hasNextLine()) {
@@ -132,6 +134,9 @@ public final class Options {
 				}
 			}
 		} catch(FileNotFoundException ex) {
+			ErrorManager.logError("Unable to find syntax file.");
+			return;
+		} catch (URISyntaxException e) {
 			ErrorManager.logError("Unable to find syntax file.");
 			return;
 		}
