@@ -16,7 +16,11 @@ def output(data, fout = sys.stdout):
         return
 
     print('<div>', file = fout)
+
     print('<a name="%s"></a>' % data['name'], file = fout)
+    if 'alias' in data and data['alias']:
+        print('\n'.join(['<a name="%s"></a>' % name for name in data['alias']]), file = fout)
+
     for form in data['forms']:
         args = ' '.join(['<i>%s</i>' % arg for arg in form.split()])
         if args: args = ' ' + args
@@ -31,7 +35,11 @@ def output(data, fout = sys.stdout):
         print('<br />', file = fout)
         print(re_ref.sub(lambda match: '<code>%s</code>' % match.groups(), data['text'].strip()).replace('\n', '<br />\n'), file = fout)
         print('</div>', file = fout)
-        print('<hr />', file = fout)
+
+    if 'alias' in data and data['alias']:
+        print('<br />\naliases: %s\n<br />' % ' '.join(['<code>%s</code>' % name for name in data['alias']]), file = fout)
+
+    print('<hr />', file = fout)
 
 for input_file in sys.argv[1:]:
     with open(input_file, 'r') as f:
@@ -56,9 +64,13 @@ for input_file in sys.argv[1:]:
             elif line.startswith('return:'):
                 data['return'] = line[7:].strip()
 
+            elif line.startswith('alias:'):
+                if not 'alias' in data: data['alias'] = []
+                data['alias'].append(line[6:].strip())
+
             else: 
                 if not 'text' in data: data['text'] = ''
-                data['text'] += line
+                data['text'] += line + '\n'
         
         if 'name' in data:
             datas[data['name']] = data
