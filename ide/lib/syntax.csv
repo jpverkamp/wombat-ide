@@ -739,7 +739,8 @@ latin-1-codec,procedure,2,http://www.scheme.com/tspl4/io.html#./io:s22
 lcm,procedure,2,http://www.scheme.com/tspl4/objects.html#./objects:s110
 least-fixnum,procedure,2,http://www.scheme.com/tspl4/objects.html#./objects:s151
 length,procedure,2,http://www.scheme.com/tspl4/objects.html#./objects:s46
-let,syntax,2,http://www.scheme.com/tspl4/control.html#./control:s20
+let,syntax,2,http://www.scheme.com/tspl4/binding.html#./binding:s16
+named let,syntax,2,http://www.scheme.com/tspl4/control.html#./control:s20
 let*,syntax,2,http://www.scheme.com/tspl4/binding.html#./binding:s18
 let*-values,syntax,2,http://www.scheme.com/tspl4/binding.html#./binding:s23
 let-syntax,syntax,2,http://www.scheme.com/tspl4/syntax.html#./syntax:s13

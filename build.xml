@@ -54,7 +54,7 @@ Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
 Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
 Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
 C211 Libraries,${c211-lib-version},lib/c211-lib-${c211-lib-version}.zip
-Keyword List,8.4.2,lib/syntax.csv
+Keyword List,8.4.3,lib/syntax.csv
 </echo>
 	</target>
 	

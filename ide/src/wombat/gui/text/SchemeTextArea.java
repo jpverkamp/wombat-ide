@@ -81,10 +81,19 @@ public class SchemeTextArea extends JPanel {
 						for (; tokenStart >= 0 && delimiters.indexOf(text.charAt(tokenStart)) == -1; tokenStart--) {}
 						for (; tokenEnd < text.length() && delimiters.indexOf(text.charAt(tokenEnd)) == -1; tokenEnd++) {}
 				
-						if (tokenStart < 0 || tokenEnd >= text.length() || tokenStart >= tokenEnd)
+						if (tokenStart < 0 || tokenEnd >= text.length() + 1 || tokenStart >= tokenEnd)
 							return;
 						
 						String token = text.substring(tokenStart + 1, tokenEnd);
+						
+						// Special case for let as it can be either 'let' or 'named let' depending on what's next.
+						if ("let".equals(token)) {
+							for (; tokenEnd < text.length() && " \t\n".indexOf(text.charAt(tokenEnd)) != -1; tokenEnd++) {}
+							if (tokenEnd < text.length() && "()[]".indexOf(text.charAt(tokenEnd)) == -1) {
+								token = "named let";
+							} 
+						}
+						
 						if (Options.KeywordHelpURLs.containsKey(token)) {
 							URI toVisit = URI.create(Options.KeywordHelpURLs.get(token));
 							Desktop.getDesktop().browse(toVisit);
