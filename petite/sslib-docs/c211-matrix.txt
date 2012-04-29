@@ -1,0 +1,94 @@
+name: make-matrix
+form: rows columns
+form: rows columns value
+return: a matrix
+
+Create a new matrix of size _rows_ x _columns_. If _value_ is specified, fill the matrix with that _value_. Otherwise, fill it with 0.
+
+---
+
+name: matrix-generator
+form: rows columns generator
+return: a matrix
+
+Create a new matrix of size _rows_ x _columns_ by calling the function _generator_ at each element. _generator_ should have the form _(lambda (r c) ...)_.
+
+---
+
+name: matrix?
+form: obj
+return: #t or #f
+
+Test if _obj_ is a matrix.
+
+---
+
+name: matrix-rows
+form: matrix
+return: a non-negative integer
+
+Return how many rows are in _matrix_.
+
+---
+
+name: matrix-cols
+form: matrix
+return: a non-negative integer
+
+Return how many columns are in _matrix_.
+
+---
+
+name: matrix-ref
+form: matrix row column
+return: a value
+
+Access the value at _row_ x _column_ in _matrix.
+
+---
+
+name: matrix-set!
+form: matrix row column value
+
+Set the value stored in _matrix_ at _row_ x _column_ to a new _value_.
+
+---
+
+name: print-matrix
+form: matrix
+
+Print a _matrix_ to the REPL. For larger matricies, only the top left corner will be printed.
+
+---
+
+name: draw-matrix
+form: matrix
+
+Display a graphical form of _matrix_, showing all of the values contained therein.
+
+---
+
+name: print-matrix-rows
+form: 
+form: rows
+return: see below
+
+Control how many rows are printed when using _print-matrix_. If _rows_ is specified, use this for future calls; otherwise, return the current value.
+
+---
+
+name: print-matrix-cols
+form: 
+form: columns
+return: see below
+
+Control how many columns are printed when using _print-matrix_. If _columns_ is specified, use this for future calls; otherwise, return the current value.
+
+---
+
+name: print-matrix-width
+form: 
+form: width
+return: see below
+
+Control how the width of values that are printed when using _print-matrix_. If _width_ is specified, use this for future calls; otherwise, return the current value.

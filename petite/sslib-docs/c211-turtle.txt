@@ -1,0 +1,161 @@
+name: hatch
+form: 
+form: facing
+form: x y
+form: x y facing
+form: x y facing up/down color
+return: a turtle
+
+Create a new turtle. By default, the turtle is at 0 x 0, facing north, and has a pen that is down and black. 
+
+If specified:
+_x_ and _y_ can be any real number.
+_facing_ should be a real number representing a degree rotation where 0 is north and positive is clockwise.
+_up/down_ should be either _'up_ or _'down_.
+_color_ should be a color from the _(c211 image)_ library.
+
+---
+
+name: clone
+form: turtle
+return: a turtle
+
+Copy a given turtle, creating a second turtle with the location, facing, pen status, and pen color as the given _turtle_. When drawing the original _turtle_, this clone will be drawn as well.
+
+---
+
+name: live-display
+form: 
+form: enable
+return: see below
+
+If _enable_ is specified and either #t or #f, enable or disable the live turtle view based on its value. Otherwise return its current value. 
+
+_live-display_ defaults to #f.
+
+---
+
+name: live-delay
+form: 
+form: delay
+return: see below
+
+If _delay_ is specified, set the delay after updating the display when animating turtle graphics. _delay_ can be any real number of seconds. If not specified, return the delay's current value.
+
+_live-delay_ defaults to 0.1.
+
+---
+
+name: block
+form: turtle code ...
+
+Store the current state of _turtle_ then run _code ..._. After that code has finished, restore _turtle_ to its previous state. Multiple calls to block can be nested, each storing and restoring the turtle state in a correctly nested fashion.
+
+Turtle location, facing, pen state, and pen color will all be stored.
+
+
+---
+
+name: repeat
+form: n code ...
+
+Repeat a block of code _n_ times purely for side effects. Equivalent to _(foreach (lambda (_) code ...) (iota n))_ except the list does not need to be constructed.
+
+---
+
+name: move!
+form: turtle n
+
+Move the _turtle_ along its current facing by _n_ units. If the pen on _turtle_ is currently _'down_, draw a line.
+
+---
+
+name: move-to!
+form: turtle x y
+alias: teleport!
+
+Move the _turtle_ directly to the point _x_ x _y_, preserving its current facing. If the pen on _turtle_ is currently _'down_, draw a line.
+
+--- 
+
+name: turtle-location
+form: turtle
+return: a list (x y)
+
+Gets the current location of _turtle_ as a list _(x y)_.
+
+---
+
+name: turn-left!
+form: turtle angle
+alias: turn-counter-clockwise!
+
+Rotates _turtle_ left/counter-clockwise by _angle_ degrees.
+
+---
+
+name: turn-right
+form: turtle angle
+alias: turn-clockwise!
+alias: turn!
+
+Rotates _turtle_ right/clockwise by _angle_ degrees.
+
+---
+
+name: turn-to!
+form: turtle angle
+
+Turn _turtle_ directly to the given facing of _angle_ degrees. North is 0 with positive going clockwise. 
+
+---
+
+name: lift-pen!
+form: turtle
+
+Lift the pen on  _turtle_. Future movement will not draw lines until the pen is dropped again.
+
+---
+
+name: drop-pen!
+form: turtle
+
+Drop the pen on _turtle_.
+
+---
+
+name: pen-up/down
+form: turtle
+return: 'up or 'down
+
+Return the current up/down state of the pen on _turtle_.
+
+---
+
+name: set-pen-color!
+form: turtle color
+
+Set the current pen color on _turtle_ to a _color_ from _(c211 image)_.
+
+---
+
+name: pen-color
+form: turtle
+return: a color
+
+Get the current pen color on _turtle_ as a color from _(c211 image)_.
+
+---
+
+name: draw-turtle
+form: turtle
+
+Display _turtle_ and any turtles cloned from it on the screen. 
+
+--- 
+
+name: turtle->image
+form: turtle
+return: an image
+
+Convert _turtle_ to an image from _(c211 image)_.
