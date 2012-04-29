@@ -74,3 +74,19 @@ name: draw-tree
 form: tree
 
 Displays a graphical representation of _tree_.
+
+---
+
+name: left-subtree?
+form: tree
+return: #t or #f
+
+Returns #t if and only if _tree_ is a tree, _tree_ has a left subtree, and the left subtree of _tree_ is a non-empty tree.
+
+---
+
+name: right-subtree?
+form: tree
+return: #t or #f
+
+Returns #t if and only if _tree_ is a tree, _tree_ has a right subtree, and the right subtree of _tree_ is a non-empty tree.

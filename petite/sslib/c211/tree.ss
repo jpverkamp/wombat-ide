@@ -39,6 +39,7 @@ Other:
     tree leaf empty-tree
     tree? leaf? empty-tree?
     root-value left-subtree right-subtree
+    left-subtree? right-subtree?
     draw-tree)
 
   (import (except (chezscheme) lambda define))
@@ -68,6 +69,16 @@ Other:
          (empty-tree? (left-subtree tr))
          (empty-tree? (right-subtree tr))))
   (define empty-tree? (record-predicate :empty-tree))
+
+  ; return #t if the left/right subtree is a tree and non-empty
+  (define (left-subtree? tr)
+    (and (tree? tr)
+         (tree? (left-subtree tr))
+         (not (empty-tree? (left-subtree tr)))))
+  (define (right-subtree? tr)
+    (and (tree? tr)
+         (tree? (right-subtree tr))
+         (not (empty-tree? (right-subtree tr)))))
 
   ; draw a tree
   (define (draw-tree tr)
