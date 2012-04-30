@@ -11,7 +11,7 @@ Create a new turtle. By default, the turtle is at 0 x 0, facing north, and has a
 If specified:
 _x_ and _y_ can be any real number.
 _facing_ should be a real number representing a degree rotation where 0 is north and positive is clockwise.
-_up/down_ should be either _'up_ or _'down_.
+_up/down_ should be either the symbol _up_ or _down_.
 _color_ should be a color from the _(c211 image)_ library.
 
 ---
@@ -66,7 +66,7 @@ Repeat a block of code _n_ times purely for side effects. Equivalent to _(foreac
 name: move!
 form: turtle n
 
-Move the _turtle_ along its current facing by _n_ units. If the pen on _turtle_ is currently _'down_, draw a line.
+Move the _turtle_ along its current facing by _n_ units. If the pen on _turtle_ is currently the symbol _down_, draw a line.
 
 ---
 
@@ -74,7 +74,7 @@ name: move-to!
 form: turtle x y
 alias: teleport!
 
-Move the _turtle_ directly to the point _x_ x _y_, preserving its current facing. If the pen on _turtle_ is currently _'down_, draw a line.
+Move the _turtle_ directly to the point _x_ x _y_, preserving its current facing. If the pen on _turtle_ is currently symbol _down_, draw a line.
 
 --- 
 
@@ -126,9 +126,9 @@ Drop the pen on _turtle_.
 
 name: pen-up/down
 form: turtle
-return: 'up or 'down
+return: the symbol up or down
 
-Return the current up/down state of the pen on _turtle_.
+Return the current _up_/_down_ state of the pen on _turtle_.
 
 ---
 

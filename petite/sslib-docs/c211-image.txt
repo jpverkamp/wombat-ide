@@ -67,7 +67,7 @@ return: a color or an integer in the range [0, 255]
 
 If _band_ is not specified, access the pixel in _image_ and _row_ x _column_ and return the corresponding color.
 
-If _band_ is specified and one of either _'red_, _'green_, or _'blue_ or the corresponding integers 0, 1, or 2, then access the pixel in _image_ at _row_ x _column_ and return that given _band_ from the pixel as an integer in the range [0, 255].
+If _band_ is specified and one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2, then access the pixel in _image_ at _row_ x _column_ and return that given _band_ from the pixel as an integer in the range [0, 255].
 
 ---
 
@@ -75,7 +75,7 @@ name: color-ref
 form: color band
 return: an integer in the range [0, 255]
 
-Band should be one of either _'red_, _'green_, or _'blue_ or the corresponding integers 0, 1, or 2. Access the color object, returning the amount of that specified color as an integer in the range [0, 255] where 0 is none of that color and 255 is the maximum amount.
+Band should be one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2. Access the color object, returning the amount of that specified color as an integer in the range [0, 255] where 0 is none of that color and 255 is the maximum amount.
 
 ---
 
@@ -87,7 +87,7 @@ Mutate the given _image_ at the pixel specified by _row_ x _column_.
 
 If _color_ is specified, store that color at that pixel.
 
-If _band_ and _value_ are specified, band should be one of either _'red_, _'green_, or _'blue_ or the corresponding integers 0, 1, or 2 and _value_ should be in the range [0, 255]. Change that band of that pixel to the given value.
+If _band_ and _value_ are specified, band should be one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2 and _value_ should be in the range [0, 255]. Change that band of that pixel to the given value.
 
 ---
 
