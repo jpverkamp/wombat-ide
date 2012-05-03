@@ -92,3 +92,19 @@ form: width
 return: see below
 
 Control how the width of values that are printed when using _print-matrix_. If _width_ is specified, use this for future calls; otherwise, return the current value.
+
+---
+
+name: vov->matrix
+form: vov
+return: a matrix
+
+Convert a vector of vectors _vov_ into a matrix.
+
+---
+
+name: matrix->vov
+form: matrix
+return: a vector of vectors
+
+Convert a matrix into a vector of vectors.

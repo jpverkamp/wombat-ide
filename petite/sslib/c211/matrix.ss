@@ -5,37 +5,37 @@
 
 #|
 Constructors:
-  (matrix-matrix rs cs [i=0])
-    - create an rs x cs matrix with optional default value i
-  (matrix-generator rs cs p)
-    - create an rs x cs matrix, setting the value at r,c to (p r c)
+(matrix-matrix rs cs [i=0])
+- create an rs x cs matrix with optional default value i
+(matrix-generator rs cs p)
+- create an rs x cs matrix, setting the value at r,c to (p r c)
 
 Predicates:
-  (matrix? m)
-    - tests if something is a matrix
+(matrix? m)
+- tests if something is a matrix
 
 Accessors:
-  (matrix-rows m)
-    - how many rows the matrix has
-  (matrix-cols m)
-    - how many columns the matrix has
-  (matrix-ref m r c)
-    - get the value out of the matrix m at r,c
+(matrix-rows m)
+- how many rows the matrix has
+(matrix-cols m)
+- how many columns the matrix has
+(matrix-ref m r c)
+- get the value out of the matrix m at r,c
 
 Mutators:
-  (matrix-set! m r c v)
-    - set the value of the matrix m at r,c to v
+(matrix-set! m r c v)
+- set the value of the matrix m at r,c to v
 
 Other:
-  (print-matrix m)
-    - print the matrix to the console (only the top left corner for large ones)
-  (draw-matrix m)
-    - display a graphical matrix (will show all of the values, uses Java)
+(print-matrix m)
+- print the matrix to the console (only the top left corner for large ones)
+(draw-matrix m)
+- display a graphical matrix (will show all of the values, uses Java)
 
 Parameters:
-  print-matrix-rows = the maximum number of printed rows
-  print-matrix-cols = the maximum number of printed columns
-  print-matrix-width = the maximum width of elements to print
+print-matrix-rows = the maximum number of printed rows
+print-matrix-cols = the maximum number of printed columns
+print-matrix-width = the maximum width of elements to print
 |#
 
 (library
@@ -45,6 +45,7 @@ Parameters:
     matrix?
     matrix-rows matrix-cols matrix-ref
     matrix-set!
+    vov->matrix matrix->vov
     print-matrix draw-matrix
     print-matrix-rows print-matrix-cols print-matrix-width)
 
@@ -78,8 +79,8 @@ Parameters:
           [(= r (matrix-rows m)) m]
           [(= c (matrix-cols m)) (^ (+ r 1) 0)]
           [else
-            (matrix-set! m r c (p r c))
-            (^ r (+ c 1))]))))
+           (matrix-set! m r c (p r c))
+           (^ r (+ c 1))]))))
 
   ; test if something is a matrix
   (define matrix? (record-predicate :matrix))
@@ -119,6 +120,24 @@ Parameters:
     (!check-bounds 'matrix-set! m r c)
     (vector-set! (matrix-data m) (+ (* r (matrix-cols m)) c) v))
 
+  ; convert a vector of vectors into a matrix
+  (define (vov->matrix vov)
+    (if (zero? (vector-length vov))
+        (make-matrix 0 0)
+        (matrix-generator (vector-length vov) (vector-length (vector-ref vov 0))
+          (lambda (i j)
+            (vector-ref (vector-ref vov i) j)))))
+
+  ; convert a matrix into a vector of vectors
+  (define (matrix->vov m)
+    (apply vector
+      (map (lambda (i)
+             (apply vector
+               (map (lambda (j)
+                      (matrix-ref m i j))
+                 (iota (matrix-cols m)))))
+        (iota (matrix-rows m)))))
+
   ; display the matrix
   (define print-matrix-rows (make-parameter 10))
   (define print-matrix-cols (make-parameter 10))
@@ -132,15 +151,15 @@ Parameters:
         [(> c (print-matrix-cols)) (printf "... \n") (^ (+ r 1) 0)]
         [(= c (matrix-cols m)) (printf "\n") (^ (+ r 1) 0)]
         [else
-          (printf
-            (let ([s (format "~a" (matrix-ref m r c))])
-              (if (>= (string-length s) (print-matrix-width))
-                  (string-append (substring s 0 (- (print-matrix-width) 1)) "~~ ")
-                  (format
-                    (string-append "~"
-                      (number->string (print-matrix-width)) "a ")
-                    s))))
-          (^ r (+ c 1))])))
+         (printf
+           (let ([s (format "~a" (matrix-ref m r c))])
+             (if (>= (string-length s) (print-matrix-width))
+                 (string-append (substring s 0 (- (print-matrix-width) 1)) "~~ ")
+                 (format
+                   (string-append "~"
+                     (number->string (print-matrix-width)) "a ")
+                   s))))
+         (^ r (+ c 1))])))
 
   ; draw the matrix (uses the network connection to Java)
   (define (draw-matrix m)
@@ -153,15 +172,15 @@ Parameters:
         [(= c (matrix-cols m))
          (^ (+ r 1) 0 s)]
         [else
-          (^ r (+ c 1) (string-append s
-                         (format "~a\n" (matrix-ref m r c))))])))
+         (^ r (+ c 1) (string-append s
+                        (format "~a\n" (matrix-ref m r c))))])))
 
   ; tweak how matricies are printed
   (record-writer :matrix
     (lambda (r p wr)
       (display "#[matrix " p)
-      (wr (matrix-rows r) p)
-      (display " " p)
-      (wr (matrix-cols r) p)
-      (display "]" p)))
-  )
+                   (wr (matrix-rows r) p)
+                   (display " " p)
+                   (wr (matrix-cols r) p)
+                   (display "]" p)))
+                     )

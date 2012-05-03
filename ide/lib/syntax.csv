@@ -42,6 +42,8 @@ print-matrix,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211
 print-matrix-cols,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#print-matrix-cols
 print-matrix-rows,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#print-matrix-rows
 print-matrix-width,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#print-matrix-width
+matrix->vov,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#matrix->vov
+vov->matrix,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#vov->matrix
 
 ; c211 tree library
 draw-tree,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tree.htm#draw-tree
