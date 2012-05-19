@@ -8,12 +8,14 @@ package wombat.util.files;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.util.Stack;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import wombat.util.OS;
+import wombat.util.errors.ErrorManager;
 
 /**
  * Remember recently opened documents.
@@ -115,10 +117,17 @@ public class RecentDocumentManager {
 	 * Set the files to a string.
 	 */
 	public static void setFiles(String files) {
-		if (files != null)
-			for (String doc : files.split(";"))
-				if (!doc.trim().isEmpty())
-					fileList.add(new File(doc));
+		if (files != null) {
+			for (String doc : files.split(";")) {
+				if (!doc.trim().isEmpty()) {
+					try {
+						fileList.add(new File(doc).getCanonicalFile());
+					} catch(IOException ex) {
+						ErrorManager.logError("Unable to find canonical path for '" + doc.toString() + "' when loading recent documents");
+					}
+				}
+			}
+		}
 		
 		rebuildMenu();
 	}
@@ -130,8 +139,12 @@ public class RecentDocumentManager {
 	public static String getFiles() {
 		StringBuilder sb = new StringBuilder();
 		for (File f : fileList) {
-			sb.append(f.getPath());
-			sb.append(";");
+			try {
+				sb.append(f.getCanonicalPath());
+				sb.append(";");
+			} catch(IOException ex) {
+				ErrorManager.logError("Unable to find canonical path for '" + f.toString() + "' when saving recent documents");
+			}
 		}
 		if (sb.length() > 0)
 			sb.delete(sb.length() - 1, sb.length());
