@@ -1,0 +1,29 @@
+div#content {
+    position: absolute;
+    left: 50%;
+    width: 600px;
+    margin-left: -300px;
+    padding: 1em;
+    border-left: 1px dashed black;
+    border-right: 1px dashed black;
+}
+
+div#content h1 {
+    text-align: center;
+}
+
+div.thing {
+    
+}
+
+div.thing code.form {
+    font-size: 110%;
+    font-weight: bold;
+}
+
+hr {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border: 1px dashed black;
+    width: 80%;
+}
