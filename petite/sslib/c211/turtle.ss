@@ -1,3 +1,35 @@
+; Provides the C211 image library
+
+; License: source-license.txt
+; If this code is used independently, copy the license here.
+
+#|
+See exports for definitions.
+
+From color:
+Constructors:
+  (color r g b)
+    - create a pixel
+
+Predicates:
+  (color? c)
+    - tests if c is a color
+
+Accessors:
+  (color-ref c b)
+    - with b as 'red 'green or 'blue, access that band of a pixel
+
+Mutators:
+  (color-set! c b v) {from (c211 color)}
+    - set the value of band b in color c to value v
+
+Other:
+  (color-equal? c1 c2)
+    - tests if two colors are equal
+  black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
+    - predefined colors
+|#
+
 (library
   (c211 turtle)
   (export
@@ -32,13 +64,16 @@
     ; display
     draw-turtle ; (draw-turtle turtle) draw this turtle and any cloned from it
     turtle->image ; (turtle->image turtle) convert this turtle into (c211 image)
+    ; rexport from color
+    color color? color-ref color-set! color-equal?
+    black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
     )
 
   (import (except (chezscheme) lambda define))
   (import (wombat define))
   (import (wombat java))
 
-  (import (c211 image))
+  (import (c211 image)) ; already includes (c211 color)
 
   (define live-display (make-parameter #f))
   (define live-display-timer (make-parameter 0.1))

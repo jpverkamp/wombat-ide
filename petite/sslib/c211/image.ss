@@ -5,7 +5,7 @@
 
 #|
 Constructors:
-  (color r g b)
+  (color r g b) {from (c211 color)}
     - create a pixel
   (make-image rs cs [i])
     - create an rs x cs image
@@ -15,7 +15,7 @@ Constructors:
     - map the procedure p (color -> color) over the image i
 
 Predicates:
-  (color? c)
+  (color? c) {from (c211 color)}
     - tests if c is a color
   (image? i)
     - tests if i is an image
@@ -27,12 +27,14 @@ Accessors:
     - how many columns are in an image
   (image-ref i r c [b])
     - get the color at r,c of i; if b is specified pass that color to color-ref
-  (color-ref c b)
+  (color-ref c b) {from (c211 color)}
     - with b as 'red 'green or 'blue, access that band of a pixel
 
 Mutators:
   (image-set! i r c v)
     - set the pixel in image i at r,c to the color v
+  (color-set! c b v) {from (c211 color)}
+    - set the value of band b in color c to value v
 
 Other:
   (read-image [file])
@@ -41,11 +43,11 @@ Other:
     - write the image i to a file; if not specified display a dialog (uses Java)
   (draw-image i)
     - display the image to the user (uses Java)
-  (color-equal? c1 c2)
+  (color-equal? c1 c2) {from (c211 color)}
     - tests if two colors are equal
   (image-equal? i1 i2)
     - tests if two images are equal
-  black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
+  black darkgray gray lightgray white red green blue yellow cyan magenta orange pink {from (c211 color)}
     - predefined colors
 |#
 
@@ -55,7 +57,7 @@ Other:
    color make-image image-map
    color? image?
    image-rows image-cols image-ref color-ref
-   image-set!
+   image-set! color-set!
    read-image write-image draw-image
    color-equal? image-equal?
    image->list list->image
@@ -69,21 +71,11 @@ Other:
   (import (wombat define))
   (import (wombat java))
 
+  (import (c211 color))
   (import (c211 matrix))
 
   ; create the datatype (image data is stored as a matrix of colors)
-  (define :color (make-record-type "color" '(r g b)))
   (define :image (make-record-type "image" '(data)))
-
-  ; make colors
-  (define (color r g b)
-    (if (or (not (integer? r)) (< r 0) (> r 255)
-            (not (integer? g)) (< g 0) (> g 255)
-            (not (integer? b)) (< b 0) (> b 255))
-        (error 'color
-          (format "#[color ~a ~a ~a] is not a valid color, range is 0-255"
-            r g b))
-        ((record-constructor :color) r g b)))
 
   ; make an image
   (define make-image
@@ -116,9 +108,6 @@ Other:
           [else
             (image-set! i* r c (p (image-ref i r c)))
             (^ r (+ c 1))]))))
-
-  ; check if something is a color
-  (define color? (record-predicate :color))
 
   ; check if something is an image
   (define image? (record-predicate :image))
@@ -163,28 +152,6 @@ Other:
        (!check-bounds 'image-ref i r c)
        (!check-band 'image-ref b)
        (color-ref (matrix-ref (image-data i) r c) b)]))
-
-  ; get a band out of a color
-  (define (color-ref c b)
-    (!check-color 'color-ref c)
-    (!check-band 'color-ref b)
-    ((record-accessor :color
-       (if (eq? b 'red) 0 (if (eq? b 'green) 1 (if (eq? b 'blue) 2 b)))) c))
-
-  ; set a band in a color
-  (define (color-set! c b v)
-    (!check-color 'color-set! c)
-    (!check-band 'color-set! b)
-    (let ([cr (color-ref c 'red)]
-          [cg (color-ref c 'green)]
-          [cb (color-ref c 'blue)])
-      (cond
-        [(memq b '(0 red))
-         (color v cg cb)]
-        [(memq b '(1 green))
-         (color cr v cb)]
-        [(memq b '(2 blue))
-         (color cr cg v)])))
 
   ; change a pixel in an image
   (define image-set!
@@ -267,14 +234,6 @@ Other:
       (image-cols img) (image-rows img) (image->base64 img))
     (void))
 
-  ; tests if colors are equal
-  (define (color-equal? c1 c2)
-    (and (color? c1)
-         (color? c2)
-         (= (color-ref c1 'red) (color-ref c2 'red))
-         (= (color-ref c1 'green) (color-ref c2 'green))
-         (= (color-ref c1 'blue) (color-ref c2 'blue))))
-
   ; tests if images are equal
   (define image-equal?
     (lambda (img1 img2)
@@ -305,21 +264,6 @@ Other:
     (make-image (quotient (length ls) num-cols) num-cols
       (lambda (r c n m)
         (list-ref ls (+ (* r num-cols) c)))))
-
-  ; predefined colors
-  (define black (color 0 0 0))
-  (define darkgray (color 84 84 84))
-  (define gray (color 192 192 192))
-  (define lightgray (color 205 205 205))
-  (define white (color 255 255 255))
-  (define red (color 255 0 0))
-  (define green (color 0 255 0))
-  (define blue (color 0 0 255))
-  (define yellow (color 255 255 0))
-  (define cyan (color 0 255 255))
-  (define magenta (color 255 0 255))
-  (define orange (color 255 127 0))
-  (define pink (color 188 143 143))
 
   ; custom writer for images (show size, hide data)
   (record-writer :image
