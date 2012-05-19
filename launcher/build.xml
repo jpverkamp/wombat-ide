@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="wombat-launcher" default="jar">
-	<description>
-    	Launcher and auto-update script for Wombat.
-	</description>
+  <description>
+    Launcher and auto-update script for Wombat.
+  </description>
 
-	<property name="src-dir" location="src" />
-	<property name="bin-dir" location="bin" />
-	<property name="jar-dir" location="dist" />
-	
-	<property name="launcher-jar-name" value="wombat.jar" />
-	
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="build" description="build the source ">
-		<mkdir dir="${bin-dir}" />
+  <property name="src-dir" location="src" />
+  <property name="bin-dir" location="bin" />
+  <property name="jar-dir" location="dist" />
+  
+  <property name="launcher-jar-name" value="wombat.jar" />
+  
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="build" description="build the source ">
+    <mkdir dir="${bin-dir}" />
 
-		<javac srcdir="${src-dir}" 
-		       destdir="${bin-dir}" 
-		       includeantruntime="false" 
-		       debug="on"
-		       debuglevel="lines,vars,source"
-		       />
+    <javac srcdir="${src-dir}" 
+	   destdir="${bin-dir}" 
+	   includeantruntime="false" 
+	   debug="on"
+	   debuglevel="lines,vars,source"
+	   />
 
-		<copy todir="${bin-dir}">
-			<fileset dir="${src-dir}" />
-		</copy>
-	</target>
+    <copy todir="${bin-dir}">
+      <fileset dir="${src-dir}" />
+    </copy>
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="jar" depends="build" description="generate a jar file">
-		<mkdir dir="${jar-dir}" />
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="jar" depends="build" description="generate a jar file">
+    <mkdir dir="${jar-dir}" />
 
-		<jar jarfile="${jar-dir}/${launcher-jar-name}" basedir="${bin-dir}">
-			<manifest>
-				<attribute name="Main-Class" value="wombat.launcher.Main" />
-				<attribute name="Class-Path" value="./*.jar" />
-			</manifest>
-		</jar>
-	</target>
+    <jar jarfile="${jar-dir}/${launcher-jar-name}" basedir="${bin-dir}">
+      <manifest>
+	<attribute name="Main-Class" value="wombat.launcher.Main" />
+	<attribute name="Class-Path" value="./*.jar" />
+      </manifest>
+    </jar>
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="clean" description="remove all of the extra files / directories">
-		<delete dir="${bin-dir}" />
-		<delete dir="${jar-dir}" />
-	</target>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="clean" description="remove all of the extra files / directories">
+    <delete dir="${bin-dir}" />
+    <delete dir="${jar-dir}" />
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="run" depends="jar" description="build and run">
-		<java dir="${jar-dir}" jar="${jar-dir}/${launcher-jar-name}" fork="true" failonerror="true">
-			<jvmarg value="-Xss64m" />
-		</java>
-	</target>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="run" depends="jar" description="build and run">
+    <java dir="${jar-dir}" jar="${jar-dir}/${launcher-jar-name}" fork="true" failonerror="true">
+      <jvmarg value="-Xss64m" />
+    </java>
+  </target>
 </project>

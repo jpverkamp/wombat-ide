@@ -16,7 +16,7 @@ Create a new _rows_ x _cols_ image, defaulting to a black background.
 
 If _color_ is specified, fill with that color instead. 
 
-If _generator_ is specified, it should be a function of the form _(lambda (r c rows cols) ...)_ where r and c are the coordinates of a specific pixel and rows and cols are the size passed the the _make-image_ function.
+If _generator_ is specified, it should be a function of the form _(lambda (r c) ...)_ where r and c are the coordinates of a specific pixel.
 
 ---
 

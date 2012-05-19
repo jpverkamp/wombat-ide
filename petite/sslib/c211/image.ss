@@ -99,9 +99,9 @@ Other:
              [else
                (cond
                  [(color? v) (image-set! i r c v)]
-                 [(procedure? v) (image-set! i r c (v r c rs cs))]
+                 [(procedure? v) (image-set! i r c (v r c))]
                  [else (error 'make-image
-                         (format "~a is neither a color nor a procedure" v))])
+                         (format "~a is neither a color nor a procedure of 2 arguments" v))])
                (^ r (+ c 1))])))]))
 
   ; map an image to another image

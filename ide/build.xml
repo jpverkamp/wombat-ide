@@ -1,125 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="wombat-ide" default="jar">
-	<description>
+  <description>
     Wombat aims to be a simple cross-platform IDE for writing Scheme programs in a classroom environment.
   </description>
 
-	<property name="src-dir" location="src" />
-	<property name="bin-dir" location="bin" />
-	<property name="lib-dir" location="lib" />
-	
-	<property name="jar-dir" location="dist" />
-	<property name="jnlp-dir" location="jnlp" />
+  <property name="src-dir" location="src" />
+  <property name="bin-dir" location="bin" />
+  <property name="lib-dir" location="lib" />
+  
+  <property name="jar-dir" location="dist" />
+  <property name="jnlp-dir" location="jnlp" />
 
-	<property name="deploy-user" value="c211" />
-	<property name="deploy-server" value="tank.cs.indiana.edu" />
-	<property name="deploy-dir" value="~/cgi/wombat" />
+  <property name="deploy-user" value="c211" />
+  <property name="deploy-server" value="tank.cs.indiana.edu" />
+  <property name="deploy-dir" value="~/cgi/wombat" />
 
-	<property name="libs" value="idw-gpl.jar" />
+  <property name="libs" value="idw-gpl.jar" />
 
-	<path id="classpath">
-		<fileset dir="${lib-dir}">
-			<include name="*.jar" />
-		</fileset>
-		<fileset dir="../petite/dist">
-			<include name="*.jar" />
-		</fileset>
-	</path>
+  <path id="classpath">
+    <fileset dir="${lib-dir}">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="../petite/dist">
+      <include name="*.jar" />
+    </fileset>
+  </path>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="version" description="calculate current version">
-		<tstamp><format property="ide-version" pattern="2.D.k" /></tstamp>
-		<echo>${ide-version}</echo>
-		<property name="ide-jar-name" value="wombat-ide-${ide-version}.jar" />
-	</target>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="version" description="calculate current version">
+    <tstamp><format property="ide-version" pattern="2.D.k" /></tstamp>
+    <echo>${ide-version}</echo>
+    <property name="ide-jar-name" value="wombat-ide-${ide-version}.jar" />
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="build" depends="version" description="build the source ">
-		<mkdir dir="${bin-dir}" />
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="build" depends="version" description="build the source ">
+    <mkdir dir="${bin-dir}" />
 
-		<copy file="${src-dir}/wombat/Wombat.java" tofile="Wombat.java.bak" />
-		<replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${ide-version}" />
+    <copy file="${src-dir}/wombat/Wombat.java" tofile="Wombat.java.bak" />
+    <replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${ide-version}" />
 
-		<javac srcdir="${src-dir}" 
-		       destdir="${bin-dir}" 
-		       classpathref="classpath" 
-		       includeantruntime="false" 
-		       debug="on"
-		       debuglevel="lines,vars,source"
-		       />
+    <javac srcdir="${src-dir}" 
+	   destdir="${bin-dir}" 
+	   classpathref="classpath" 
+	   includeantruntime="false" 
+	   debug="on"
+	   debuglevel="lines,vars,source"
+	   />
 
-		<copy todir="${bin-dir}">
-			<fileset dir="${src-dir}" />
-		</copy>
-		
-		<move file="Wombat.java.bak" tofile="${src-dir}/wombat/Wombat.java" />
-	</target>
+    <copy todir="${bin-dir}">
+      <fileset dir="${src-dir}" />
+    </copy>
+    
+    <move file="Wombat.java.bak" tofile="${src-dir}/wombat/Wombat.java" />
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="jar" depends="version,build" description="generate a jar file">
-		<mkdir dir="${jar-dir}" />
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="jar" depends="version,build" description="generate a jar file">
+    <mkdir dir="${jar-dir}" />
 
-		<copy todir="${jar-dir}">
-			<fileset dir="${lib-dir}" />
-		</copy>
+    <copy todir="${jar-dir}">
+      <fileset dir="${lib-dir}" />
+    </copy>
 
-		<jar jarfile="${jar-dir}/${ide-jar-name}" basedir="${bin-dir}">
-			<manifest>
-				<attribute name="Main-Class" value="wombat.Wombat" />
-				<attribute name="Class-Path" value="${libs}" />
-			</manifest>
-		</jar>
-	</target>
+    <jar jarfile="${jar-dir}/${ide-jar-name}" basedir="${bin-dir}">
+      <manifest>
+	<attribute name="Main-Class" value="wombat.Wombat" />
+	<attribute name="Class-Path" value="${libs}" />
+      </manifest>
+    </jar>
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="sign" depends="version,jar" description="sign the jars">
-		<signjar alias="myself" keystore="keystore" storepass="password" lazy="true">
-			<path>
-				<fileset dir="${jar-dir}" includes="${ide-jar-name} ${libs}" />
-			</path>
-		</signjar>
-	</target>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="sign" depends="version,jar" description="sign the jars">
+    <signjar alias="myself" keystore="keystore" storepass="password" lazy="true">
+      <path>
+	<fileset dir="${jar-dir}" includes="${ide-jar-name} ${libs}" />
+      </path>
+    </signjar>
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="deploy" depends="clean,version,jar,sign" description="deploy to webstart">
-		<tstamp><format property="date" pattern="d MMMM yyyy" /></tstamp>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="deploy" depends="clean,version,jar,sign" description="deploy to webstart">
+    <tstamp><format property="date" pattern="d MMMM yyyy" /></tstamp>
 
-		<copy todir="${jar-dir}" verbose="true">
-			<fileset dir="${jnlp-dir}" />
-		</copy>
+    <copy todir="${jar-dir}" verbose="true">
+      <fileset dir="${jnlp-dir}" />
+    </copy>
 
-		<replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
-		<replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{VERSION}" value="${ide-version}" />
+    <replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{DATE}" value="${date}" />
+    <replace dir="${jar-dir}" includes="*.html *.jnlp *.txt" token="{VERSION}" value="${ide-version}" />
 
-		<input message="Password:" addproperty="scp-passphrase">
-			<handler classname="org.apache.tools.ant.input.SecureInputHandler" />
-		</input>
+    <input message="Password:" addproperty="scp-passphrase">
+      <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+    </input>
 
-		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="rm -f ${deploy-dir}/Wombat-*.jar" failonerror="false" />
+    <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="rm -f ${deploy-dir}/Wombat-*.jar" failonerror="false" />
 
-		<scp todir="${deploy-user}@${deploy-server}:${deploy-dir}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
-			<fileset dir="${jar-dir}" />
-		</scp>
+    <scp todir="${deploy-user}@${deploy-server}:${deploy-dir}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes">
+      <fileset dir="${jar-dir}" />
+    </scp>
 
-		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 755 ${deploy-dir}" />
-		<sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 664 ${deploy-dir}/*" />
+    <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 755 ${deploy-dir}" />
+    <sshexec host="${deploy-server}" username="${deploy-user}" keyfile="${user.home}/.ssh/id_dsa" passphrase="${scp-passphrase}" trust="yes" command="chmod 664 ${deploy-dir}/*" />
 
-		<exec executable="git">
-			<arg value="tag" />
-			<arg value="${ide-version}" />
-		</exec>
-	</target>
+    <exec executable="git">
+      <arg value="tag" />
+      <arg value="${ide-version}" />
+    </exec>
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="clean" description="remove all of the extra files / directories">
-		<delete dir="${bin-dir}" />
-		<delete dir="${jar-dir}" />
-	</target>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="clean" description="remove all of the extra files / directories">
+    <delete dir="${bin-dir}" />
+    <delete dir="${jar-dir}" />
+  </target>
 
-	<!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
-	<target name="run" depends="jar" description="build and run">
-		<java dir="${jar-dir}" jar="${jar-dir}/${ide-jar-name}" fork="true" failonerror="true">
-			<jvmarg value="-Xss64m" />
-		</java>
-	</target>
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="run" depends="jar" description="build and run">
+    <java dir="${jar-dir}" jar="${jar-dir}/${ide-jar-name}" fork="true" failonerror="true">
+      <jvmarg value="-Xss64m" />
+    </java>
+  </target>
 </project>
