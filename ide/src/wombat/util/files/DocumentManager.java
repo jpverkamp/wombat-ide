@@ -80,9 +80,11 @@ public final class DocumentManager implements FocusListener {
     public static boolean New() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
+    	// Create the document ID.
         me.lastIndex++;
         String id = "document-" + me.lastIndex;
 
+        // Create the actual document and add it to the GUI.
         SchemeTextArea ss = new SchemeTextArea(true, true);
         me.allDocuments.add(ss);
         ss.code.addFocusListener(me);
@@ -93,10 +95,14 @@ public final class DocumentManager implements FocusListener {
         
         me.Documents.addTab(me.Views.getView(id));
         
+        // If everything is set up correctly, make sure that the document correctly displays.
+        // This fixes issues with closing all of the documents then making a new one.
         if (me.Root != null && !me.Documents.isShowing())
         	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
-         
+        
+        // Focus the new window.
         ss.code.requestFocusInWindow();
+        me.activeDocument = ss;
         
         return true;
     }
@@ -108,12 +114,14 @@ public final class DocumentManager implements FocusListener {
     public static boolean Open() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
+    	// Choose a file.
     	FileDialog fc = new FileDialog(me.Main, "Open...", FileDialog.LOAD);
         fc.setVisible(true);
         
         if (fc.getFile() == null)
             return false;
         
+        // Sanity check.
         File file = new File(fc.getDirectory(), fc.getFile());
         if (!file.exists())
         {
@@ -121,6 +129,7 @@ public final class DocumentManager implements FocusListener {
             return false;
         }
         
+        // Actually open it.
         return Open(file);
     }
 
@@ -148,13 +157,17 @@ public final class DocumentManager implements FocusListener {
     	// Otherwise, load the document.
         me.lastIndex++;
         
+        // Generate an internal ID for it.
         String id = "document-" + me.lastIndex;
         String filename = file.getName();
         
+        // Try to load it.
         try {
+        	// Opened files that no longer exist, just make a new one.
             if (!file.exists())
                 file.createNewFile();
 
+            // Create the text area and add it to the GUI.
             SchemeTextArea ss = new SchemeTextArea(file, true, true);
             me.allDocuments.add(ss);
             ss.myFile = file;
@@ -166,13 +179,27 @@ public final class DocumentManager implements FocusListener {
 
             me.Documents.addTab(me.Views.getView(id));
             
+            // Sanity check for if we closed all of the documents and want a new one.
             if (me.Root != null && !me.Documents.isShowing())
             	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
             
+            // If there is an empty <new document> open, replace that one. 
+            if (me.activeDocument != null && 
+            		me.activeDocument.isEmpty() &&
+            		me.activeDocument.myFile == null &&
+            		me.activeDocument.myView != null &&
+            		"<new document>".equals(me.activeDocument.myView.getTitle())) {
+            	me.activeDocument.close();
+            }
+            
+            // Finally, focus on the new one.
             ss.code.requestFocusInWindow();
-
+            me.activeDocument = ss;
+            
+            // Add it to the document manager.
             RecentDocumentManager.addFile(file);
             
+            // It worked.
             return true;
         }
         catch(IOException ex) {
@@ -255,9 +282,18 @@ public final class DocumentManager implements FocusListener {
             }
         }
         
+        // Close it.
+        int i = me.allDocuments.indexOf(me.activeDocument);
         me.allDocuments.remove(me.activeDocument);
         me.activeDocument.close();
         me.activeDocument.myView.close();
+        
+        // Get a new active document.
+        try {
+        	me.activeDocument = me.allDocuments.get(Math.max(0, i - 1));
+        	me.activeDocument.requestFocusInWindow();
+        } catch(Exception e) {
+        }
         
         return true;
     }

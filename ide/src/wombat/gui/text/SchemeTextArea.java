@@ -119,6 +119,12 @@ public class SchemeTextArea extends JPanel {
      * Any cleanup that this object may need to do.
      */
     public void close() {
+    	if (myView != null) {
+    		try {
+    			myView.close();
+    		} catch(Exception e) {
+    		}
+    	}
     }
 
     /**
