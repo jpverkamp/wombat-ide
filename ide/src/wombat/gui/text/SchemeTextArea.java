@@ -94,6 +94,9 @@ public class SchemeTextArea extends JPanel {
 							} 
 						}
 						
+						// DEBUG
+						ErrorManager.logError("help for: " + token);
+						
 						if (Options.KeywordHelpURLs.containsKey(token)) {
 							URI toVisit = URI.create(Options.KeywordHelpURLs.get(token));
 							Desktop.getDesktop().browse(toVisit);
