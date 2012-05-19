@@ -129,7 +129,16 @@ return: an integer in the range [0, 255]
 
 From _(c211 color)_.
 
-Band should be one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2. Access the color object, returning the amount of that specified color as an integer in the range [0, 255] where 0 is none of that color and 255 is the maximum amount.
+_band_ should be one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2. Access the color object, returning the amount of that specified color as an integer in the range [0, 255] where 0 is none of that color and 255 is the maximum amount.
+
+---
+
+name: color-set!
+form: color band value
+
+From _(c211 color)_.
+
+_band_ should be one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2. Alter the color object setting the _value_ (should be in the range [0, 255]) in that _band_.
 
 ---
 
@@ -141,18 +150,3 @@ From _(c211 color)_.
 
 Test if two colors are equal.
 
----
-
-name: image->list
-form: image
-return: list
-
-Convert an image into a flat list of colors. Group across rows.
-
----
-
-name: list->image
-form: cols ls
-return: image
-
-Convert a list of colors into an image. Assume that the list is grouped by rows and has _cols_ columns.
