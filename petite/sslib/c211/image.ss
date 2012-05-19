@@ -54,16 +54,14 @@ Other:
 (library
  (c211 image)
  (export
-   color make-image image-map
-   color? image?
-   image-rows image-cols image-ref color-ref
-   image-set! color-set!
+   make-image image-map
+   image?
+   image-rows image-cols image-ref
+   image-set!
    read-image write-image draw-image
-   color-equal? image-equal?
+   image-equal?
    image->list list->image
-   black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
-   base64->image image->base64
-   )
+   base64->image image->base64)
 
   (import (except (chezscheme) lambda define))
 
@@ -73,6 +71,8 @@ Other:
 
   (import (c211 color))
   (import (c211 matrix))
+
+  (export (import (c211 color)))
 
   ; create the datatype (image data is stored as a matrix of colors)
   (define :image (make-record-type "image" '(data)))

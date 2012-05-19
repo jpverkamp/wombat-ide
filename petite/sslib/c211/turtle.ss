@@ -64,16 +64,17 @@ Other:
     ; display
     draw-turtle ; (draw-turtle turtle) draw this turtle and any cloned from it
     turtle->image ; (turtle->image turtle) convert this turtle into (c211 image)
-    ; rexport from color
-    color color? color-ref color-set! color-equal?
-    black darkgray gray lightgray white red green blue yellow cyan magenta orange pink
     )
 
   (import (except (chezscheme) lambda define))
   (import (wombat define))
   (import (wombat java))
 
-  (import (c211 image)) ; already includes (c211 color)
+  (import (c211 color))
+  (import (c211 image))
+
+  (export (import (c211 color)))
+
 
   (define live-display (make-parameter #f))
   (define live-display-timer (make-parameter 0.1))
