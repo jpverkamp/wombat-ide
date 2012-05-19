@@ -14,12 +14,14 @@
     <property name="petite-version" value="8.4" />
     <property name="petite-bindings" value="${petite-version}.22" />
     <property name="c211-lib-version" value="1.0.15" />
+    <property name="keyword-version" value="8.4.7" />
     
     <echo>Versions:
     IDE: ${ide-version}
     Petite: ${petite-version}
-    Petite bindings: ${petite-bindings}
-    C211 libraries: ${c211-lib-version}</echo>
+    Bindings: ${petite-bindings}
+    C211 lib: ${c211-lib-version}
+    Keywords: ${keyword-version}</echo>
   </target>
   
   <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
@@ -54,7 +56,7 @@
       Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
       Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
       C211 Libraries,${c211-lib-version},lib/c211-lib-${c211-lib-version}.zip
-      Keyword List,8.4.5,lib/syntax.csv
+      Keyword List,${keyword-version},lib/syntax.csv
     </echo>
   </target>
   
