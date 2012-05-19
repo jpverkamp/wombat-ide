@@ -1,4 +1,5 @@
 ; c211 image library
+image,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm
 black,procedure,2,
 blue,procedure,2,
 color,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#color
@@ -30,6 +31,7 @@ write-image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-
 yellow,procedure,2,
 
 ; c211 matrix library
+matrix,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm
 draw-matrix,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#draw-matrix
 make-matrix,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#make-matrix
 matrix-cols,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#matrix-cols
@@ -45,7 +47,8 @@ print-matrix-width,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/doc
 matrix->vov,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#matrix->vov
 vov->matrix,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm#vov->matrix
 
-; c211 tree library
+; c211 tree librar
+; matrix,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm ; already a procedure
 draw-tree,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tree.htm#draw-tree
 empty-tree,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tree.htm#empty-tree
 empty-tree?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tree.htm#empty-tree?
@@ -58,6 +61,7 @@ tree,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tree.ht
 tree?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tree.htm#tree?
 
 ; c211 turtle library
+turtle,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-turtle.htm
 hatch,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-turtle.htm#hatch
 clone,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-turtle.htm#clone
 live-display,parameter,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-turtle.htm#live-display
