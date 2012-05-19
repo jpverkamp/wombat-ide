@@ -1,0 +1,29 @@
+name: color
+form: r g b
+return: a color
+
+Create a new color with red, green, and blue values of _r_, _g_, and _b_ respectively.
+
+--- 
+
+name: color?
+form: obj
+return: #t or #f
+
+Test if _obj_ is a color.
+
+---
+
+name: color-ref
+form: color band
+return: an integer in the range [0, 255]
+
+Band should be one of either the symbols _red_, _green_, or _blue_ or the corresponding integers 0, 1, or 2. Access the color object, returning the amount of that specified color as an integer in the range [0, 255] where 0 is none of that color and 255 is the maximum amount.
+
+---
+
+name: color-equal? 
+form: color color
+return: #t or #f
+
+Test if two colors are equal.
