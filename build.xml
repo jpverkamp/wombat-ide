@@ -13,7 +13,7 @@
     <property name="jar-name" value="wombat-ide-${ide-version}.jar" />
     <property name="petite-version" value="8.4" />
     <property name="petite-bindings" value="${petite-version}.23" />
-    <property name="c211-lib-version" value="1.0.15" />
+    <property name="c211-lib-version" value="1.0.16" />
     <property name="keyword-version" value="8.4.7" />
     
     <echo>Versions:
@@ -48,15 +48,15 @@
     
     <echo> ----- Creating version file ----- </echo>
     <echo file="${dist-dir}/version.txt">
-      Launcher,3
-      Wombat,${ide-version},lib/wombat-ide-${ide-version}.jar
-      Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
-      Petite Bindings,${petite-bindings},lib/petite-${petite-bindings}.jar
-      Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
-      Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
-      Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
-      C211 Libraries,${c211-lib-version},lib/c211-lib-${c211-lib-version}.zip
-      Keyword List,${keyword-version},lib/syntax.csv
+Launcher,3
+Wombat,${ide-version},lib/wombat-ide-${ide-version}.jar
+Infonode Docking Windows,1.6.1,lib/idw-gpl.jar
+Petite Bindings,${petite-bindings},lib/petite-${petite-bindings}.jar
+Petite (Linux),${petite-version},linux,lib/petite-${petite-version}-linux.zip
+Petite (OS X),${petite-version},osx,lib/petite-${petite-version}-osx.zip
+Petite (Windows),${petite-version},win,lib/petite-${petite-version}-win.zip
+C211 Libraries,${c211-lib-version},lib/c211-lib-${c211-lib-version}.zip
+Keyword List,${keyword-version},lib/syntax.csv
     </echo>
   </target>
   
