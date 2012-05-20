@@ -34,6 +34,7 @@
       <manifest>
 	<attribute name="Main-Class" value="wombat.launcher.Main" />
 	<attribute name="Class-Path" value="./*.jar" />
+	<attribute name="SplashScreen-Image" value="loading.png" />
       </manifest>
     </jar>
   </target>
