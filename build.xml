@@ -17,8 +17,8 @@
     <property name="keyword-version" value="8.4.7" />
     
     <echo>Versions:
-    IDE: ${ide-version}
-    Petite: ${petite-version}
+         IDE: ${ide-version}
+      Petite: ${petite-version}
     Bindings: ${petite-bindings}
     C211 lib: ${c211-lib-version}
     Keywords: ${keyword-version}</echo>
