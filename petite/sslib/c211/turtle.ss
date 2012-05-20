@@ -75,7 +75,6 @@ Other:
 
   (export (import (c211 color)))
 
-
   (define live-display (make-parameter #f))
   (define live-display-timer (make-parameter 0.1))
 
@@ -120,13 +119,13 @@ Other:
       [()
        (make-turtle^ (gensym) 0 0.0 0.0 0.0 'down black '() '())]
       [(dir)
-       (make-turtle^ (gensym) 0 0.0 0.0 dir 'down black '() '())]
+       (make-turtle^ (gensym) 0 0.0 0.0 (d->r dir) 'down black '() '())]
       [(x y)
        (make-turtle^ (gensym) 0 x y 0.0 'down black '() '())]
       [(x y dir)
-       (make-turtle^ (gensym) 0 x y dir 'down black '() '())]
+       (make-turtle^ (gensym) 0 x y (d->r dir) 'down black '() '())]
       [(x y dir up/down color)
-       (make-turtle^ (gensym) 0 x y dir up/down color '() '())]))
+       (make-turtle^ (gensym) 0 x y (d->r dir) up/down color '() '())]))
 
   ; create a clone of a given turtle
   (define (clone t)
@@ -285,9 +284,10 @@ Other:
       (lambda (f) (display (fix (f r)) p))
       (list turtle-x (lambda (_) " ") turtle-y))
     (display ")" p)
+    (display " " p) (display (r->d (turtle-dir r)) p)
     (for-each
       (lambda (f) (display " " p) (display (fix (f r)) p))
-      (list turtle-dir turtle-up/down turtle-color))
+      (list turtle-up/down turtle-color))
     (display "]" p)))
 
 (record-writer (type-descriptor line)
