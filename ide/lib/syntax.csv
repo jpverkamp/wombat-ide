@@ -1,16 +1,26 @@
-; c211 image library
-image,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm
+; c211 color library
 black,procedure,2,
 blue,procedure,2,
-color,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#color
-color-equal?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#color-equal?
-color-ref,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#color-ref
-color?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#color?
+color,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-color.htm#color
+color-equal?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-color.htm#color-equal?
+color-ref,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-color.htm#color-ref
+color-set!,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-color.htm#color-set!
+color?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-color.htm#color?
 cyan,procedure,2,
 darkgray,procedure,2,
-draw-image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#draw-image
 gray,procedure,2,
 green,procedure,2,
+lightgray,procedure,2,
+magenta,procedure,2,
+orange,procedure,2,
+pink,procedure,2,
+red,procedure,2,
+white,procedure,2,
+yellow,procedure,2,
+
+; c211 image library
+image,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm
+draw-image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#draw-image
 image->list,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#image->list
 image-cols,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#image-cols
 image-equal?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#image-equal?
@@ -19,16 +29,9 @@ image-ref,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-im
 image-rows,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#image-rows
 image-set!,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#image-set!
 image?,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#image?
-lightgray,procedure,2,
-magenta,procedure,2,
 make-image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#make-image
-orange,procedure,2,
-pink,procedure,2,
 read-image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#read-image
-red,procedure,2,
-white,procedure,2,
 write-image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-image.htm#write-image
-yellow,procedure,2,
 
 ; c211 matrix library
 matrix,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-matrix.htm
