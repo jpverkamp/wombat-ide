@@ -5,9 +5,13 @@
 
 package wombat.gui.frames;
 
-import java.io.FileNotFoundException;
+import java.awt.Desktop;
+import java.io.IOException;
 import java.util.Calendar;
 import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.event.HyperlinkEvent.EventType;
+import javax.swing.text.html.*;
 
 import wombat.Wombat;
 import wombat.util.files.FileAccess;
@@ -27,20 +31,43 @@ public class AboutFrame extends JFrame {
 	 */
     private AboutFrame () {
         setTitle("About Wombat");
-        setSize(800, 700);
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        setLocationByPlatform(true);
         
-        JLabel license;
-		try {
-			license = new JLabel(
-				FileAccess.getFile("wombat/gui/frames/about.htm", true)
+        String text = "Failed to load about page";
+        try {
+        	text = FileAccess.getFile("wombat/gui/frames/about.htm", true)
 					.replace("{year}", "" + Calendar.getInstance().get(Calendar.YEAR))
-					.replace("{version}", Wombat.VERSION),
-				JLabel.CENTER);
-		} catch (FileNotFoundException e) {
-			license = new JLabel("Unable to load about.htm");
+					.replace("{version}", Wombat.VERSION);
+        } catch(IOException ex) {
+        }
+        
+        JEditorPane license = new JEditorPane();
+        HTMLEditorKit kit = new HTMLEditorKit();
+        StyleSheet style = kit.getStyleSheet();
+        style.addRule("a { color: blue; }");
+        license.setEditorKit(kit);
+        HTMLDocument doc = (HTMLDocument) license.getDocument();
+		
+        try {
+        	kit.insertHTML(doc, 0, text, 0, 0, null);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		add(license);
+        license.setEditable(false);
+		add(new JScrollPane(license));
+		
+		license.addHyperlinkListener(new HyperlinkListener() {
+			@Override public void hyperlinkUpdate(HyperlinkEvent event) {
+				if (event.getEventType() == EventType.ACTIVATED) { 
+					try {
+						Desktop.getDesktop().browse(event.getURL().toURI());
+					} catch (Exception e) {
+					}
+				}
+			}
+		});
     }
     
     /**
