@@ -12,7 +12,7 @@
     
     <property name="jar-name" value="wombat-ide-${ide-version}.jar" />
     <property name="petite-version" value="8.4" />
-    <property name="petite-bindings" value="${petite-version}.23" />
+    <property name="petite-bindings" value="${petite-version}.24" />
     <property name="c211-lib-version" value="1.0.16" />
     <property name="keyword-version" value="8.4.7" />
     
@@ -24,6 +24,25 @@
     Keywords: ${keyword-version}</echo>
   </target>
   
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="osx" depends="version,recur" description="build an OSX application">
+    <path id="tasks">
+      <fileset dir=".">
+	<include name="*.jar" />
+      </fileset>
+    </path>
+
+    <taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler"  classpathref="tasks" />
+
+    <jarbundler dir="${dist-dir}"
+		name="Wombat IDE"
+		mainclass="wombat.Wombat"
+		jar="${dist-dir}/wombat.jar"
+		jvmversion="1.6+"
+		icon="Wombat.icns"
+		version="${ide-version}" />
+  </target>
+
   <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
   <target name="recur" depends="version" description="recursively build the parts of the project">
     <echo> ----- Building Petite bindings ----- </echo>
