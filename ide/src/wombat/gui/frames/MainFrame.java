@@ -91,6 +91,18 @@ public class MainFrame extends JFrame {
         	
         }
         
+        
+        // Set up options specifically for OS X.
+        if (OS.IsOSX) {
+        	try {
+        		com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
+        		app.setDockIconImage(IconManager.icon("Wombat.png").getImage());
+            } catch (Exception e) {
+                System.err.println("Error setting up OSX specific features:");
+                e.printStackTrace();
+            }
+        }
+        
         // Wait for the program to end.
         final MainFrame me = this;
         addWindowListener(new WindowAdapter() {
