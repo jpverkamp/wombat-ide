@@ -6,6 +6,7 @@
 package wombat;
 
 import wombat.gui.frames.MainFrame;
+import wombat.util.OS;
 
 /**
  * Main entry point of the program.
@@ -19,6 +20,10 @@ public class Wombat {
 	 * @param argv Command line parameters (ignored)
 	 */
 	public static void main(String[] argv) {
+		if (OS.IsOSX) {
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Wombat IDE");
+		}
+		
 		new Wombat();
 	}
 

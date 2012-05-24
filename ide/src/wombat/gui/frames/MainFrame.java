@@ -16,6 +16,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.*;
 
+import com.apple.eawt.AppEvent.AboutEvent;
+
 import net.infonode.docking.*;
 import net.infonode.docking.View; // explicit because of import conflict with javax.swing
 import net.infonode.docking.util.*;
@@ -97,6 +99,13 @@ public class MainFrame extends JFrame {
         	try {
         		com.apple.eawt.Application app = com.apple.eawt.Application.getApplication();
         		app.setDockIconImage(IconManager.icon("Wombat.png").getImage());
+        		app.setAboutHandler(new com.apple.eawt.AboutHandler() {
+					@Override public void handleAbout(AboutEvent arg0) {
+						AboutFrame.showMe();
+					}        			
+        		});
+        		app.setDefaultMenuBar(MenuManager.getMenu());
+        		
             } catch (Exception e) {
                 System.err.println("Error setting up OSX specific features:");
                 e.printStackTrace();
