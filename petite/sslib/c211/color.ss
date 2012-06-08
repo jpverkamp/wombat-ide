@@ -79,16 +79,12 @@ Other:
   (define (color-set! c b v)
     (!check-color 'color-set! c)
     (!check-band 'color-set! b)
-    (let ([cr (color-ref c 'red)]
-          [cg (color-ref c 'green)]
-          [cb (color-ref c 'blue)])
-      (cond
-        [(memq b '(0 red))
-         (color v cg cb)]
-        [(memq b '(1 green))
-         (color cr v cb)]
-        [(memq b '(2 blue))
-         (color cr cg v)])))
+    ((record-mutator :color
+		     (case b
+		       [(0 red) 0]
+		       [(1 green) 1]
+		       [(2 blue) 2]))
+     c v))      
 
   ; tests if colors are equal
   (define (color-equal? c1 c2)
