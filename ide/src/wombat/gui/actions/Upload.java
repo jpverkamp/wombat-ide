@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Calendar;
 
 import javax.swing.*;
 
@@ -18,7 +19,7 @@ import wombat.util.files.*;
 
 /**
  * Open a web browser so that the user can upload the active document to Tiro.
- * TODO: Parameter the upload loaction.
+ * TODO: Parameter the upload location.
  */
 public class Upload extends AbstractAction {
 	private static final long serialVersionUID = 5980425299281375927L;
@@ -29,8 +30,29 @@ public class Upload extends AbstractAction {
 	 * 
 	 * TODO: Put this into a configuration file.
 	 */
-	static final String BASE_URL = "https://www.cs.indiana.edu/cgi-pub/c211/spring12/tiro/tiro.cgi";
-	static final String FILE_URL = "https://www.cs.indiana.edu/cgi-pub/c211/spring12/tiro/tiro.cgi?show_submissions=1&show_assignments=1&assignments={assignment_name}&show_group=1&assignments={assignment_name}";
+	static final String BASE_URL;
+	static final String FILE_URL; 
+	
+	static {
+		String semester = "";
+		
+		Calendar cal = Calendar.getInstance();
+		int month = cal.get(Calendar.MONTH);
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		int year = cal.get(Calendar.YEAR);
+		
+		if (month < Calendar.MAY || (month == Calendar.MAY && day < 7)) {
+			semester += "spring";
+		} else if (month < Calendar.AUGUST || (month == Calendar.AUGUST && day < 15)) {
+			semester += "summer";
+		} else {
+			semester += "fall";
+		}
+		semester += year % 100;
+		
+		BASE_URL = "https://www.cs.indiana.edu/cgi-pub/c211/" + semester + "/tiro/tiro.cgi";
+		FILE_URL = "https://www.cs.indiana.edu/cgi-pub/c211/" + semester + "/tiro/tiro.cgi?show_submissions=1&show_assignments=1&assignments={assignment_name}&show_group=1&assignments={assignment_name}";
+	}
 	
 	/**
 	 * Create the upload action.
