@@ -6,7 +6,6 @@
 package wombat;
 
 import wombat.gui.frames.MainFrame;
-import wombat.util.OS;
 
 /**
  * Main entry point of the program.
