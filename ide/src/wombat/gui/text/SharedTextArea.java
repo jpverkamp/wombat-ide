@@ -233,6 +233,7 @@ class MulticastThread extends Thread {
 		STA = sta;
 		
 		MS = new MulticastSocket(MULTICAST_PORT);
+		MS.setTimeToLive(4);
 		MS.joinGroup(MULTICAST_GROUP);
 		
 		setDaemon(true);
