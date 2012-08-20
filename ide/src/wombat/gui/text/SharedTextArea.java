@@ -6,18 +6,17 @@
 package wombat.gui.text;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.Arrays;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.text.BadLocationException;
 
-import wombat.util.Options;
+import wombat.util.Base64;
+import wombat.util.NameGenerator;
 
 /**
  * Designed to share a text area between two or more users over a local network. 
@@ -25,215 +24,122 @@ import wombat.util.Options;
 public class SharedTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 2220038488909999007L;
 	
-	/**
-	 * Create a new text area.
-	 */
-	private SharedTextArea(boolean marginLine, boolean lineNumbers) {
-		super(marginLine, lineNumbers);
+	// enable this to print all packets
+	public static final boolean NETWORK_DEBUG = false;
+	
+	String DocumentName;
+	String MyName;
+	
+	MulticastThread MT;
+	NetworkedDocumentListener NDL;
+	
+	public SharedTextArea(String name) {
+		super(true, true);
+		DocumentName = name;
+		MyName = NameGenerator.getName();
 		
 		// Custom text pane that displays server information.
-		code = new LinedTextPane(this) {
-			private static final long serialVersionUID = 7284878426815837099L;
-
-			@Override public void paint(Graphics go) {
-		    	super.paint(go);
-		    	
-		    	Graphics2D g = (Graphics2D) go;
-		    	int width = 2 + 80 * g.getFontMetrics(new Font("Monospaced", Font.PLAIN, Options.FontSize)).charWidth(' '); 
-		    	g.setColor(Color.LIGHT_GRAY);
-		    	
-		    	g.drawString("Hello world!", width + 10, 18);
-			}
-		};
+		code = new LinedTextPane(this);
         add(new JScrollPane(code));
         
-		code.setBackground(new Color(240, 255, 240));
-	}
-
-	/**
-	 * Host a new shared text area.
-	 * @return The area.
-	 * @throws Exception If we cannot host.
-	 */
-	public static SharedTextArea host() throws Exception {
-		final SharedTextArea sta = new SharedTextArea(true, true);
-		
-		return sta;
-	}
-
-	/**
-	 * Create a new text area connected to a given target.
-	 * @param connectTo IP:Port
-	 * @throws Exception If we can't get the server.
-	 */
-	public static SharedTextArea join(String connectTo) throws Exception {
-		final SharedTextArea sta = new SharedTextArea(true, true);
-		
-		return sta;
+        // Distinguish it from other text areas.
+        code.setBackground(new Color(240, 255, 240));
+        
+        // Attach the document listener.
+        NDL = new NetworkedDocumentListener(this);
+        code.getDocument().addDocumentListener(NDL);
+        
+        // Now we need to establish the connections.
+        try {
+        	MT = new MulticastThread(this);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
 	}
 	
 	/**
-	 * Process a line locally, either as a host or when joined.
+	 * Process a received line.
 	 * @param line The new line input.
 	 * @param onServer If we're doing something on the host, versus on a join'er.
 	 * @return Any response to be sent back.
 	 */
-	protected String processLocal(String line, boolean onHost) {
-//		String[] parts = line.split(",");
-//		
-//		try {
-//			
-//			// Initial login, used by the server to send the initial state to new clients.
-//			if ("hello".equals(parts[0])) {
-//				
-//				if (onHost && getText().length() > 0)
-//					return "force-sync," + Base64.encodeBytes(getText().getBytes("UTF-8"));
-//				else
-//					return null;
-//				
-//			} 
-//			
-//			// Text has been inserted into the remote document.
-//			else if ("insert".equals(parts[0])) {
-//				
-//				int off = Integer.parseInt(parts[1]);
-//				String str = new String(Base64.decode(parts[3]), "UTF-8");
-//				
-//				if (lastInsertsAndRemoves.contains(line)) return null;
-//
-//				try {
-//					SyncTimer.setActive();
-//					code.getDocument().insertString(off, str, null);
-//					return null;
-//				} catch(BadLocationException e) {
-//					return "check-sync," + getText().hashCode();
-//				}
-//				
-//			}
-//			
-//			// Text has been removed from the remote document.
-//			else if ("remove".equals(parts[0])) {
-//				
-//				int off = Integer.parseInt(parts[1]);
-//				int len = Integer.parseInt(parts[2]);
-//				
-//				if (lastInsertsAndRemoves.contains(line)) return null;
-//
-//				try {
-//					SyncTimer.setActive();
-//					code.getDocument().remove(off, len);
-//					return null;
-//				} catch(BadLocationException e) {
-//					return "check-sync," + getText().hashCode();
-//				}
-//				
-//			}
-//			
-//			// Remote document wants to check that both are in sync.
-//			else if ("check-sync".equals(parts[0])) {
-//				
-//				int hash = Integer.parseInt(parts[1]);
-//				int myHash = getText().hashCode();
-//				
-//				if (hash != myHash)
-//					return "request-sync";
-//				else
-//					return null;
-//				
-//			} 
-//			
-//			// The remote document thinks it's out of sync and wants to get back into sync.
-//			else if ("request-sync".equals(parts[0])) {
-//				
-//				return "force-sync," + Base64.encodeBytes(getText().getBytes("UTF-8"));
-//				
-//			}
-//			
-//			// The remote document has sent a new version to override our version.
-//			else if ("force-sync".equals(parts[0])) {
-//				
-//				SyncTimer.setActive();
-//				String str = new String(Base64.decode(parts[1]), "UTF-8");
-//				code.setText(str);
-//				return null;
-//				
-//			}
-//			
-//		} catch(Exception ex) {
-//			ex.printStackTrace();
-//		}
+	protected synchronized void processLocal(String line) {
 		
-		return null;
-	}
-
-	/**
-	 * ID accessor.
-	 * @return The ID.
-	 */
-	public String getID() {
-//		return ID;
-		return null;
-	}
-}
-
-/**
- * Helper class to store all information about clients.
- */
-class Client {
-	private Socket Socket;
-	private Scanner From;
-	private PrintWriter To;
-	
-	/**
-	 * Connect a client to a socket.
-	 * @param socket The socket.
-	 * @throws IOException If we cannot connect.
-	 */
-	public Client(Socket socket) throws IOException {
-		Socket = socket;
-		From = new Scanner(socket.getInputStream());
-		To = new PrintWriter(socket.getOutputStream());
-	}
-	
-	/**
-	 * Shut down the client
-	 */
-	public void close() {
+		NDL.Suppress = true;
+		
 		try {
-			To.close();
-			From.close();
-			Socket.close();
+			String[] parts = line.split(",");
+			String lineDocName = parts[0];
+			String lineSrcName = parts[1];
+			String lineMsgType = parts[2];
+			String[] args = Arrays.copyOfRange(parts, 3, parts.length); 
+			
+			// Ignore ones that are to the wrong multicast network.
+			if (!lineDocName.equals(DocumentName)) {
+			}
+			
+			// Ignore messages that came from me.
+			else if (lineSrcName.equals(MyName)) {
+			}
+			
+			// Text has been inserted into the remote document.
+			else if ("insert".equals(lineMsgType)) {
+				
+				int off = Integer.parseInt(args[0]);
+				String str = new String(Base64.decode(args[2]), "UTF-8");
+				code.getDocument().insertString(off, str, null);
+				
+			}
+			
+			// Text has been removed from the remote document.
+			else if ("remove".equals(lineMsgType)) {
+				
+				int off = Integer.parseInt(args[0]);
+				int len = Integer.parseInt(args[1]);
+				code.getDocument().remove(off, len);
+				
+			}
+			
+		} catch(BadLocationException ex) {
+			ex.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		
+		NDL.Suppress = false;
 	}
-	
+
 	/**
-	 * Send a line to the client
-	 * @param msg
+	 * Make a message to send over the network.
+	 * @param cmd The command to send.
+	 * @param args Any necessary arguments.
+	 * @return
 	 */
-	public void send(String msg) {
-//		if (SharedTextArea.NETWORKING_DEBUG)  // debug
-//			System.out.println("send to " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg);
-//		
-//		To.println(msg); 
-//		To.flush();
+	public String makeMessage(String cmd, Object ... args) {
+		StringBuilder msg = new StringBuilder();
+		msg.append(DocumentName);
+		msg.append(',');
+		msg.append(MyName);
+		msg.append(',');
+		msg.append(cmd);
+		for (Object o : args) {
+			msg.append(',');
+			msg.append(o.toString());
+		}
+		return msg.toString();
 	}
-	
+
 	/**
-	 * Next line from the client or null.
-	 * @return Read
+	 * Get the document name.
+	 * @return Duh.
 	 */
-	public String recv() {
-//		if (From.hasNextLine()) {
-//			String msg = From.nextLine();
-//			
-//			if (SharedTextArea.NETWORKING_DEBUG)  // debug
-//				System.out.println("recv from " + Socket.getInetAddress().getHostAddress() + ":" + Socket.getPort() + " -- " + msg); 
-//			
-//			return msg;
-//		} else {
-			return null;
-//		}
+	public String getDocumentName() {
+		return DocumentName;
 	}
 }
 
@@ -242,6 +148,7 @@ class Client {
  */
 class NetworkedDocumentListener implements DocumentListener {
 	SharedTextArea STA;
+	boolean Suppress = false;
 
 	/**
 	 * Create a new networked document listener.
@@ -260,47 +167,123 @@ class NetworkedDocumentListener implements DocumentListener {
 	 * When something is inserted.
 	 */
 	@Override public void insertUpdate(DocumentEvent event) {
-//		try {
-//			
-//			STA.SyncTimer.setActive();
-//			
-//			int off = event.getOffset();
-//			int len = event.getLength();
-//			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes("UTF-8"));
-//			
-//			String msg = "insert," + off + "," + len + "," + str;
-//			STA.lastInsertsAndRemoves.add(msg);
-//			
-//			if (STA.Server != null) 
-//				STA.Server.send(msg);
-//			
-//			if (STA.Clients != null) 
-//				for (Client c : STA.Clients)
-//					c.send(msg);
-//
-//		} catch(Exception e) {
-//		}
+		if (Suppress) return;
+		
+		try {
+			
+			int off = event.getOffset();
+			int len = event.getLength();
+			String str = Base64.encodeBytes(STA.code.getText(off, len).getBytes("UTF-8"));
+			
+			STA.MT.multicastSend(STA.makeMessage("insert", off, len, str));
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * When something is removed.
 	 */
 	@Override public void removeUpdate(DocumentEvent event) {
-//		
-//		STA.SyncTimer.setActive();
-//		
-//		int off = event.getOffset();
-//		int len = event.getLength();
-//		
-//		String msg = "remove," + off + "," + len;
-//		STA.lastInsertsAndRemoves.add(msg);
-//		
-//		if (STA.Server != null) 
-//			STA.Server.send(msg);
-//		
-//		if (STA.Clients != null) 
-//			for (Client c : STA.Clients)
-//				c.send(msg);
-//		
+		if (Suppress) return;
+		
+		try {
+			
+			int off = event.getOffset();
+			int len = event.getLength();
+			
+			STA.MT.multicastSend(STA.makeMessage("remove", off, len));
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
+}
+
+/**
+ * Controls the multicast network.
+ */
+class MulticastThread extends Thread {
+	public static InetAddress MULTICAST_GROUP;
+	public static int MULTICAST_PORT = 5309;
+	
+	static {
+		try {
+			MULTICAST_GROUP = InetAddress.getByName("224.5.30.9");
+		} catch(Exception e) {
+		}
+	}
+	
+	public boolean Running = true;
+	
+	SharedTextArea STA;
+	MulticastSocket MS;
+	
+	/**
+	 * Create a named thread.
+	 * @param sta 
+	 * @param name The name.
+	 * @throws IOException If we cannot talk with the multicast socket.
+	 * @throws UnknownHostException If we can't figure out who to talk to.
+	 */
+	public MulticastThread(SharedTextArea sta) throws UnknownHostException, IOException {
+		super("STA multicast thread");
+		
+		STA = sta;
+		
+		MS = new MulticastSocket(MULTICAST_PORT);
+		MS.joinGroup(MULTICAST_GROUP);
+		
+		setDaemon(true);
+		start();
+	}
+	
+	/**
+	 * Keep receiving messages.
+	 */
+	public void run() {
+		while (Running) {
+			try {
+				
+				String msg = multicastReceive();
+				STA.processLocal(msg);
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Receive the next datagram from the given multicast socket.
+	 * @return A string representing the datagram.
+	 * @throws IOException If we cannot read from the multicast.
+	 */
+	String multicastReceive() throws IOException {
+		byte[] buffer = new byte[1024];
+		
+		DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+		MS.receive(packet);
+		String msg = new String(packet.getData(), packet.getOffset(), packet.getLength());
+		
+		if (SharedTextArea.NETWORK_DEBUG)
+			System.out.println("mult recv: " + msg);
+		
+		return msg;
+	}
+	
+	/**
+	 * Send out a multicast packet. 
+	 * @param msg The message to send.
+	 * @throws IOException If we cannot send the message.
+	 */
+	void multicastSend(String msg) throws IOException {
+		if (SharedTextArea.NETWORK_DEBUG)
+			System.out.println("mult send: " + msg);
+		
+		DatagramPacket packet = new DatagramPacket(msg.getBytes(), msg.getBytes().length, MULTICAST_GROUP, MULTICAST_PORT);
+		MS.send(packet);
+	}
+
 }

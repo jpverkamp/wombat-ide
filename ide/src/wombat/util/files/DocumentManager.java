@@ -246,7 +246,12 @@ public final class DocumentManager implements FocusListener {
 
         File file = new File(fc.getDirectory(), fc.getFile());
         me.activeDocument.myFile = file;
-        me.activeDocument.myView.getViewProperties().setTitle(file.getName());
+        if (me.activeDocument instanceof SharedTextArea) {
+        	String docName = ((SharedTextArea) me.activeDocument).getDocumentName();
+        	me.activeDocument.myView.getViewProperties().setTitle(file.getName() + " (" + docName + ")");
+        } else {
+        	me.activeDocument.myView.getViewProperties().setTitle(file.getName());
+        }
 
         return Save();
     }
@@ -480,19 +485,20 @@ public final class DocumentManager implements FocusListener {
 
     /**
      * Create a new shared document.
+     * @param name A name for the document we're trying to create.
      * @throws Exception If we cannot host.
      */
-	public static boolean NewShared() throws Exception {
+	public static boolean NewShared(String name) throws Exception {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
         
-        SharedTextArea ss = SharedTextArea.host();
+        SharedTextArea ss = new SharedTextArea(name);
         me.allDocuments.add(ss);
         ss.code.addFocusListener(me);
         
         me.lastIndex++;
         String id = "document-" + me.lastIndex;
         
-        me.Views.addView(id, new View("<new document>", null, ss));
+        me.Views.addView(id, new View("<new document> (" + ss.getDocumentName() + ")", null, ss));
         ss.myView = me.Views.getView(id);
         
         me.Documents.addTab(me.Views.getView(id));
@@ -504,34 +510,6 @@ public final class DocumentManager implements FocusListener {
         
         return true;
 		
-	}
-
-	/**
-	 * Connect to a shared document.
-	 * @param The server to connect to.
-	 * @throws Exception If we cannot join.
-	 */
-	public static boolean OpenShared(String connectTo) throws Exception {
-		if (me == null) throw new RuntimeException("Document manager not initialized.");
-        
-        SharedTextArea ss = SharedTextArea.join(connectTo);
-        me.allDocuments.add(ss);
-        ss.code.addFocusListener(me);
-        
-        me.lastIndex++;
-        String id = "document-" + me.lastIndex;
-        
-        me.Views.addView(id, new View("<new document>", null, ss));
-        ss.myView = me.Views.getView(id);
-        
-        me.Documents.addTab(me.Views.getView(id));
-        
-        if (me.Root != null && !me.Documents.isShowing())
-        	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
-         
-        ss.code.requestFocusInWindow();
-        
-        return true;
 	}
 
 	/**

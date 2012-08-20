@@ -11,12 +11,15 @@ import javax.swing.*;
 
 import wombat.gui.frames.*;
 import wombat.gui.icons.*;
+import wombat.util.NameGenerator;
+import wombat.util.files.DocumentManager;
 
 /**
  * Connect and share a document. Can be used either for hosting or joining a previously hosted document.
  */
 public class Connect extends AbstractAction {
 	private static final long serialVersionUID = 3786293931035177076L;
+
 	
 	/**
 	 * Create a connect object.
@@ -32,7 +35,26 @@ public class Connect extends AbstractAction {
 	 * @see ConnectDialog, ActionEvent
 	 */
 	public void actionPerformed(ActionEvent event) {
-		// Find the main frame to connect to.
-		new ConnectDialog(MainFrame.Singleton()).setVisible(true);
+		// Display a dialog asking for a name.
+		String name = (String) JOptionPane.showInputDialog(
+				MainFrame.Singleton(), 
+				"Choose a document name:", 
+				"Document name",
+				JOptionPane.QUESTION_MESSAGE, 
+				null,
+				null, 
+				NameGenerator.getName());
+		
+		// If they didn't choose a name, just bail out.
+		if (name == null) 
+			return;
+		
+		// Try to connect.
+		try {
+			DocumentManager.NewShared(name);
+		} catch(Exception ex) {
+			ex.printStackTrace();
+//			JOptionPane.showMessageDialog(this, "Cannot host server:\n" + ex.getMessage(), "Cannot host", JOptionPane.OK_OPTION);
+		}
 	}
 }
