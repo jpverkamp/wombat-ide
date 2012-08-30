@@ -71,10 +71,7 @@ public class Connect extends AbstractAction {
 							MainFrame.Singleton(), 
 							"Enter the name of the server to connect to:", 
 							"Server",
-							JOptionPane.QUESTION_MESSAGE,
-							null,
-							null,
-							"192.168.1.50:5309");
+							JOptionPane.QUESTION_MESSAGE);
 					
 					// If they didn't choose a name, just bail out.
 					if (name == null) 
