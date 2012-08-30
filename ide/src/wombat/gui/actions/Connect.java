@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import wombat.gui.frames.*;
 import wombat.gui.icons.*;
+import wombat.gui.text.sta.SharedTextArea;
 import wombat.util.files.DocumentManager;
 
 /**
@@ -38,15 +39,18 @@ public class Connect extends AbstractAction {
 	 */
 	public void actionPerformed(ActionEvent event) {
 		// Are they going to host or join?
-		final JDialog hostOptions = new JDialog(MainFrame.Singleton(), "Shared Document");
-		hostOptions.setLayout(new GridLayout(3, 1));
+		final JDialog hostOptions = new JDialog(MainFrame.Singleton(), "Sharing...");
+		hostOptions.setLayout(new GridLayout(4, 1));
 		hostOptions.setModal(true);
 		hostOptions.setLocationByPlatform(true);
 		
 		final JButton host = new JButton("Create a new document");
 		final JButton join = new JButton("Join an existing document");
+		final JButton disconnect = new JButton("Disconnect");
 		final JButton cancel = new JButton("Cancel");
 		
+		disconnect.setEnabled(DocumentManager.isActiveShared());
+			
 		ActionListener al = new ActionListener() {
 			@Override public void actionPerformed(ActionEvent e) {
 				hostOptions.setVisible(false);
@@ -65,7 +69,7 @@ public class Connect extends AbstractAction {
 					// Display a dialog asking for a name.
 					String name = (String) JOptionPane.showInputDialog(
 							MainFrame.Singleton(), 
-							"Enter the server to connect to in the form IP:PORT", 
+							"Enter the name of the server to connect to:", 
 							"Server",
 							JOptionPane.QUESTION_MESSAGE,
 							null,
@@ -76,27 +80,47 @@ public class Connect extends AbstractAction {
 					if (name == null) 
 						return;
 					
-					// Try to connect.
-					try {
-						String[] parts = name.split(":");
-						DocumentManager.JoinShared(InetAddress.getByName(parts[0]), Integer.parseInt(parts[1]));
-					} catch(Exception ex) {
-						ex.printStackTrace();
-						JOptionPane.showMessageDialog(MainFrame.Singleton(), "Cannot connect to server");
+					// They gave us an IP and port
+					if (name.contains(":")) {
+						try {
+							String[] parts = name.split(":");
+							DocumentManager.JoinShared(InetAddress.getByName(parts[0]), Integer.parseInt(parts[1]));
+						} catch(Exception ex) {
+							ex.printStackTrace();
+							JOptionPane.showMessageDialog(MainFrame.Singleton(), "Cannot connect to server");
+						}
+					}
+					
+					// Or they gave us an encoded string
+					else {
+						try {
+							DocumentManager.JoinShared(SharedTextArea.decodeAddressHost(name), SharedTextArea.decodeAddressPort(name));
+						} catch(Exception ex) {
+							ex.printStackTrace();
+							JOptionPane.showMessageDialog(MainFrame.Singleton(), "Cannot connect to server");
+						}
 					}
 					
 				} else if (e.getSource() == cancel) {
 					
+					// already hidden, just do nothing
+				
+				} else if (e.getSource() == disconnect) {
+				
+					DocumentManager.DisconnectShared();
+				
 				}
 			}
 		};
 		
 		host.addActionListener(al);
 		join.addActionListener(al);
+		disconnect.addActionListener(al);
 		cancel.addActionListener(al);
 		
 		hostOptions.add(host);
 		hostOptions.add(join);
+		hostOptions.add(disconnect);
 		hostOptions.add(cancel);
 		
 		hostOptions.pack();

@@ -21,7 +21,7 @@ import javax.swing.undo.CannotUndoException;
 import wombat.gui.frames.FindReplaceDialog;
 import wombat.gui.frames.MainFrame;
 import wombat.gui.text.SchemeTextArea;
-import wombat.gui.text.SharedTextArea;
+import wombat.gui.text.sta.SharedTextArea;
 import wombat.util.Options;
 import wombat.util.errors.ErrorManager;
 
@@ -247,7 +247,7 @@ public final class DocumentManager implements FocusListener {
 
         File file = new File(fc.getDirectory(), fc.getFile());
         me.activeDocument.myFile = file;
-        if (me.activeDocument instanceof SharedTextArea) {
+        if (me.activeDocument instanceof SharedTextArea && ((SharedTextArea) me.activeDocument).isShared()) {
         	String docName = ((SharedTextArea) me.activeDocument).getDocumentName();
         	me.activeDocument.myView.getViewProperties().setTitle(file.getName() + " (" + docName + ")");
         } else {
@@ -541,6 +541,23 @@ public final class DocumentManager implements FocusListener {
         return true;
 		
 	}
+	
+	/**
+	 * Disconnect from an active shared document. 
+	 */
+	public static void DisconnectShared() {
+		if (me == null) throw new RuntimeException("Document manager not initialized.");
+		if (me.activeDocument == null) return;
+		if (!(me.activeDocument instanceof SharedTextArea)) return;
+		
+		SharedTextArea sta = (SharedTextArea) me.activeDocument;
+		sta.disconnect();
+		
+		if (sta.myFile == null)
+			sta.myView.getViewProperties().setTitle("<new document>");
+		else
+			sta.myView.getViewProperties().setTitle(sta.myFile.getName());
+	}
 
 	/**
 	 * Get the file that the active document is using.
@@ -553,6 +570,17 @@ public final class DocumentManager implements FocusListener {
 			return null;
 		else 
 			return me.activeDocument.myFile;
+	}
+
+	/**
+	 * True if the active document is a shared text area.
+	 * @return True/false
+	 */
+	public static boolean isActiveShared() {
+		return (me != null 
+				&& me.activeDocument != null 
+				&& me.activeDocument instanceof SharedTextArea 
+				&& ((SharedTextArea) me.activeDocument).isShared());
 	}
 }
 
