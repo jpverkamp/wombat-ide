@@ -11,6 +11,7 @@ import java.awt.FileDialog;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.*;
+import java.net.InetAddress;
 import java.util.*;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
@@ -485,13 +486,42 @@ public final class DocumentManager implements FocusListener {
 
     /**
      * Create a new shared document.
-     * @param name A name for the document we're trying to create.
      * @throws Exception If we cannot host.
      */
-	public static boolean NewShared(String name) throws Exception {
+	public static boolean HostShared() throws Exception {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
         
-        SharedTextArea ss = new SharedTextArea(name);
+        SharedTextArea ss = new SharedTextArea(InetAddress.getLocalHost(), SharedTextArea.NEXT_PORT++, true);
+        me.allDocuments.add(ss);
+        ss.code.addFocusListener(me);
+        
+        me.lastIndex++;
+        String id = "document-" + me.lastIndex;
+        
+        me.Views.addView(id, new View("<new document> (" + ss.getDocumentName() + ")", null, ss));
+        ss.myView = me.Views.getView(id);
+        
+        me.Documents.addTab(me.Views.getView(id));
+        
+        if (me.Root != null && !me.Documents.isShowing())
+        	me.Root.setWindow(new SplitWindow(false, 0.6f, me.Documents, me.Root.getWindow()));
+         
+        ss.code.requestFocusInWindow();
+        
+        return true;
+		
+	}
+	
+    /**
+     * Create a new shared document.
+     * @param host The name of the server
+     * @param port The port on the server
+     * @throws Exception If we cannot host.
+     */
+	public static boolean JoinShared(InetAddress host, int port) throws Exception {
+    	if (me == null) throw new RuntimeException("Document manager not initialized.");
+        
+        SharedTextArea ss = new SharedTextArea(host, port, false);
         me.allDocuments.add(ss);
         ss.code.addFocusListener(me);
         
