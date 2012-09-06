@@ -8,6 +8,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import wombat.util.Base64;
+import wombat.util.errors.ErrorManager;
 
 /**
  * Document listener which forwards changes to the network.
@@ -55,6 +56,7 @@ public class NetworkedDocumentListener implements DocumentListener {
 			STA.CT.send(STA.makeMessage("insert", off, len, str));
 			
 		} catch(Exception e) {
+			ErrorManager.logError("Error updating networked document: " + e);
 			e.printStackTrace();
 		}
 		
@@ -75,6 +77,7 @@ public class NetworkedDocumentListener implements DocumentListener {
 			STA.CT.send(STA.makeMessage("remove", off, len));
 			
 		} catch(Exception e) {
+			ErrorManager.logError("Error removing content from networked document: " + e);
 			e.printStackTrace();
 		}
 		

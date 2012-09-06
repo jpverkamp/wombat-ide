@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import wombat.util.NameGenerator;
+import wombat.util.errors.ErrorManager;
 
 /**
  * Client thread. Sends local changes and receives remote changes. 
@@ -33,7 +34,9 @@ public class STAClient extends Thread {
 			ToServer = new PrintWriter(S.getOutputStream());
 			FromServer = new Scanner(S.getInputStream());
 		} catch (IOException e) {
+			ErrorManager.logError("Unable to connect to client: " + e);
 			STA.code.setText("Unable to connect to client: " + e);
+			e.printStackTrace();
 		}
 		
 		setDaemon(true);

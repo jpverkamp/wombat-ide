@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 
 import wombat.util.Base64;
+import wombat.util.errors.ErrorManager;
 
 import wombat.gui.text.LinedTextPane;
 import wombat.gui.text.SchemeTextArea;
@@ -24,7 +25,7 @@ import wombat.gui.text.SchemeTextArea;
 public class SharedTextArea extends SchemeTextArea {
 	private static final long serialVersionUID = 2220038488909999007L;
 	
-	public static final boolean NETWORK_DEBUG = false;
+	public static final boolean NETWORK_DEBUG = true;
 	public static int NEXT_PORT = 5309;
 	
 	boolean Running = true;
@@ -56,17 +57,31 @@ public class SharedTextArea extends SchemeTextArea {
         code.getDocument().addDocumentListener(NDL);
         
 		// Create the server if requested, the client either way.
-        try {
-            if (server) {
-            	ST = new STAServer(this, port);
-            	CT = new STAClient(this, InetAddress.getLocalHost(), port);
-            } else {
-            	CT = new STAClient(this, host, port);
-            }        	
-        } catch(Exception e) {
-        	code.setText("Unable to establish connection: " + e);
-        }
-
+        if (server) {
+        	try {
+        		ST = new STAServer(this, port);
+        	} catch(Exception e) {
+            	ErrorManager.logError("Unable to create server: " + e);
+            	code.setText("Unable to create server: " + e);
+            	e.printStackTrace();
+            }
+        	
+        	try {
+        		CT = new STAClient(this, InetAddress.getLocalHost(), port);
+        	} catch(Exception e) {
+            	ErrorManager.logError("Unable to connect to server on localhost: " + e);
+            	code.setText("Unable to connect to server on localhost: " + e);
+            	e.printStackTrace();
+            }
+        } else {
+        	try {
+        		CT = new STAClient(this, InetAddress.getLocalHost(), port);
+        	} catch(Exception e) {
+            	ErrorManager.logError("Unable to connect to server at " + host + ":" + port + ": " + e);
+            	code.setText("Unable to connect to server at " + host + ":" + port + ": " + e);
+            	e.printStackTrace();
+            }
+        }        	
 	}
 	
 	/**
@@ -116,6 +131,8 @@ public class SharedTextArea extends SchemeTextArea {
 					String str = new String(Base64.decode(args[0]), "UTF-8");
 					code.setText(str);
 				} catch(Exception e) {
+					ErrorManager.logError("Unable to sync documents: " + e);
+					e.printStackTrace();
 				}
 				
 			}
@@ -133,16 +150,21 @@ public class SharedTextArea extends SchemeTextArea {
 					}
 					
 				} catch(Exception e) {
+					ErrorManager.logError("Unable to check sync status: " + e);
+					e.printStackTrace();
 				}
 				
 			}
 			
 		} catch(BadLocationException ex) {
+			ErrorManager.logError("Unable to process local line (BadLocation): " + ex);
 			ex.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (UnsupportedEncodingException ex) {
+			ErrorManager.logError("Unable to process local line (UnsupportedEncoding): " + ex);
+			ex.printStackTrace();
+		} catch (IOException ex) {
+			ErrorManager.logError("Unable to process local line (IO): " + ex);
+			ex.printStackTrace();
 		}
 		
 		NDL.suppress(false);
@@ -173,9 +195,8 @@ public class SharedTextArea extends SchemeTextArea {
 	public static InetAddress decodeAddressHost(String str) {
 		try {
 			return Inet4Address.getByAddress(Arrays.copyOf(Base64.decode(str), 4));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			ErrorManager.logError("Unable decode host from address: " + e);
 			e.printStackTrace();
 		}
 		return null;
@@ -190,7 +211,8 @@ public class SharedTextArea extends SchemeTextArea {
 		try {
 			byte[] bytes = Base64.decode(str);
 			return ((((int) bytes[4]) + 128) * 256) + (((int) bytes[5]) + 128);
-		} catch (IOException e) {
+		} catch (Exception e) {
+			ErrorManager.logError("Unable decode port from address: " + e);
 			e.printStackTrace();
 		}
 		return -1;

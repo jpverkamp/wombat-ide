@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
+import wombat.util.errors.ErrorManager;
+
 /**
  * Act as a server, basically just relaying messages between clients.
  */
@@ -30,6 +32,7 @@ public class STAServer extends Thread {
 			setDaemon(true);
 			start();
 		} catch (Exception e) {
+			ErrorManager.logError("Unable to connect to I/O stream in server: " + e);
 			e.printStackTrace();
 		}
 	}

@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import wombat.util.errors.ErrorManager;
+
 /**
  * Thread that runs on the server to keep track of any connected clients.
  */
@@ -26,6 +28,7 @@ public class STAServerConnection extends Thread {
 			ToClient = new PrintWriter(c.getOutputStream());
 			FromClient = new Scanner(c.getInputStream());
 		} catch(Exception e) {
+			ErrorManager.logError("Unable to connect to I/O stream in server connection: " + e);
 			e.printStackTrace();
 		}
 		
