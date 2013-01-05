@@ -230,9 +230,13 @@ Other:
 
   ; display the image in a Java window
   (define (draw-image img)
-    (call-to-java draw-image
-      (image-cols img) (image-rows img) (image->base64 img))
-    (void))
+    (if (and (positive? (image-rows img))
+             (positive? (image-cols img)))
+        (begin
+          (call-to-java draw-image
+            (image-cols img) (image-rows img) (image->base64 img))
+          (void))
+        (error 'draw-image (format "~s cannot be drawn (invalid size)" img))))
 
   ; tests if images are equal
   (define image-equal?
