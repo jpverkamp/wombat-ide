@@ -37,6 +37,12 @@ public class RecentDocumentManager {
 	 * @param f The file to add/remove.
 	 */
 	public static void addFile(File f) {
+		// Try to make it canonical to avoid removing duplicates.
+		try {
+			f = f.getCanonicalFile();
+		} catch (IOException e) {
+		}
+		
 		// If it already existed, use remove to bump it to the front of the list.
 		fileList.remove(f);
 		fileList.push(f);
