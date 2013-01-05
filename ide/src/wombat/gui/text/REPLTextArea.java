@@ -134,8 +134,8 @@ public class REPLTextArea extends SchemeTextArea {
 	 * - Brackets are matched
 	 */
 	protected void checkRun() {
-		// The cursor should be on the last line.
-		if (getText().substring(code.getCaretPosition()).trim().isEmpty()) {
+		// The cursor should be on the last line and there should be at least some text. 
+		if (!getText().trim().isEmpty() && getText().substring(code.getCaretPosition()).trim().isEmpty()) {
 			
 			// Check to see that we have a matched pair of brackets.
 	        Stack<Character> brackets = new Stack<Character>();
