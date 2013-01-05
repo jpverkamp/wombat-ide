@@ -6,6 +6,7 @@
 package wombat.gui.text;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Stack;
 
@@ -95,13 +96,19 @@ public class BracketMatcher implements CaretListener {
 			if (pos >= 0 
 					&& pos < textArea.getText().length()
 					&& "()[]".contains(textArea.code.getDocument().getText(pos, 1))) {
-				// skip character literals
-				if (pos >= 2 && "#\\".equals(textArea.code.getDocument().getText(pos - 2, 2)))
-					return;
-
+				
 				// Get a direct link to the full text of the document to speed up future access.
 				String text = textArea.code.getDocument().getText(0, textArea.code.getDocument().getLength());
 
+				// Skip character literals
+				if (pos >= 2 && "#\\".equals(text.substring(pos - 2, pos)))
+					return;
+
+				// Skip if we're in a comment
+				if ((text.lastIndexOf("#|", pos) > text.lastIndexOf("|#", pos))
+						|| (text.lastIndexOf(';', pos) > text.lastIndexOf('\n', pos)))
+					return;
+				
 				// Which way are we going?
 				char orig, c;
 				orig = c = text.charAt(pos);
@@ -208,6 +215,7 @@ public class BracketMatcher implements CaretListener {
 		// This shouldn't happen unless things go badly wrong.
 		catch (Exception ex) {
 			ErrorManager.logError("Unable to match paranthesis: " + ex.getMessage());
+			ex.printStackTrace();
 			disabled = true;
 		}
 	}
