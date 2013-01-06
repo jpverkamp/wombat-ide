@@ -442,4 +442,12 @@ public class MainFrame extends JFrame {
 	public void setUpdateVisible(boolean b) {
 		UpdateButton.setVisible(b);
 	}
+	
+	/**
+	 * Save recent command history.
+	 * @return The current history, separated by null bytes.
+	 */
+	public static String getHistory() {
+		return Me.REPL.getHistory(Options.SavedHistoryCount);
+	}
 }

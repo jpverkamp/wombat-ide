@@ -19,6 +19,8 @@ import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 
 import wombat.gui.frames.MainFrame;
+import wombat.util.Options;
+import wombat.util.errors.ErrorManager;
 
 /**
  * Special text area for running REPL text areas.
@@ -43,6 +45,14 @@ public class REPLTextArea extends SchemeTextArea {
 		commandHistory = new ArrayList<String>();
 		setPreferredSize(new Dimension(100, 100));
 		
+		// Restore previously saved commands
+		if (!Options.SavedHistory.isEmpty()) {
+			for (String cmd : Options.SavedHistory.split("\\`\\|")) {
+				commandHistory.add(cmd);
+				currentCommand++;
+			}
+		}
+
 		// When the user hits the 'ENTER' key, check for a complete command.
         code.getInputMap().put(
                 KeyStroke.getKeyStroke("ENTER"),
@@ -124,6 +134,32 @@ public class REPLTextArea extends SchemeTextArea {
 				
 			}
         });
+	}
+	
+	/**
+	 * Get up to max history items.
+	 * @param max The most history items to return.
+	 * @return A `| delimited history list.
+	 */
+	public String getHistory(int max) {
+		try {
+			int lo = Math.min(commandHistory.size() - 1, Math.max(0, currentCommand - max));
+			int hi = Math.min(commandHistory.size() - 1, Math.max(0, currentCommand));
+			
+			StringBuffer buf = new StringBuffer();
+			for (int i = lo; i <= hi; i++) {
+				buf.append(commandHistory.get(i));
+				buf.append("`|");
+			}
+			if (lo != hi)
+				return buf.substring(0, buf.length() - 2);
+			else
+				return "";
+		} catch(Exception e) {
+			ErrorManager.logError("Unable to load saved history: " + e.getMessage());
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	/**
