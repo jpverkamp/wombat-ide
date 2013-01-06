@@ -262,7 +262,7 @@ Other:
                   (loop (- c 1) (cons (image-ref image r c) acc))))))))
   (define (list->image num-cols ls)
     (make-image (quotient (length ls) num-cols) num-cols
-      (lambda (r c n m)
+      (lambda (r c)
         (list-ref ls (+ (* r num-cols) c)))))
 
   ; custom writer for images (show size, hide data)
