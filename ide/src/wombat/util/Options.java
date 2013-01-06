@@ -63,6 +63,10 @@ public final class Options {
 	public static int FontWidth;
 	public static int FontHeight;
 	
+	// Previous command history.
+	public static int SavedHistoryCount = 20;
+	public static String SavedHistory;
+	
 	// Recently used documents.
 	public static String RecentDocuments;
 
@@ -98,6 +102,8 @@ public final class Options {
     	Colors.put("string", new Color(prefs.getInt("Colors/string", 0xFF8C00)));
     	Colors.put("bracket", new Color(prefs.getInt("Colors/bracket", 0x00FFFF)));
     	Colors.put("invalid-bracket", new Color(prefs.getInt("Colors/invalid-bracket", 0xFF0000)));
+    	
+    	SavedHistory = prefs.get("SavedHistory", "");
     	
     	Keywords = new HashMap<String, Integer>();
     	KeywordHelpURLs = new HashMap<String, String>();
@@ -180,6 +186,8 @@ public final class Options {
     	prefs.putInt("FontSize", FontSize);
     	
     	prefs.put("RecentDocuments", RecentDocumentManager.getFiles());
+    	
+    	prefs.put("SavedHistory", MainFrame.getHistory());
     }
 
 	/**

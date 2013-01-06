@@ -123,8 +123,8 @@ public class TreeData {
 		if (Value == null) return;
 
 		// Calculate a weighted midpoint so that off balance TreeDatas will draw pleasantly.
-		int leftSize = 1 + (Left instanceof TreeData ? ((TreeData) Left).size() : 1);
-		int rightSize = 1 + (Right instanceof TreeData ? ((TreeData) Right).size() : 1);
+		int leftSize = 1 + (Left != null && Left instanceof TreeData ? ((TreeData) Left).size() : 1);
+		int rightSize = 1 + (Right != null && Right instanceof TreeData ? ((TreeData) Right).size() : 1);
 		double leftWeight = (double) leftSize / ((double) leftSize + (double) rightSize);
 		int mid = left + (int) ((double) (right - left) * leftWeight);
 

@@ -44,8 +44,8 @@ public class Connect extends AbstractAction {
 		hostOptions.setModal(true);
 		hostOptions.setLocationByPlatform(true);
 		
-		final JButton host = new JButton("Create a new document");
-		final JButton join = new JButton("Join an existing document");
+		final JButton host = new JButton("Create a new shared document");
+		final JButton join = new JButton("Join an existing shared document");
 		final JButton disconnect = new JButton("Disconnect");
 		final JButton cancel = new JButton("Cancel");
 		

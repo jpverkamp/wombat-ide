@@ -34,6 +34,9 @@ public class Petite {
 	}
 	PetiteState State = PetiteState.Startup;
 	boolean HalfPrompt = false;
+	
+	// Remember if this is the first line responding to a new command.
+	boolean FirstResponse = false;
 
 	// Choose the different prompt characters.
 	static final char Prompt1 = '|';
@@ -212,12 +215,14 @@ public class Petite {
 							
 							synchronized (Listeners) {
 								for (PetiteListener pl : Listeners) {
-									if (output.startsWith(" "))
+									if (FirstResponse && output.startsWith(" ")) {
 										pl.onOutput(output.substring(1));
-									else
+									} else {
 										pl.onOutput(output);
+									}
 									pl.onReady();
 								}
+								FirstResponse = false;
 							}
 						}
 
@@ -267,8 +272,13 @@ public class Petite {
 							String output = Buffer.toString();
 							Buffer.delete(0, Buffer.length());
 							synchronized (Listeners) {
-								for (PetiteListener pl : Listeners)
-									pl.onOutput(output);
+								for (PetiteListener pl : Listeners) {
+									if (FirstResponse && output.startsWith(" "))
+										pl.onOutput(output.substring(1));
+									else
+										pl.onOutput(output);
+								}
+								FirstResponse = false;
 							}
 						}
 
@@ -459,6 +469,9 @@ public class Petite {
 		try {
 			// Swap out lambda character for string
 			cmd = cmd.replace("\u03BB", "lambda");
+			
+			// Note that this is the first process.
+			FirstResponse = true;
 
 			// Send it, make sure there's a newline.
 			// Use flush to force it to actually run.
