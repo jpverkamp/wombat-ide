@@ -1,0 +1,13 @@
+name: read-csv
+form:	filename
+return: list of lists of values
+
+Reads a csv file into a list of lists of Scheme values. Any value that can be read with _(read)_ will be, all others will be read as strings. Does not correctly handle strings containing commas.
+
+---
+
+name: write-csv
+form: lol filename
+
+Write a list of lists as a csv file. Does not do any validation.
+
