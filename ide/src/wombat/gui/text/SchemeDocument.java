@@ -360,24 +360,50 @@ public class SchemeDocument extends DefaultStyledDocument {
         
         // When we see a lambda, remember later to fix it for lambda mode.  
         final SchemeDocument me = this;
-        if ((Options.LambdaMode && "lambda".equals(token)) || (!Options.LambdaMode && "\u03BB".equals(token))) {
-        	SwingUtilities.invokeLater(new Runnable() {
-				@Override public void run() {
-					final String from = Options.LambdaMode ? "lambda" : "\u03BB";
-					final String to = Options.LambdaMode ? "\u03BB" : "lambda";
-					
-					int i = -1;
-					try {
-						while ((i = me.getText(0, me.getLength()).indexOf(from)) != -1) {
-							me.remove(i, from.length());
-							me.insertString(i, to, attributes.get("keyword"));
+        
+        // Check for full Greek mode
+    	for (final String[] pair : Options.GreekModeCharacters) {
+    		if ((Options.GreekMode && pair[1].equals(token)) || (!Options.GreekMode && pair[0].equals(token))) {
+            	SwingUtilities.invokeLater(new Runnable() {
+    				@Override public void run() {
+    					final String from = Options.GreekMode ? pair[1] : pair[0];
+    					final String to = Options.GreekMode ? pair[0] : pair[1];
+    					
+    					int i = -1;
+    					try {
+    						while ((i = me.getText(0, me.getLength()).indexOf(from)) != -1) {
+    							me.remove(i, from.length());
+    							me.insertString(i, to, attributes.get("keyword"));
+    						}
+    					} catch (BadLocationException e) {
+    						e.printStackTrace();
+    					}
+    				}
+            	});
+    		}
+    	}
+        
+        // If not Greek, try to fall back on Lambda mode
+    	if (!Options.GreekMode) {
+	        if ((Options.LambdaMode && "lambda".equals(token)) || (!Options.LambdaMode && "\u03BB".equals(token))) {
+	        	SwingUtilities.invokeLater(new Runnable() {
+					@Override public void run() {
+						final String from = Options.LambdaMode ? "lambda" : "\u03BB";
+						final String to = Options.LambdaMode ? "\u03BB" : "lambda";
+						
+						int i = -1;
+						try {
+							while ((i = me.getText(0, me.getLength()).indexOf(from)) != -1) {
+								me.remove(i, from.length());
+								me.insertString(i, to, attributes.get("keyword"));
+							}
+						} catch (BadLocationException e) {
+							e.printStackTrace();
 						}
-					} catch (BadLocationException e) {
-						e.printStackTrace();
 					}
-				}
-        	});
-        }
+	        	});
+	        }
+    	}
 
         if (Options.Keywords.containsKey(token)) {
         	if (attributes.containsKey("keyword"))

@@ -47,6 +47,7 @@ public final class Options {
 	
 	// Options menu options.
 	public static boolean LambdaMode;
+	public static boolean GreekMode;
 	public static boolean EmacsKeybindings;
 	public static boolean ConfirmOnRun;
 	public static boolean ConfirmOnClose;
@@ -69,6 +70,58 @@ public final class Options {
 	
 	// Recently used documents.
 	public static String RecentDocuments;
+	
+	// Greek mode characters
+	public static final String[][] GreekModeCharacters = new String[][]{
+		{"\u0391", "Alpha"},
+		{"\u0392", "Beta"},
+		{"\u0393", "Gamma"},
+		{"\u0394", "Delta"},
+		{"\u0395", "Epsilon"},
+		{"\u0396", "Zeta"},
+		{"\u0397", "Eta"},
+		{"\u0398", "Theta"},
+		{"\u0399", "Iota"},
+		{"\u039A", "Kappa"},
+		{"\u039B", "Lambda"},
+		{"\u039C", "Mu"},
+		{"\u039D", "Mu"},
+		{"\u039E", "Xi"},
+		{"\u039F", "Omicron"},
+		{"\u03A0", "Pi"},
+		{"\u03A1", "Rho"},
+		{"\u03A3", "Sigma"}, // skipping 03C2 which is final sigma
+		{"\u03A4", "Tau"},
+		{"\u03A5", "Upsilon"},
+		{"\u03A6", "Phi"},
+		{"\u03A7", "Chi"},
+		{"\u03A8", "Psi"},
+		{"\u03A9", "Omega"},
+		{"\u03B1", "alpha"},
+		{"\u03B2", "beta"},
+		{"\u03B3", "gamma"},
+		{"\u03B4", "delta"},
+		{"\u03B5", "epsilon"},
+		{"\u03B6", "zeta"},
+		{"\u03B7", "eta"},
+		{"\u03B8", "theta"},
+		{"\u03B9", "iota"},
+		{"\u03BA", "kappa"},
+		{"\u03BB", "lambda"},
+		{"\u03BC", "mu"},
+		{"\u03BD", "nu"},
+		{"\u03BE", "xi"},
+		{"\u03BF", "omicron"},
+		{"\u03C0", "pi"},
+		{"\u03C1", "rho"},
+		{"\u03C3", "sigma"}, // skipping 03C2 which is final sigma
+		{"\u03B4", "tau"},
+		{"\u03B5", "upsilon"},
+		{"\u03B6", "phi"},
+		{"\u03B7", "chi"},
+		{"\u03B8", "psi"},
+		{"\u03B9", "omega"}
+	};
 
 	/**
      * Initialize.
@@ -176,6 +229,7 @@ public final class Options {
     	
     	prefs.putBoolean("Options/ViewLineNumbers", ViewLineNumbers);
     	prefs.putBoolean("Options/LambdaMode", LambdaMode);
+    	prefs.putBoolean("Options/GreekMode", GreekMode);
     	prefs.putBoolean("Options/EmacsKeybindings", EmacsKeybindings);
     	prefs.putBoolean("Options/ConfirmOnRun", ConfirmOnRun);
     	prefs.putBoolean("Options/ConfirmOnClose", ConfirmOnClose);
@@ -210,15 +264,34 @@ public final class Options {
     		});
     		optionsMenu.add(showLineNumber);
     		
-    		JCheckBoxMenuItem lambdaMode = new JCheckBoxMenuItem("\u03BB mode", LambdaMode);
+    		final JCheckBoxMenuItem lambdaMode = new JCheckBoxMenuItem("\u03BB mode", LambdaMode);
+    		final JCheckBoxMenuItem greekMode = new JCheckBoxMenuItem("Greek mode", GreekMode);
+    		
     		lambdaMode.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent arg0) {
 					LambdaMode = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					if (LambdaMode) {
+						GreekMode = false;
+						greekMode.setSelected(false);
+					}
 					SchemeDocument.reload();
 					DocumentManager.ReloadAll();
 				}
     		});
     		optionsMenu.add(lambdaMode);
+    		
+    		greekMode.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					GreekMode = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					if (GreekMode) {
+						LambdaMode = false;
+						lambdaMode.setSelected(false);
+					}
+					SchemeDocument.reload();
+					DocumentManager.ReloadAll();
+				}
+    		});
+    		optionsMenu.add(greekMode);
     		
     		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
     		toolbar.addItemListener(new ItemListener() {
