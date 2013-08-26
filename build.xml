@@ -98,4 +98,13 @@ Keyword List,${keyword-version},lib/syntax.csv
 	fork="true" 
 	/>
   </target>
+
+  <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
+  <target name="deploy" depends="clean,version,recur" description="run Wombat">
+    <exec executable="chmod"><arg line="-R 0777 dist" /></exec>
+    <exec executable="mv"><arg line="dist dev" /></exec>
+    <exec executable="scp"><arg line="-rp dev c211@tank.cs.indiana.edu:~/cgi/wombat" /></exec>
+    <exec executable="rm"><arg line="-rf dev" /></exec>
+    <exec executable="git"><arg line="tag ${ide-version}" /></exec>
+  </target>
 </project>

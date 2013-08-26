@@ -37,9 +37,7 @@
   <target name="build" depends="version" description="build the source ">
     <mkdir dir="${bin-dir}" />
 
-    <copy file="${src-dir}/wombat/Wombat.java" tofile="Wombat.java.bak" />
     <replace file="${src-dir}/wombat/Wombat.java" token="{VERSION}" value="${ide-version}" />
-
     <javac srcdir="${src-dir}" 
 	   destdir="${bin-dir}" 
 	   classpathref="classpath" 
@@ -53,8 +51,7 @@
     <copy todir="${bin-dir}">
       <fileset dir="${src-dir}" />
     </copy>
-    
-    <move file="Wombat.java.bak" tofile="${src-dir}/wombat/Wombat.java" />
+    <replace file="${src-dir}/wombat/Wombat.java" token="${ide-version}" value="{VERSION}" />
   </target>
 
   <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
