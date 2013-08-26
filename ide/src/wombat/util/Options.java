@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.prefs.*;
 import javax.swing.*;
 
+import org.xnap.commons.gui.shortcut.EmacsKeyBindings;
+
 import wombat.gui.frames.*;
 import wombat.gui.text.*;
 import wombat.util.errors.ErrorManager;
@@ -143,10 +145,14 @@ public final class Options {
 
     	ViewLineNumbers = prefs.getBoolean("Options/ViewLineNumbers", true);
     	LambdaMode = prefs.getBoolean("Options/LambdaMode", false);
+    	GreekMode = prefs.getBoolean("Options/GreekMode", false);
     	EmacsKeybindings = prefs.getBoolean("Options/EmacsKeybindings", false);
     	ConfirmOnRun = prefs.getBoolean("Options/ConfirmOnRun", true);
     	ConfirmOnClose = prefs.getBoolean("Options/ConfirmOnClose", true);
     	BackupOnSave = prefs.getBoolean("Options/BackupOnSave", true);
+    	
+    	if (EmacsKeybindings)
+    		EmacsKeyBindings.load();
     	
     	Colors = new HashMap<String, Color>();
     	Colors.put("default", new Color(prefs.getInt("Colors/default", 0x000000)));
@@ -292,6 +298,18 @@ public final class Options {
 				}
     		});
     		optionsMenu.add(greekMode);
+    		
+    		JCheckBoxMenuItem emacsMode = new JCheckBoxMenuItem("Use emacs keybindings", EmacsKeybindings);
+    		emacsMode.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent arg0) {
+					EmacsKeybindings = ((JCheckBoxMenuItem) arg0.getSource()).isSelected();
+					if (EmacsKeybindings)
+						EmacsKeyBindings.load();
+					else
+						EmacsKeyBindings.unload();
+				}
+    		});
+    		optionsMenu.add(emacsMode);
     		
     		JCheckBoxMenuItem toolbar = new JCheckBoxMenuItem("Display toolbar", DisplayToolbar);
     		toolbar.addItemListener(new ItemListener() {
