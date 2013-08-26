@@ -179,7 +179,23 @@ public class REPLTextArea extends SchemeTextArea {
 			
 			// Check to see that we have a matched pair of brackets.
 	        Stack<Character> brackets = new Stack<Character>();
-	        for (char c : getText().toCharArray()) {
+	        char[] cs = getText().toCharArray();
+	        char c;
+	        for (int i = 0; i < cs.length; i++) {
+	        	c = cs[i];
+	        	
+	        	// Skip character literals
+	        	if (c == '#' && cs[i + 1] == '\\') {
+	        		i += 2;
+	        		continue;
+	        	}
+	        	
+	        	// Skip strings
+	        	if (c == '"') {
+	        		int end = getText().indexOf('"', i + 1);
+	        		i += (end - i);
+	        	}
+	        	
 	            if (c == '(') brackets.push(')');
 	            else if (c == '[') brackets.push(']');
 	            else if (c == ')' || c == ']')
