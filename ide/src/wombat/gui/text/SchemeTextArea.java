@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class SchemeTextArea extends JPanel {
 	private static final long serialVersionUID = -5290625425897085428L;
-
+	
 	// File used for saving the document.
 	public File myFile;
 	

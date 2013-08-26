@@ -266,7 +266,14 @@ public class MainFrame extends JFrame {
 				
 				@Override public void onOutput(String output) {
 					if (History != null && output != null) {
-    					History.append(output);
+						if (Options.LambdaMode)
+							output = output.replace("lambda", "\u03BB");
+						
+						if (Options.GreekMode)
+							for (String[] pair : Options.GreekModeCharacters)
+								output = output.replace(pair[1], pair[0]);
+						
+						History.append(output);
     					History.goToEnd();
     				}
 				}

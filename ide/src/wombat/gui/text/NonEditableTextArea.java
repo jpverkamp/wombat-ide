@@ -21,6 +21,8 @@ public class NonEditableTextArea extends SchemeTextArea {
 		
 		setPreferredSize(new Dimension(100, getHeight() / 2 - 100));
         code.setEditable(false);
+        if (code.getDocument() instanceof SchemeDocument)
+        	((SchemeDocument) code.getDocument()).AllowLambdaMode = false;
 	}
 	
     /**
