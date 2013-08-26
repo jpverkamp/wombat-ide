@@ -88,13 +88,13 @@ public class REPLTextArea extends SchemeTextArea {
                 });
         
         // When the user hits the up arrow, it they are on the first line, reload the previous command.
+        // On the down arrow go to the next command.
         code.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent event) {
 				if (event.getKeyCode() == KeyEvent.VK_UP) {
 					if (getText().lastIndexOf("\n", code.getCaretPosition() - 1) == -1) {
 						if (currentCommand == commandHistory.size())
-							if (!getText().isEmpty())
-								commandHistory.add(getText());
+							commandHistory.add(getText());
 						
 						if (currentCommand == 0)
 							return;
@@ -111,7 +111,7 @@ public class REPLTextArea extends SchemeTextArea {
 				if (event.getKeyCode() == KeyEvent.VK_DOWN) {
 					if (getText().indexOf("\n", code.getCaretPosition()) == -1) {
 						if (currentCommand == commandHistory.size()) {
-							return;
+							setText(""); // Clear at the end
 						} else if (currentCommand == commandHistory.size() - 1) {
 							setText(commandHistory.remove(commandHistory.size() - 1));
 						} else {
@@ -145,6 +145,10 @@ public class REPLTextArea extends SchemeTextArea {
 		try {
 			int lo = Math.min(commandHistory.size() - 1, Math.max(0, currentCommand - max));
 			int hi = Math.min(commandHistory.size() - 1, Math.max(0, currentCommand));
+			
+			if (lo == -1) {
+				return "";
+			}
 			
 			StringBuffer buf = new StringBuffer();
 			for (int i = lo; i <= hi; i++) {
