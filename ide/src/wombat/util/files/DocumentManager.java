@@ -215,8 +215,8 @@ public final class DocumentManager implements FocusListener {
      */
     public static boolean Save() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	if (!verifyActiveDocument()) return false;
     	
-        if (me.activeDocument == null) return false;
         if (me.activeDocument.myFile == null) return SaveAs();
         
         try {
@@ -238,9 +238,8 @@ public final class DocumentManager implements FocusListener {
      */
     public static boolean SaveAs() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	if (!verifyActiveDocument()) return false;
     	
-        if (me.activeDocument == null) return false;
-
         FileDialog fc = new FileDialog(me.Main, "Save as...", FileDialog.SAVE);
         fc.setVisible(true);
         if (fc.getFile() == null) return false;
@@ -263,9 +262,8 @@ public final class DocumentManager implements FocusListener {
      */
     public static boolean Close(boolean force) {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
+    	if (verifyActiveDocument()) return false;
     	
-        if (me.activeDocument == null) return false;
-
         if (!me.activeDocument.isEmpty()) {
             String name = me.activeDocument.myView.getViewProperties().getTitle();
             if (me.activeDocument.isDirty()) {
@@ -299,6 +297,7 @@ public final class DocumentManager implements FocusListener {
         	me.activeDocument = me.allDocuments.get(Math.max(0, i - 1));
         	me.activeDocument.requestFocusInWindow();
         } catch(Exception e) {
+        	throw e;
         }
         
         return true;
@@ -312,8 +311,7 @@ public final class DocumentManager implements FocusListener {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	
     	boolean closedAll = true;
-    	while (!me.allDocuments.isEmpty())
-    	{
+    	while (verifyActiveDocument() && closedAll) {
     		me.activeDocument = me.allDocuments.get(0);
     		closedAll &= Close(true);
     	}
@@ -339,9 +337,11 @@ public final class DocumentManager implements FocusListener {
      */
     public static boolean Run() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
-    	
-        if (me.activeDocument == null)
-            return false;
+    	if (!verifyActiveDocument()) return false;
+        
+        // TODO: DEBUG
+        System.err.println("active: " + me.activeDocument);
+        System.err.println("all (" + me.allDocuments.size() + "): " + me.allDocuments);
         
         String name = me.activeDocument.myView.getViewProperties().getTitle();
         if (me.activeDocument.myFile == null || me.activeDocument.isDirty()) {
@@ -372,14 +372,31 @@ public final class DocumentManager implements FocusListener {
     }
 
     /**
+     * Check that the active document is really active and that we haven't removed it.
+     * @return True if we have a valid active document.
+     */
+    private static boolean verifyActiveDocument() {
+    	if (!me.allDocuments.contains(me.activeDocument))
+    		me.activeDocument = null;
+    	
+    	if (me.allDocuments.isEmpty())
+    		return false;
+    	
+    	if (me.activeDocument == null) {
+    		me.activeDocument = me.allDocuments.get(0);
+    		me.activeDocument.requestFocus();
+    		verifyActiveDocument();
+    	}
+		return true;
+	}
+
+	/**
      * Format the active document.
      * @return If it worked.
      */
     public static boolean Format() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
-    	
-        if (me.activeDocument == null)
-            return false;
+    	if (!verifyActiveDocument()) return false;
         
         me.activeDocument.format();
         
@@ -547,7 +564,8 @@ public final class DocumentManager implements FocusListener {
 	 */
 	public static void DisconnectShared() {
 		if (me == null) throw new RuntimeException("Document manager not initialized.");
-		if (me.activeDocument == null) return;
+		if (!verifyActiveDocument()) return;
+		
 		if (!(me.activeDocument instanceof SharedTextArea)) return;
 		
 		SharedTextArea sta = (SharedTextArea) me.activeDocument;
@@ -566,7 +584,7 @@ public final class DocumentManager implements FocusListener {
 	public static File getActiveFile() {
 		if (me == null) throw new RuntimeException("Document manager not initialized.");
 		
-		if (me.activeDocument == null) 
+		if (!verifyActiveDocument()) 
 			return null;
 		else 
 			return me.activeDocument.myFile;
