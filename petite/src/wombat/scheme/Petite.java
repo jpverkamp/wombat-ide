@@ -393,9 +393,6 @@ public class Petite {
 		// Actually clear the environment
 		sendCommand("(interaction-environment (copy-environment (scheme-environment) #t))");
 
-		// So that (eq? 'A 'a) => #t
-		sendCommand("(case-sensitive #f)");
-
 		// So that gensyms look at least semi-sane (it's not like anyone will need them)
 		sendCommand("(print-gensym #f)");
 
