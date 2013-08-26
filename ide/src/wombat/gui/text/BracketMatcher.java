@@ -140,15 +140,15 @@ public class BracketMatcher implements CaretListener {
 					// When moving towards the end:
 					else {
 						// Ignore line comments.
-						index = text.indexOf(';', matchPos);
-						if (index >= 0 && text.indexOf('\n', matchPos) < index) {
+						index = text.lastIndexOf(';', matchPos);
+						if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
 							matchPos = index;
 							continue;
 						}
 
 						// Ignore block comments.
-						index = text.indexOf("#|", matchPos);
-						if (index >= 0 && text.indexOf('\n', matchPos) < index) {
+						index = text.lastIndexOf("#|", matchPos);
+						if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
 							matchPos = text.indexOf("|#", index);
 							continue;
 						}
