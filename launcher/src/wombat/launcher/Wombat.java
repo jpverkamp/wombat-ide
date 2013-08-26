@@ -26,7 +26,7 @@ import wombat.util.errorlog.*;
  * - keep the current installation of Wombat up to date
  * - launch the newest version of Wombat 
  */
-public class Main {
+public class Wombat {
 	static final int LauncherVersion = 3;
 	
 	static final String UpdateSite = "http://www.cs.indiana.edu/cgi-pub/c211/wombat/dev/";
@@ -46,7 +46,7 @@ public class Main {
 	static {
 		try {
 			
-			CurrentDir = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsoluteFile();
+			CurrentDir = new File(Wombat.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getAbsoluteFile();
 			VersionFile = new File(CurrentDir, "version.txt");
 			UpdateVersionFile = new URL(UpdateSite + "version.txt");
 			

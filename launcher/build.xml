@@ -34,7 +34,7 @@
 
     <jar jarfile="${jar-dir}/${launcher-jar-name}" basedir="${bin-dir}">
       <manifest>
-	<attribute name="Main-Class" value="wombat.launcher.Main" />
+	<attribute name="Main-Class" value="wombat.launcher.Wombat" />
 	<attribute name="Class-Path" value="./*.jar" />
 	<attribute name="SplashScreen-Image" value="loading.png" />
       </manifest>
