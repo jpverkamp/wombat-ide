@@ -27,7 +27,7 @@ public class FindReplaceDialog extends JDialog {
 	private JTextPane text;
 	
 	// Search position.
-	private int currentPos = 0;
+	private int currentPos = -1;
 	private int pos = -1;
 
 	// Text to find / replace it with.
@@ -39,11 +39,11 @@ public class FindReplaceDialog extends JDialog {
 	 * @param parent The parent frame of this dialog.
 	 * @param text The text pane to replace text in.
 	 */
-	public FindReplaceDialog(Frame parent, JTextPane textPane) {
+	public FindReplaceDialog(final Frame parent, final JTextPane textPane) {
 		super(parent, false);
 		
 		this.text = textPane;
-		
+		this.currentPos = this.text.getCaretPosition();
 		
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setTitle("Find/Replace");
@@ -55,9 +55,11 @@ public class FindReplaceDialog extends JDialog {
 		final FindReplaceDialog me = this;
 		
 		// Button to find the next matching bit of text.
-		JButton findButton = new JButton("Find Next");
+		final JButton findButton = new JButton("Find Next");
 		findButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
+				System.err.println("Find starting at " + currentPos); // TODO: DEBUG
+				
 				// Nothing to search for.
 				if (findTextField.getText().isEmpty()) return;
 
@@ -66,7 +68,11 @@ public class FindReplaceDialog extends JDialog {
 				if (currentPos > context.length()) return;
 				String wordToFind = findTextField.getText();
 				pos = context.indexOf(wordToFind, currentPos);
-
+				int startPos = context.indexOf(wordToFind, 0);
+				
+				// Fix to start at the beginning if we didn't find
+				if (pos == -1 && startPos != -1) pos = startPos;
+				
 				// Find the word, highlight if so.
 				if (pos != -1) {
 					text.setSelectionStart(pos);
@@ -83,29 +89,26 @@ public class FindReplaceDialog extends JDialog {
 		});
 
 		// Button to replace the current instance with the replacement text.
-		JButton replaceButton = new JButton("Replace");
+		final JButton replaceButton = new JButton("Replace");
 		replaceButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
-				if (!findTextField.getText().isEmpty() && text.getSelectedText().equals(findTextField.getText()) && pos != -1) 
+				if (!findTextField.getText().isEmpty() && text.getSelectedText().equals(findTextField.getText()) && pos != -1) { 
 					text.replaceSelection(replaceTextField.getText());
+					findButton.doClick();
+				}
 			}
 		});
 
 		// Replace all instances of the target text with the replacement.
-		JButton replaceAllButton = new JButton("Replace All");
+		final JButton replaceAllButton = new JButton("Replace All");
 		replaceAllButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent event) {
 				text.setText(text.getText().replace(findTextField.getText(), replaceTextField.getText()));
 			}
 		});
-		findTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-			public void keyReleased(java.awt.event.KeyEvent event) {
-				currentPos = 0;
-			}
-		});
 
-		JLabel replaceLabel = new JLabel("Replace with: ");
-		JLabel findLabel = new JLabel("Find: ");
+		final JLabel replaceLabel = new JLabel("Replace with: ");
+		final JLabel findLabel = new JLabel("Find: ");
 
 		// Layout the group content.
 		GroupLayout layout = new GroupLayout(getContentPane());
