@@ -90,6 +90,11 @@ pen-color,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-tu
 draw-turtle,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-turtle.htm#draw-tutle
 turtle->image,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-turtle.htm#turtle->image
 
+; C211 csv library
+csv,library,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-csv.htm
+read-csv,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-csv.htm#read-csv
+write-csv,procedure,2,http://www.cs.indiana.edu/cgi-pub/c211/wombat/docs/c211-csv.htm#write-csv
+
 ; http://www.scheme.com/csug8/summary.html
 $primitive,syntax,2,http://www.scheme.com/csug8/system.html#./system:s88
 *,procedure,2,http://www.scheme.com/tspl4/objects.html#./objects:s91
