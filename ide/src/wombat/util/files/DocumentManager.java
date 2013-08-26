@@ -297,7 +297,6 @@ public final class DocumentManager implements FocusListener {
         	me.activeDocument = me.allDocuments.get(Math.max(0, i - 1));
         	me.activeDocument.requestFocusInWindow();
         } catch(Exception e) {
-        	throw e;
         }
         
         return true;
@@ -338,10 +337,6 @@ public final class DocumentManager implements FocusListener {
     public static boolean Run() {
     	if (me == null) throw new RuntimeException("Document manager not initialized.");
     	if (!verifyActiveDocument()) return false;
-        
-        // TODO: DEBUG
-        System.err.println("active: " + me.activeDocument);
-        System.err.println("all (" + me.allDocuments.size() + "): " + me.allDocuments);
         
         String name = me.activeDocument.myView.getViewProperties().getTitle();
         if (me.activeDocument.myFile == null || me.activeDocument.isDirty()) {
