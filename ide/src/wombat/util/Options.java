@@ -139,6 +139,7 @@ public final class Options {
 						KeywordHelpURLs.put(parts[0], parts[3]);
 				}
 			}
+			s.close();
 		} catch(FileNotFoundException ex) {
 			ErrorManager.logError("Unable to find syntax file.");
 			return;

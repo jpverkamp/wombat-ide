@@ -47,6 +47,7 @@ public class ShowError extends AbstractAction {
 					byte[] buffer = new byte[(int) f.length()];
 				    FileInputStream fis = new FileInputStream(f);
 				    fis.read(buffer);
+				    fis.close();
 					sb.append(new String(buffer));
 				} catch(Exception e) {
 					

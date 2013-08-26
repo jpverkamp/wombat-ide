@@ -155,6 +155,7 @@ public class SchemeTextArea extends JPanel {
             content.append(NL);
         }
         
+        scanner.close();
         String text = content.toString();
         
         // Change lambda string to character in lambda mode.

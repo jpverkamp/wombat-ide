@@ -162,6 +162,7 @@ public class Main {
 				Version v = new Version(line);
 				if (v.Filename != null) Versions.add(v);
 			}
+			s.close();
 			
 			// Check the launcher version.
 			if (Version.Constants.containsKey("Launcher")) {
@@ -256,6 +257,7 @@ public class Main {
 			if (v.Filename == null) continue;
 			newVersions.add(v);
 		}
+		s.close();
 
 		// Check each new version against what we already have.
 		List<Version> toUpdate = new ArrayList<Version>();

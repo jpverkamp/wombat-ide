@@ -63,6 +63,9 @@ public class MatrixAPI {
 				grid.add(new DataLabel(s.nextLine()));
 		}
 		
+		// Clean up
+		s.close();
+		
 		// Display the frame.
 		JFrame matrixFrame = new JFrame("draw-matrix");
 		matrixFrame.setSize(400, 400);
