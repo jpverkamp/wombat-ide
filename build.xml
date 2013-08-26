@@ -105,6 +105,7 @@ Keyword List,${keyword-version},lib/syntax.csv
     <exec executable="mv"><arg line="dist dev" /></exec>
     <exec executable="scp"><arg line="-rp dev c211@tank.cs.indiana.edu:~/cgi/wombat" /></exec>
     <exec executable="rm"><arg line="-rf dev" /></exec>
+    <exec executable="git"><arg line="tag -d ${ide-version}" /></exec>
     <exec executable="git"><arg line="tag ${ide-version}" /></exec>
   </target>
 </project>
