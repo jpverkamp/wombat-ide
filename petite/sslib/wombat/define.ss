@@ -26,6 +26,8 @@
 
   (define-syntax define
     (syntax-rules (lambda)
+      [(_ name)
+       (chez:define name (void))]
       [(_ name (lambda a b b* ...))
        (chez:define name (named-lambda name a b b* ...))]
       [(_ (name a* ...) b b* ...)
