@@ -124,32 +124,33 @@ public class BracketMatcher implements CaretListener {
 					if (d < 0) {
 						// Ignore line comments.
 						index = text.lastIndexOf(';', matchPos);
-						if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
-							matchPos = index;
-							continue;
-						}
-
-						// Ignore block comments.
-						index = text.lastIndexOf("|#", matchPos);
-						if (index >= 0
-								&& text.lastIndexOf('\n', matchPos) < index) {
-							matchPos = text.lastIndexOf("#|", index);
-							continue;
-						}
-					} 
-					// When moving towards the end:
-					else {
-						// Ignore line comments.
-						index = text.lastIndexOf(';', matchPos);
-						if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
+						if (index >= 0 && index > text.lastIndexOf("\n", matchPos)) {
 							matchPos = index;
 							continue;
 						}
 
 						// Ignore block comments.
 						index = text.lastIndexOf("#|", matchPos);
+						if (index >= 0 && index < matchPos && matchPos < text.indexOf("|#")) {
+							matchPos = index;
+							continue;
+						}
+					}
+					
+					// When moving towards the end:
+					else {
+						// Ignore line comments.
+						index = text.lastIndexOf(';', matchPos);
 						if (index >= 0 && text.lastIndexOf('\n', matchPos) < index) {
-							matchPos = text.indexOf("|#", index);
+							matchPos = text.indexOf('\n', matchPos);
+							if (matchPos < 0) break;
+							continue;
+						}
+						
+						// Ignore block comments.
+						index = text.indexOf("|#", matchPos);
+						if (index >= 0 && text.lastIndexOf("#|", matchPos) < matchPos && matchPos < index) {
+							matchPos = index;
 							continue;
 						}
 					}
