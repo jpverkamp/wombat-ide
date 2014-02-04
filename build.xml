@@ -8,7 +8,7 @@
   
   <!-- ~~~~~ ~~~~~ ~~~~~ ~~~~~ ~~~~~ -->
   <target name="version" description="calculate current version">
-    <tstamp><format property="ide-version" pattern="3.D.k" /></tstamp>
+    <tstamp><format property="ide-version" pattern="4.D.k" /></tstamp>
     
     <property name="jar-name" value="wombat-ide-${ide-version}.jar" />
     <property name="petite-version" value="8.4" />
